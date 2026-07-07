@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import logo from '../assets/ut-business-logo.svg'
 
 function LoginPage() {
   const navigate = useNavigate()
   const { login, isAuthenticated } = useAuth()
 
-  const [email, setEmail] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -23,61 +24,100 @@ function LoginPage() {
 
     try {
       await login({
-        email,
+        email: phoneNumber,
         password,
       })
 
       navigate('/profile')
     } catch {
-      setError(
-        'Не удалось войти. Проверьте данные или подключение к серверу.',
-      )
+      setError('Invalid phone number or password.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <main className="auth-page">
-      <section className="auth-card">
-        <h1>Вход</h1>
+    <main className="mobile-page login-page">
+      <section className="login-content">
+        <img
+          className="brand-logo"
+          src={logo}
+          alt="UT.Business"
+        />
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <label>
-            Email
+        <form className="login-form" onSubmit={handleSubmit}>
+          <div className="form-field">
             <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="example@email.com"
+              id="phoneNumber"
+              name="phoneNumber"
+              type="tel"
+              value={phoneNumber}
+              onChange={(event) => {
+                setPhoneNumber(event.target.value)
+                setError('')
+              }}
+              placeholder="Phone number"
+              autoComplete="tel"
+              aria-invalid={Boolean(error)}
               required
             />
-          </label>
 
-          <label>
-            Пароль
+            {error && (
+              <p className="input-error">Invalid data</p>
+            )}
+          </div>
+
+          <div className="form-field">
             <input
+              id="password"
+              name="password"
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Введите пароль"
+              onChange={(event) => {
+                setPassword(event.target.value)
+                setError('')
+              }}
+              placeholder="Password"
+              autoComplete="current-password"
+              aria-invalid={Boolean(error)}
               minLength={6}
               required
             />
-          </label>
 
-          {error && <p className="form-error">{error}</p>}
+            {error && (
+              <p className="input-error">Invalid data</p>
+            )}
+          </div>
 
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Выполняется вход...' : 'Войти'}
+          <button
+            className="primary-button"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Logging in...' : 'Log in'}
           </button>
         </form>
 
-        <p>
-          Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
-        </p>
+        <Link className="forgot-link" to="/forgot-password">
+          Forgot your password? Recover it
+        </Link>
 
-        <Link to="/">Вернуться на главную</Link>
+        {!error && (
+          <div className="login-footer">
+            <p>To register an establishment,</p>
+            <p>call the number:</p>
+            <p>010 1234 56 78</p>
+          </div>
+        )}
+
+        {error && (
+          <Link
+            className="registration-error-link"
+            to="/register"
+          >
+            Registration
+          </Link>
+        )}
       </section>
     </main>
   )
