@@ -46,7 +46,7 @@ a {
   min-height: 100vh;
 }
 
-/* Общий контейнер мобильного приложения */
+/* Общий мобильный контейнер */
 
 .mobile-page {
   width: 100%;
@@ -54,7 +54,9 @@ a {
   background: #d9d9d9;
 }
 
-/* Страница входа */
+/* =========================
+   Страница входа
+   ========================= */
 
 .login-page {
   display: flex;
@@ -70,8 +72,6 @@ a {
   background: #ffffff;
 }
 
-/* Логотип */
-
 .brand-logo {
   position: absolute;
   top: 193px;
@@ -82,8 +82,6 @@ a {
   height: auto;
   transform: translateX(-50%);
 }
-
-/* Форма входа */
 
 .login-form {
   position: absolute;
@@ -125,8 +123,6 @@ a {
   box-shadow: 0 0 0 2px rgb(55 118 246 / 12%);
 }
 
-/* Ошибочное состояние поля */
-
 .form-field input[aria-invalid='true'] {
   border-color: #e53935;
   color: #e53935;
@@ -142,8 +138,6 @@ a {
   font-size: 12px;
   line-height: 1.2;
 }
-
-/* Основная кнопка */
 
 .primary-button {
   width: 100%;
@@ -170,8 +164,6 @@ a {
   background: #285fcf;
 }
 
-/* Восстановление пароля */
-
 .forgot-link {
   position: absolute;
   top: 570px;
@@ -193,8 +185,6 @@ a {
 .forgot-link:hover {
   text-decoration: underline;
 }
-
-/* Нижний блок до появления ошибки */
 
 .login-footer {
   position: absolute;
@@ -219,8 +209,6 @@ a {
   margin: 0;
 }
 
-/* Ссылка регистрации после ошибки */
-
 .registration-error-link {
   position: absolute;
   top: 714px;
@@ -242,7 +230,9 @@ a {
   text-decoration: underline;
 }
 
-/* Страница регистрации */
+/* =========================
+   Страница регистрации
+   ========================= */
 
 .register-page {
   display: flex;
@@ -250,89 +240,161 @@ a {
 }
 
 .register-content {
+  position: relative;
   width: 100%;
   max-width: 428px;
-  min-height: 100vh;
-  padding: 64px 16px 32px;
+  min-height: 926px;
+  padding: 74px 16px 40px;
+  overflow-y: auto;
   background: #ffffff;
 }
 
-.page-back-button {
-  display: inline-flex;
-  width: 32px;
-  height: 32px;
+.register-back-button {
+  display: flex;
+  width: 26px;
+  height: 26px;
   align-items: center;
   justify-content: center;
-  margin: 0 0 22px;
+  margin: 0 0 24px;
   padding: 0;
   border: none;
   background: transparent;
-  color: #000000;
-  font-size: 24px;
 }
 
-.page-title {
-  margin: 0;
-  color: #000000;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.page-subtitle {
-  margin: 14px 0 34px;
-  color: #a3a3a3;
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.form-label {
+.register-back-button img {
   display: block;
-  margin-bottom: 8px;
-  color: #000000;
-  font-size: 13px;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.register-title {
+  margin: 0;
+  color: #1f2437;
+  font-size: 24px;
   font-weight: 600;
+  line-height: 36px;
+}
+
+.register-subtitle {
+  max-width: 300px;
+  margin: 22px 0 42px;
+  color: #b8bdca;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
 }
 
 .register-form {
   display: flex;
+  width: 100%;
   flex-direction: column;
-  gap: 18px;
 }
 
 .register-form-group {
   display: flex;
+  width: 100%;
   flex-direction: column;
-  gap: 8px;
 }
 
-.register-form input {
+.register-form-group + .register-form-group {
+  margin-top: 22px;
+}
+
+.register-repeat-group {
+  margin-top: 12px !important;
+}
+
+.register-label {
+  margin-bottom: 10px;
+  color: #20243a;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 23px;
+}
+
+.register-input-wrapper {
+  position: relative;
   width: 100%;
-  height: 44px;
-  padding: 0 12px;
-  border: 1px solid #dedede;
-  border-radius: 6px;
+}
+
+.register-input-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  display: block;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.register-input-wrapper input {
+  width: 100%;
+  height: 60px;
+  padding: 0 16px 0 52px;
+  border: 1px solid #e4e5eb;
+  border-radius: 10px;
   outline: none;
   background: #ffffff;
-  color: #000000;
+  color: #20243a;
   font-size: 14px;
+  line-height: 1;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.register-form input::placeholder {
-  color: #b5b5b5;
+.register-input-wrapper input::placeholder {
+  color: #b8bdca;
 }
 
-.register-form input:focus {
+.register-input-wrapper input:focus {
   border-color: #3776f6;
-  box-shadow: 0 0 0 2px rgb(55 118 246 / 12%);
+  box-shadow: 0 0 0 2px rgb(55 118 246 / 10%);
+}
+
+.register-error {
+  margin: 12px 0 0;
+  color: #e53935;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.register-submit-button {
+  width: 100%;
+  min-height: 64px;
+  margin-top: 36px;
+  padding: 20px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #3776f6;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.register-submit-button:hover:not(:disabled) {
+  background: #306ce5;
+}
+
+.register-submit-button:active:not(:disabled) {
+  background: #285fcf;
 }
 
 .register-login-link {
   display: block;
-  margin-top: 20px;
+  margin-top: 36px;
+  color: #666666;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
   text-align: center;
-  color: #777777;
-  font-size: 13px;
   text-decoration: none;
 }
 
@@ -340,16 +402,19 @@ a {
   text-decoration: underline;
 }
 
-.terms-text {
-  max-width: 320px;
-  margin: 34px auto 0;
-  color: #b3b3b3;
+.register-terms {
+  max-width: 360px;
+  margin: 42px auto 0;
+  color: #b8bdca;
   font-size: 11px;
-  line-height: 1.4;
+  font-weight: 400;
+  line-height: 1.5;
   text-align: center;
 }
 
-/* Временная страница профиля */
+/* =========================
+   Профиль
+   ========================= */
 
 .profile-page {
   display: flex;
@@ -381,7 +446,7 @@ a {
   font-weight: 600;
 }
 
-/* Загрузка защищённого маршрута */
+/* Загрузка маршрута */
 
 .route-loading {
   display: flex;
@@ -394,7 +459,7 @@ a {
   font-size: 14px;
 }
 
-/* Мобильная адаптация */
+/* На мобильном фоне нет серых полей */
 
 @media (max-width: 480px) {
   body,
@@ -408,7 +473,7 @@ a {
   }
 }
 
-/* Адаптация для низких экранов */
+/* Низкие экраны */
 
 @media (max-height: 760px) {
   .login-content {
@@ -431,5 +496,29 @@ a {
   .login-footer,
   .registration-error-link {
     top: 570px;
+  }
+
+  .register-content {
+    min-height: 760px;
+  }
+
+  .register-subtitle {
+    margin-bottom: 28px;
+  }
+
+  .register-form-group + .register-form-group {
+    margin-top: 16px;
+  }
+
+  .register-submit-button {
+    margin-top: 24px;
+  }
+
+  .register-login-link {
+    margin-top: 24px;
+  }
+
+  .register-terms {
+    margin-top: 28px;
   }
 }

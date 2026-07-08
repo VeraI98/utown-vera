@@ -7,7 +7,7 @@ function LoginPage() {
   const navigate = useNavigate()
   const { login, isAuthenticated } = useAuth()
 
-  const [phoneNumber, setPhoneNumber] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -24,13 +24,13 @@ function LoginPage() {
 
     try {
       await login({
-        email: phoneNumber,
+        username,
         password,
       })
 
       navigate('/profile')
     } catch {
-      setError('Invalid phone number or password.')
+      setError('Invalid username or password.')
     } finally {
       setIsSubmitting(false)
     }
@@ -48,16 +48,16 @@ function LoginPage() {
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-field">
             <input
-              id="phoneNumber"
-              name="phoneNumber"
-              type="tel"
-              value={phoneNumber}
+              id="username"
+              name="username"
+              type="text"
+              value={username}
               onChange={(event) => {
-                setPhoneNumber(event.target.value)
+                setUsername(event.target.value)
                 setError('')
               }}
-              placeholder="Phone number"
-              autoComplete="tel"
+              placeholder="Username"
+              autoComplete="username"
               aria-invalid={Boolean(error)}
               required
             />

@@ -1,13 +1,10 @@
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 function ProfilePage() {
-  const navigate = useNavigate()
   const { user, logout } = useAuth()
 
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
+  if (!user) {
+    return null
   }
 
   return (
@@ -16,18 +13,23 @@ function ProfilePage() {
         <h1>Профиль</h1>
 
         <p>
-          <strong>Имя:</strong> {user?.name}
+          <strong>Username:</strong> {user.username}
         </p>
 
         <p>
-          <strong>Email:</strong> {user?.email}
+          <strong>Имя:</strong> {user.fullName}
         </p>
 
         <p>
-          <strong>Роль:</strong> {user?.role}
+          <strong>Роль:</strong> {user.roles.join(', ')}
         </p>
 
-        <button type="button" onClick={handleLogout}>
+        <p>
+          <strong>Статус:</strong>{' '}
+          {user.isActive ? 'Активен' : 'Неактивен'}
+        </p>
+
+        <button type="button" onClick={logout}>
           Выйти
         </button>
       </section>

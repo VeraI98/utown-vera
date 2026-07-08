@@ -2,14 +2,17 @@ import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
+import arrowLeftIcon from '../assets/icons/arrow-left.svg'
+import phoneIcon from '../assets/icons/phone.svg'
+import lockIcon from '../assets/icons/lock.svg'
+
 function RegisterPage() {
   const navigate = useNavigate()
   const { register, isAuthenticated } = useAuth()
 
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [repeatPassword, setRepeatPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -19,11 +22,27 @@ function RegisterPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
     setError('')
 
-    if (password !== confirmPassword) {
-      setError('Пароли не совпадают.')
+    const normalizedPhone = phoneNumber.replace(/\D/g, '')
+
+    if (!normalizedPhone) {
+      setError('Enter your phone number.')
+      return
+    }
+
+    if (normalizedPhone.length < 8) {
+      setError('Enter a valid phone number.')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must contain at least 6 characters.')
+      return
+    }
+
+    if (password !== repeatPassword) {
+      setError('Passwords do not match.')
       return
     }
 
@@ -31,87 +50,155 @@ function RegisterPage() {
 
     try {
       await register({
-        name,
-        email,
+        username: normalizedPhone,
         password,
+        firstName: 'UTown',
+        lastName: 'Client',
+        role: 'CLIENT',
       })
 
       navigate('/profile')
     } catch {
-      setError(
-        'Не удалось зарегистрироваться. Проверьте данные или подключение к серверу.',
-      )
+      setError('Registration failed. Check the entered data.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <main className="auth-page">
-      <section className="auth-card">
-        <h1>Регистрация</h1>
+    <main className="mobile-page register-page">
+      <section className="register-content">
+        <button
+          className="register-back-button"
+          type="button"
+          onClick={() => navigate(-1)}
+          aria-label="Go back"
+        >
+          <img src={arrowLeftIcon} alt="" aria-hidden="true" />
+        </button>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <label>
-            Имя
-            <input
-              type="text"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Введите имя"
-              required
-            />
-          </label>
+        <h1 className="register-title">User Registration</h1>
 
-          <label>
-            Email
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="example@email.com"
-              required
-            />
-          </label>
+        <p className="register-subtitle">
+          Register to access all the benefits of the app
+        </p>
 
-          <label>
-            Пароль
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Не менее 6 символов"
-              minLength={6}
-              required
-            />
-          </label>
+        <form className="register-form" onSubmit={handleSubmit}>
+          <div className="register-form-group">
+            <label
+              className="register-label"
+              htmlFor="register-phone"
+            >
+              Phone Number
+            </label>
 
-          <label>
-            Повторите пароль
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              placeholder="Повторите пароль"
-              minLength={6}
-              required
-            />
-          </label>
+            <div className="register-input-wrapper">
+              <img
+                className="register-input-icon"
+                src={phoneIcon}
+                alt=""
+                aria-hidden="true"
+              />
 
-          {error && <p className="form-error">{error}</p>}
+              <input
+                id="register-phone"
+                name="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(event) => {
+                  setPhoneNumber(event.target.value)
+                  setError('')
+                }}
+                placeholder="Enter your phone number without dashes"
+                autoComplete="tel"
+                inputMode="tel"
+                required
+              />
+            </div>
+          </div>
 
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting
-              ? 'Создание аккаунта...'
-              : 'Зарегистрироваться'}
+          <div className="register-form-group">
+            <label
+              className="register-label"
+              htmlFor="register-password"
+            >
+              Password
+            </label>
+
+            <div className="register-input-wrapper">
+              <img
+                className="register-input-icon"
+                src={lockIcon}
+                alt=""
+                aria-hidden="true"
+              />
+
+              <input
+                id="register-password"
+                name="password"
+                type="password"
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value)
+                  setError('')
+                }}
+                placeholder="Enter your password"
+                autoComplete="new-password"
+                minLength={6}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="register-form-group register-repeat-group">
+            <div className="register-input-wrapper">
+              <img
+                className="register-input-icon"
+                src={lockIcon}
+                alt=""
+                aria-hidden="true"
+              />
+
+              <input
+                id="register-repeat-password"
+                name="repeatPassword"
+                type="password"
+                value={repeatPassword}
+                onChange={(event) => {
+                  setRepeatPassword(event.target.value)
+                  setError('')
+                }}
+                placeholder="Repeat your password"
+                autoComplete="new-password"
+                minLength={6}
+                required
+              />
+            </div>
+          </div>
+
+          {error && (
+            <p className="register-error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <button
+            className="register-submit-button"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Registering...' : 'Register'}
           </button>
         </form>
 
-        <p>
-          Уже есть аккаунт? <Link to="/login">Войти</Link>
-        </p>
+        <Link className="register-login-link" to="/login">
+          Already have an account?
+        </Link>
 
-        <Link to="/">Вернуться на главную</Link>
+        <p className="register-terms">
+          By registering, you agree to the Terms of Service and Privacy
+          Policy, as well as the Cookie Policy.
+        </p>
       </section>
     </main>
   )

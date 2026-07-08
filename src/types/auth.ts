@@ -1,24 +1,34 @@
-export type UserRole = 'CLIENT' | 'RESTAURANT_ADMIN' | 'ADMIN'
+export type UserRole =
+  | 'CLIENT'
+  | 'RESTAURATEUR'
+  | 'ADMIN'
 
 export interface User {
   id: number
-  email: string
-  name: string
+  username: string
+  fullName: string
+  isActive: boolean
+  defaultAddress: number | null
+  roles: UserRole[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LoginData {
+  username: string
+  password: string
+}
+
+export interface RegisterData {
+  username: string
+  password: string
+  firstName: string
+  lastName: string
   role: UserRole
 }
 
 export interface AuthResponse {
   token: string
+  refreshToken: string
   user: User
-}
-
-export interface LoginData {
-  email: string
-  password: string
-}
-
-export interface RegisterData {
-  name: string
-  email: string
-  password: string
 }
