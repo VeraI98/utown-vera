@@ -20,6 +20,12 @@ function RegisterPage() {
     return <Navigate to="/profile" replace />
   }
 
+  const clearError = () => {
+    if (error) {
+      setError('')
+    }
+  }
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
@@ -57,9 +63,13 @@ function RegisterPage() {
         role: 'CLIENT',
       })
 
-      navigate('/profile')
-    } catch {
-      setError('Registration failed. Check the entered data.')
+      navigate('/profile', { replace: true })
+    } catch (registerError) {
+      if (registerError instanceof Error && registerError.message) {
+        setError(registerError.message)
+      } else {
+        setError('Registration failed. Check the entered data.')
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -71,8 +81,8 @@ function RegisterPage() {
         <button
           className="register-back-button"
           type="button"
-          onClick={() => navigate(-1)}
-          aria-label="Go back"
+          onClick={() => navigate('/login')}
+          aria-label="Go back to login"
         >
           <img src={arrowLeftIcon} alt="" aria-hidden="true" />
         </button>
@@ -85,10 +95,7 @@ function RegisterPage() {
 
         <form className="register-form" onSubmit={handleSubmit}>
           <div className="register-form-group">
-            <label
-              className="register-label"
-              htmlFor="register-phone"
-            >
+            <label className="register-label" htmlFor="register-phone">
               Phone Number
             </label>
 
@@ -107,7 +114,7 @@ function RegisterPage() {
                 value={phoneNumber}
                 onChange={(event) => {
                   setPhoneNumber(event.target.value)
-                  setError('')
+                  clearError()
                 }}
                 placeholder="Enter your phone number without dashes"
                 autoComplete="tel"
@@ -118,10 +125,7 @@ function RegisterPage() {
           </div>
 
           <div className="register-form-group">
-            <label
-              className="register-label"
-              htmlFor="register-password"
-            >
+            <label className="register-label" htmlFor="register-password">
               Password
             </label>
 
@@ -140,7 +144,7 @@ function RegisterPage() {
                 value={password}
                 onChange={(event) => {
                   setPassword(event.target.value)
-                  setError('')
+                  clearError()
                 }}
                 placeholder="Enter your password"
                 autoComplete="new-password"
@@ -151,6 +155,13 @@ function RegisterPage() {
           </div>
 
           <div className="register-form-group register-repeat-group">
+            <label
+              className="register-label"
+              htmlFor="register-repeat-password"
+            >
+              Repeat Password
+            </label>
+
             <div className="register-input-wrapper">
               <img
                 className="register-input-icon"
@@ -166,7 +177,7 @@ function RegisterPage() {
                 value={repeatPassword}
                 onChange={(event) => {
                   setRepeatPassword(event.target.value)
-                  setError('')
+                  clearError()
                 }}
                 placeholder="Repeat your password"
                 autoComplete="new-password"
@@ -196,8 +207,8 @@ function RegisterPage() {
         </Link>
 
         <p className="register-terms">
-          By registering, you agree to the Terms of Service and Privacy
-          Policy, as well as the Cookie Policy.
+          By registering, you agree to the Terms of Service and Privacy Policy,
+          as well as the Cookie Policy.
         </p>
       </section>
     </main>

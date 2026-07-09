@@ -14,25 +14,26 @@ const TOKEN_KEY = 'token'
 const REFRESH_TOKEN_KEY = 'refreshToken'
 const USER_KEY = 'user'
 
+function clearStoredAuthData() {
+  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(REFRESH_TOKEN_KEY)
+  localStorage.removeItem(USER_KEY)
+}
+
 function getStoredUser(): User | null {
   const token = localStorage.getItem(TOKEN_KEY)
+  const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
   const savedUser = localStorage.getItem(USER_KEY)
 
-  if (!token || !savedUser) {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
-    localStorage.removeItem(USER_KEY)
-
+  if (!token || !refreshToken || !savedUser) {
+    clearStoredAuthData()
     return null
   }
 
   try {
     return JSON.parse(savedUser) as User
   } catch {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
-    localStorage.removeItem(USER_KEY)
-
+    clearStoredAuthData()
     return null
   }
 }
@@ -76,10 +77,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const logout = () => {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(REFRESH_TOKEN_KEY)
-    localStorage.removeItem(USER_KEY)
-
+    clearStoredAuthData()
     setUser(null)
   }
 
