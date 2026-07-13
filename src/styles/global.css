@@ -464,45 +464,189 @@ svg {
   background: #d9d9d9;
 }
 
-.profile-card {
+.profile-screen {
+  position: relative;
   width: 100%;
   max-width: 428px;
   min-width: 0;
   min-height: 100vh;
   min-height: 100dvh;
-  padding:
-    clamp(24px, 5vh, 32px)
-    clamp(16px, 4vw, 24px);
+  padding-bottom: 86px;
+  overflow-x: hidden;
+  background: #323232;
+  color: #ffffff;
+}
+
+.profile-header {
+  min-height: 64px;
+  padding: 12px 16px 0;
+  background: #323232;
+}
+
+.profile-top-bar {
+  position: relative;
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-logo-image {
+  width: 40px;
+  height: auto;
+  object-fit: contain;
+}
+
+.profile-notification-button {
+  position: absolute;
+  right: -6px;
+  display: flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.profile-notification-button img {
+  display: block;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.profile-content {
+  padding: 20px 16px 24px;
+}
+
+.profile-greeting {
+  margin: 0 0 22px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.profile-service-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin-bottom: 34px;
+}
+
+.profile-service-card {
+  display: flex;
+  min-height: 95px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 10px;
+  color: #ffffff;
+  text-align: center;
+  text-decoration: none;
+}
+
+.profile-service-card img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.profile-service-card span {
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.profile-food {
+  background: #8475e8;
+}
+
+.profile-connection {
+  background: #35d0a4;
+}
+
+.profile-services {
+  background: #1fbcdf;
+}
+
+.profile-jobs {
+  background: #ffa647;
+}
+
+.profile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-menu-link {
+  display: flex;
+  width: fit-content;
+  min-height: 40px;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.profile-menu-link img {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.profile-logout-button {
+  color: #ff4b3e;
+  cursor: pointer;
+}
+
+.profile-bottom-nav {
   background: #ffffff;
 }
 
-.profile-card h1 {
-  margin: 0 0 24px;
+@media (max-width: 480px) {
+  .profile-page {
+    background: #323232;
+  }
+
+  .profile-screen {
+    max-width: none;
+  }
 }
 
-.profile-card p {
-  overflow-wrap: anywhere;
-}
+@media (max-width: 380px) {
+  .profile-header,
+  .profile-content {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
 
-.profile-card button {
-  width: 100%;
-  min-height: 48px;
-  margin-top: 24px;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 10px;
-  background: #3776f6;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
-}
+  .profile-service-row {
+    gap: 4px;
+  }
 
-.profile-card button:hover {
-  background: #306ce5;
-}
+  .profile-service-card {
+    min-height: 88px;
+  }
 
-.profile-card button:active {
-  background: #285fcf;
+  .profile-service-card span {
+    font-size: 11px;
+  }
+
+  .profile-menu-link {
+    font-size: 15px;
+  }
 }
 
 /* =========================
@@ -618,5 +762,559 @@ svg {
 
   .register-content {
     padding-top: 28px;
+  }
+}
+
+   /* =========================
+   Главный экран пользователя
+   ========================= */
+
+home-page,
+.favourites-page {
+  display: flex;
+  justify-content: center;
+  background: #d9d9d9;
+}
+
+.home-screen,
+.favourites-screen {
+  position: relative;
+  width: 100%;
+  max-width: 428px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: 86px;
+  overflow-x: hidden;
+  background: #ffffff;
+}
+
+.home-header {
+  min-height: 64px;
+  padding: 12px 16px 10px;
+  background:
+    linear-gradient(
+      135deg,
+      #5fd3f8 0%,
+      #3471f5 55%,
+      #e467f1 100%
+    );
+  color: #ffffff;
+}
+
+.home-top-bar,
+.favourites-top-bar {
+  position: relative;
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-logo-image,
+.favourites-logo-image {
+  width: 40px;
+  height: auto;
+}
+
+.home-notification-button,
+.favourites-notification-button,
+.favourites-back-button {
+  position: absolute;
+  display: flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.home-notification-button {
+  right: -6px;
+}
+
+.favourites-notification-button {
+  right: -6px;
+}
+
+.favourites-back-button {
+  left: -6px;
+  color: #000000;
+}
+
+.home-notification-button img,
+.favourites-notification-button img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.home-content {
+  position: relative;
+  z-index: 1;
+  margin-top: -10px;
+  padding: 0 16px 24px;
+  border-radius: 20px 20px 0 0;
+  background: #ffffff;
+}
+
+.home-greeting-section {
+  padding-top: 14px;
+}
+
+.home-greeting-section h1 {
+  margin: 0 0 12px;
+  color: #000000;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.home-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 0.72fr;
+  gap: 10px;
+}
+
+.weather-card,
+.active-orders-card {
+  min-height: 95px;
+  border-radius: 10px;
+}
+
+.weather-card {
+  padding: 14px 16px;
+  background: #f5f5f5;
+  color: #000000;
+}
+
+.weather-city {
+  position: relative;
+  margin: 0 0 4px;
+  padding-left: 13px;
+  color: #252525;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.weather-city::before {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #000000;
+  content: '';
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.weather-main span:first-child {
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.weather-sun {
+  font-size: 18px;
+}
+
+.weather-details {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  color: #000000;
+  font-size: 9px;
+  line-height: 1;
+}
+
+.active-orders-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 12px;
+  border: 0;
+  background: #00164e;
+  color: #ffffff;
+  text-align: center;
+}
+
+.active-orders-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.active-orders-card span:last-child {
+  max-width: 78px;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.home-service-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.service-card {
+  display: flex;
+  min-height: 95px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 10px;
+  color: #ffffff;
+  text-align: center;
+  text-decoration: none;
+}
+
+.service-card img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.service-card span {
+  margin-top: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.service-food {
+  background: #8475e8;
+}
+
+.service-mobile {
+  background: #35d0a4;
+}
+
+.service-services {
+  background: #1fbcdf;
+}
+
+.service-jobs {
+  background: #ffa647;
+}
+
+/* Реклама */
+
+.home-ad-section {
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.home-ad-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.home-ad-list::-webkit-scrollbar {
+  display: none;
+}
+
+.home-ad-card {
+  flex: 0 0 180px;
+  width: 180px;
+  height: 115px;
+  overflow: hidden;
+  border: 1px solid #e4e4e4;
+  border-radius: 15px;
+  background: #f5f5f5;
+  scroll-snap-align: start;
+}
+
+.home-ad-card-shadow {
+  box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
+}
+
+.home-ad-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Рестораны */
+
+.food-section,
+.favourites-food-section {
+  margin-top: 22px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: #000000;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.section-more-link {
+  display: flex;
+  min-width: 50px;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: #d9c7ff;
+  color: #8a6bd8;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.restaurant-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.restaurant-list::-webkit-scrollbar {
+  display: none;
+}
+
+.restaurant-card {
+  flex: 0 0 180px;
+  width: 180px;
+  overflow: hidden;
+  border: 1px solid #eaeaea;
+  border-radius: 15px;
+  background: #ffffff;
+  color: #000000;
+  text-decoration: none;
+  box-shadow: 0 4px 4px rgb(0 0 0 / 25%);
+  scroll-snap-align: start;
+}
+
+.restaurant-image {
+  width: 100%;
+  height: 115px;
+  object-fit: cover;
+}
+
+.restaurant-body {
+  padding: 10px 9px 11px;
+}
+
+.restaurant-body h3 {
+  margin: 0;
+  color: #000000;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.restaurant-body p {
+  margin: 3px 0 12px;
+  color: #000000;
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+.restaurant-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #a5a5a5;
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+/* Избранное */
+
+.favourites-header {
+  min-height: 64px;
+  padding: 12px 16px 0;
+  background: #ffffff;
+}
+
+.favourites-top-bar {
+  position: relative;
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+}
+
+.favourites-logo-image {
+  width: 40px;
+  height: auto;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(51%) sepia(87%)
+    saturate(2847%) hue-rotate(204deg) brightness(101%) contrast(97%);
+}
+
+.favourites-back-button,
+.favourites-notification-button {
+  position: absolute;
+  display: flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.favourites-back-button {
+  left: -6px;
+  color: #000000;
+}
+
+.favourites-notification-button {
+  right: -6px;
+}
+
+.favourites-notification-button img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.favourites-content {
+  padding: 8px 16px 24px;
+}
+
+.favourites-title {
+  margin: 8px 0 22px;
+  color: #000000;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+/* Нижнее меню */
+
+.bottom-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  width: 100%;
+  max-width: 428px;
+  min-height: 66px;
+  align-items: center;
+  justify-content: space-around;
+  margin: 0 auto;
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+}
+
+.bottom-nav-link {
+  display: flex;
+  min-width: 76px;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #9b9b9b;
+  font-size: 10px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.bottom-nav-link img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  opacity: 0.65;
+}
+
+.bottom-nav-link span {
+  margin-top: 3px;
+}
+
+.bottom-nav-link.active {
+  color: #3471f5;
+}
+
+.bottom-nav-link.active img {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .home-page,
+  .favourites-page {
+    background: #ffffff;
+  }
+
+  .home-screen,
+  .favourites-screen {
+    max-width: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .home-header,
+  .favourites-header {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .home-content,
+  .favourites-content {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .service-card,
+  .weather-card,
+  .active-orders-card {
+    min-height: 88px;
+  }
+
+  .home-ad-card {
+    flex-basis: 180px;
+    width: 180px;
+    height: 115px;
+  }
+
+  .restaurant-card {
+    flex-basis: 180px;
+    width: 180px;
+  }
+
+  .restaurant-image {
+    height: 115px;
+  }
+
+  .service-card span,
+  .active-orders-card span:last-child {
+    font-size: 12px;
+  }
+
+  .favourites-title {
+    font-size: 18px;
+  }
+
+  .bottom-nav {
+    min-height: 64px;
   }
 }
