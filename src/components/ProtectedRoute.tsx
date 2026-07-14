@@ -10,7 +10,7 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) {
-    return <p>Загрузка...</p>
+    return <p className="route-loading">Loading...</p>
   }
 
   if (!isAuthenticated) {

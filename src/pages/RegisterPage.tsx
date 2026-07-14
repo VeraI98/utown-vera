@@ -64,12 +64,8 @@ function RegisterPage() {
       })
 
       navigate('/profile', { replace: true })
-    } catch (registerError) {
-      if (registerError instanceof Error && registerError.message) {
-        setError(registerError.message)
-      } else {
-        setError('Registration failed. Check the entered data.')
-      }
+    } catch {
+      setError('This account already exists.')
     } finally {
       setIsSubmitting(false)
     }

@@ -1,9 +1,10 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import type { LoginData, RegisterData, User } from '../types/auth'
 import {
   login as loginRequest,
   register as registerRequest,
 } from '../services/authService'
+import { api } from '../services/api'
 import { AuthContext } from './auth-context'
 
 interface AuthProviderProps {
@@ -21,12 +22,9 @@ function clearStoredAuthData() {
 }
 
 function getStoredUser(): User | null {
-  const token = localStorage.getItem(TOKEN_KEY)
-  const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
   const savedUser = localStorage.getItem(USER_KEY)
 
-  if (!token || !refreshToken || !savedUser) {
-    clearStoredAuthData()
+  if (!savedUser) {
     return null
   }
 
@@ -40,6 +38,34 @@ function getStoredUser(): User | null {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(getStoredUser)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem(TOKEN_KEY)
+
+      if (!token) {
+        clearStoredAuthData()
+        setUser(null)
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const { data } = await api.get<User>('/user/profile')
+
+        localStorage.setItem(USER_KEY, JSON.stringify(data))
+        setUser(data)
+      } catch {
+        clearStoredAuthData()
+        setUser(null)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    checkAuth()
+  }, [])
 
   const saveAuthData = (
     token: string,
@@ -85,7 +111,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     <AuthContext.Provider
       value={{
         user,
-        isLoading: false,
+        isLoading,
         isAuthenticated: Boolean(user),
         login,
         register,
