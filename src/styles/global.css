@@ -1,0 +1,622 @@
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #000000;
+  background: #d9d9d9;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  overflow-x: hidden;
+  background: #d9d9d9;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+a {
+  color: inherit;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* =========================
+   Общий мобильный контейнер
+   ========================= */
+
+.mobile-page {
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #d9d9d9;
+}
+
+/* =========================
+   Страница входа
+   ========================= */
+
+.login-page {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  overflow-x: hidden;
+}
+
+.login-content {
+  display: flex;
+  width: 100%;
+  max-width: 428px;
+  min-width: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  flex-direction: column;
+  padding:
+    clamp(80px, 16vh, 170px)
+    clamp(16px, 4vw, 24px)
+    40px;
+  overflow-x: hidden;
+  background: #ffffff;
+}
+
+.brand-logo {
+  width: clamp(220px, 78vw, 305px);
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 48px;
+}
+
+.login-form {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-field {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.form-field input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 1px solid #bdbdbd;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: #000000;
+  font-size: 16px;
+  line-height: 1.2;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-field input::placeholder {
+  color: #b3b3b3;
+}
+
+.form-field input:focus {
+  border-color: #3776f6;
+  box-shadow: 0 0 0 2px rgb(55 118 246 / 12%);
+}
+
+.form-field input[aria-invalid='true'] {
+  border-color: #e53935;
+  color: #e53935;
+}
+
+.form-field input[aria-invalid='true']::placeholder {
+  color: #e53935;
+}
+
+.input-error {
+  margin: 6px 0 0;
+  color: #e53935;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.primary-button {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 56px;
+  margin-top: 4px;
+  padding: 16px;
+  border: 1px solid #3776f6;
+  border-radius: 10px;
+  background: #3776f6;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #306ce5;
+}
+
+.primary-button:active:not(:disabled) {
+  background: #285fcf;
+}
+
+.forgot-link {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 28px;
+  padding: 8px;
+  color: #777777;
+  font-size: clamp(15px, 4vw, 18px);
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.login-footer {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-top: auto;
+  padding-top: clamp(70px, 12vh, 110px);
+  color: #000000;
+  font-size: clamp(17px, 4.5vw, 20px);
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.login-footer p {
+  margin: 0;
+}
+
+.registration-error-link {
+  display: flex;
+  width: fit-content;
+  min-width: 160px;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin: auto auto 0;
+  padding: clamp(70px, 12vh, 110px) 16px 0;
+  color: #000000;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.registration-error-link:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   Страница регистрации
+   ========================= */
+
+.register-page {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  overflow-x: hidden;
+}
+
+.register-content {
+  width: 100%;
+  max-width: 428px;
+  min-width: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding:
+    clamp(32px, 8vh, 74px)
+    clamp(16px, 4vw, 24px)
+    40px;
+  background: #ffffff;
+}
+
+.register-back-button {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin: -9px 0 15px -9px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.register-back-button img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.register-title {
+  margin: 0;
+  color: #1f2437;
+  font-size: clamp(22px, 6vw, 24px);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.register-subtitle {
+  max-width: 300px;
+  margin:
+    clamp(16px, 3vh, 22px)
+    0
+    clamp(28px, 5vh, 42px);
+  color: #b8bdca;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.register-form {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.register-form-group {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.register-form-group + .register-form-group {
+  margin-top: clamp(16px, 3vh, 22px);
+}
+
+.register-repeat-group {
+  margin-top: 12px !important;
+}
+
+.register-label {
+  margin-bottom: 10px;
+  color: #20243a;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 23px;
+}
+
+.register-input-wrapper {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.register-input-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.register-input-wrapper input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 56px;
+  padding: 0 16px 0 52px;
+  border: 1px solid #e4e5eb;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: #20243a;
+  font-size: 16px;
+  line-height: 1.2;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.register-input-wrapper input::placeholder {
+  color: #b8bdca;
+}
+
+.register-input-wrapper input:focus {
+  border-color: #3776f6;
+  box-shadow: 0 0 0 2px rgb(55 118 246 / 10%);
+}
+
+.register-error {
+  margin: 12px 0 0;
+  color: #e53935;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.register-submit-button {
+  width: 100%;
+  min-width: 0;
+  min-height: 56px;
+  margin-top: clamp(24px, 5vh, 36px);
+  padding: 16px;
+  border: none;
+  border-radius: 10px;
+  background: #3776f6;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.register-submit-button:hover:not(:disabled) {
+  background: #306ce5;
+}
+
+.register-submit-button:active:not(:disabled) {
+  background: #285fcf;
+}
+
+.register-login-link {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-top: clamp(24px, 5vh, 36px);
+  padding: 10px;
+  color: #666666;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.register-login-link:hover {
+  text-decoration: underline;
+}
+
+.register-terms {
+  max-width: 360px;
+  margin: clamp(28px, 5vh, 42px) auto 0;
+  color: #b8bdca;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* =========================
+   Профиль
+   ========================= */
+
+.profile-page {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  justify-content: center;
+  background: #d9d9d9;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 428px;
+  min-width: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding:
+    clamp(24px, 5vh, 32px)
+    clamp(16px, 4vw, 24px);
+  background: #ffffff;
+}
+
+.profile-card h1 {
+  margin: 0 0 24px;
+}
+
+.profile-card p {
+  overflow-wrap: anywhere;
+}
+
+.profile-card button {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 24px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #3776f6;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.profile-card button:hover {
+  background: #306ce5;
+}
+
+.profile-card button:active {
+  background: #285fcf;
+}
+
+/* =========================
+   Скрытый label
+   ========================= */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================
+   Загрузка маршрута
+   ========================= */
+
+.route-loading {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 24px;
+  background: #ffffff;
+  color: #777777;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* =========================
+   Мобильные экраны
+   ========================= */
+
+@media (max-width: 480px) {
+  body,
+  .mobile-page,
+  .profile-page {
+    background: #ffffff;
+  }
+
+  .login-content,
+  .register-content,
+  .profile-card {
+    max-width: none;
+  }
+}
+
+/* =========================
+   Узкие телефоны
+   ========================= */
+
+@media (max-width: 380px) {
+  .login-content {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .brand-logo {
+    width: min(250px, 82vw);
+  }
+
+  .forgot-link {
+    font-size: 15px;
+  }
+
+  .login-footer {
+    font-size: 17px;
+  }
+
+  .register-title {
+    font-size: 22px;
+  }
+}
+
+/* =========================
+   Низкие экраны
+   ========================= */
+
+@media (max-height: 700px) {
+  .login-content {
+    padding-top: 48px;
+  }
+
+  .brand-logo {
+    margin-bottom: 30px;
+  }
+
+  .login-form {
+    gap: 16px;
+  }
+
+  .forgot-link {
+    margin-top: 20px;
+  }
+
+  .login-footer {
+    margin-top: 40px;
+    padding-top: 0;
+  }
+
+  .registration-error-link {
+    margin-top: 40px;
+    padding-top: 0;
+  }
+
+  .register-content {
+    padding-top: 28px;
+  }
+}
