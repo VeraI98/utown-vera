@@ -13,7 +13,7 @@ function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (isAuthenticated) {
-    return <Navigate to="/profile" replace />
+    return <Navigate to="/" replace />
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -46,7 +46,7 @@ function LoginPage() {
         password,
       })
 
-      navigate('/profile', { replace: true })
+      navigate('/', { replace: true })
     } catch {
       setError('Invalid phone number or password.')
     } finally {
