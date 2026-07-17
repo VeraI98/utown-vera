@@ -1497,3 +1497,116 @@ svg {
     padding-top: 28px;
   }
 }
+
+
+/* =========================
+   Responsive styles
+   ========================= */
+
+.notifications-page {
+  min-height: 100dvh;
+  background-color: #ffffff;
+}
+
+.notifications-screen {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  padding-bottom: 80px;
+  background-color: #ffffff;
+  color: #222222;
+}
+
+.notifications-header {
+  position: relative;
+  display: flex;
+  height: 72px;
+  padding: 0 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.notifications-back-button {
+  position: absolute;
+  left: 16px;
+  display: flex;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.notifications-back-button img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.notifications-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.notifications-content {
+  padding: 0 16px;
+}
+
+.notifications-title {
+  margin: 8px 0 24px;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.notifications-group {
+  margin-bottom: 20px;
+}
+
+.notifications-date {
+  margin: 0 0 12px;
+  color: #b8b8b8;
+  font-size: 12px;
+  text-align: center;
+}
+
+.notification-item {
+  margin-bottom: 16px;
+}
+
+.notification-message {
+  width: 72%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background-color: #eeeeee;
+  color: #333333;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.notification-message strong {
+  font-weight: 500;
+}
+
+.notification-time {
+  display: block;
+  width: 72%;
+  margin-top: 6px;
+  color: #b8b8b8;
+  font-size: 11px;
+  text-align: right;
+}
+
+.notifications-bottom-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-width: 428px;
+  margin: 0 auto;
+}

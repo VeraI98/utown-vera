@@ -39,6 +39,7 @@ function ProfilePage() {
             <button
               className="profile-notification-button"
               type="button"
+              onClick={() => navigate('/notifications')}
               aria-label="Notifications"
             >
               <img src={bellIcon} alt="" aria-hidden="true" />

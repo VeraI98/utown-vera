@@ -81,6 +81,7 @@ function FavouritesPage() {
             <button
               className="favourites-notification-button"
               type="button"
+              onClick={() => navigate('/notifications')}
               aria-label="Notifications"
             >
               <img src={bellIcon} alt="" aria-hidden="true" />

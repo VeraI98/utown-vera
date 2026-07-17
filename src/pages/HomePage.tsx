@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import adOneImage from '../assets/icons main pages/Ad 1.svg'
 import adTwoImage from '../assets/icons main pages/Ad 2.svg'
@@ -80,6 +80,8 @@ const restaurants = [
 ]
 
 function HomePage() {
+  const navigate = useNavigate()
+
   return (
     <main className="mobile-page home-page">
       <section className="home-screen">
@@ -90,6 +92,7 @@ function HomePage() {
             <button
               className="home-notification-button"
               type="button"
+              onClick={() => navigate('/notifications')}
               aria-label="Notifications"
             >
               <img src={bellIcon} alt="" aria-hidden="true" />

@@ -33,6 +33,7 @@ function AccountSettingPage() {
           <button
             className="account-header-button account-notification-button"
             type="button"
+            onClick={() => navigate('/notifications')}
             aria-label="Notifications"
           >
             <img src={bellIcon} alt="" aria-hidden="true" />
@@ -75,7 +76,10 @@ function AccountSettingPage() {
           </button>
         </div>
 
-        <nav className="bottom-nav account-bottom-nav" aria-label="Main navigation">
+        <nav
+          className="bottom-nav account-bottom-nav"
+          aria-label="Main navigation"
+        >
           <Link className="bottom-nav-link" to="/">
             <img src={homeIcon} alt="" aria-hidden="true" />
             <span>Home</span>
