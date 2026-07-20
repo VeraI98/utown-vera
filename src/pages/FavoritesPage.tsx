@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 
 import bellIcon from '../assets/icons main pages/bell-color.svg'
-import favouritesIcon from '../assets/icons main pages/Favourites.svg'
+import favoritesIcon from '../assets/icons main pages/Favorites.svg'
 import homeIcon from '../assets/icons main pages/Home.svg'
 import localCuisineImage from '../assets/icons main pages/Local cuisine.svg'
 import logo from '../assets/icons main pages/logo.svg'
@@ -55,16 +55,16 @@ function ArrowLeftIcon() {
   )
 }
 
-function FavouritesPage() {
+function FavoritesPage() {
   const navigate = useNavigate()
 
   return (
-    <main className="mobile-page favourites-page">
-      <section className="favourites-screen">
-        <header className="favourites-header">
-          <div className="favourites-top-bar">
+    <main className="mobile-page favorites-page">
+      <section className="favorites-screen">
+        <header className="favorites-header">
+          <div className="favorites-top-bar">
             <button
-              className="favourites-back-button"
+              className="favorites-back-button"
               type="button"
               onClick={() => navigate(-1)}
               aria-label="Go back"
@@ -73,13 +73,13 @@ function FavouritesPage() {
             </button>
 
             <img
-              className="favourites-logo-image"
+              className="favorites-logo-image"
               src={logo}
               alt="UT"
             />
 
             <button
-              className="favourites-notification-button"
+              className="favorites-notification-button"
               type="button"
               onClick={() => navigate('/notifications')}
               aria-label="Notifications"
@@ -89,10 +89,10 @@ function FavouritesPage() {
           </div>
         </header>
 
-        <div className="favourites-content">
-          <h1 className="favourites-title">Your Favourites</h1>
+        <div className="favorites-content">
+          <h1 className="favorites-title">Your Favourites</h1>
 
-          <section className="favourites-food-section">
+          <section className="favorites-food-section">
             <div className="section-header">
               <h2>Food Delivery</h2>
 
@@ -136,9 +136,9 @@ function FavouritesPage() {
             <span>Home</span>
           </Link>
 
-          <Link className="bottom-nav-link active" to="/favourites">
-            <img src={favouritesIcon} alt="" aria-hidden="true" />
-            <span>Favourites</span>
+          <Link className="bottom-nav-link active" to="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
+            <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/profile">
@@ -151,4 +151,4 @@ function FavouritesPage() {
   )
 }
 
-export default FavouritesPage
+export default FavoritesPage

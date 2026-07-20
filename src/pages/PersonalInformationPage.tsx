@@ -6,7 +6,7 @@ import arrowAddressIcon from '../assets/icon account/arrow-address.svg'
 import backButtonBlackIcon from '../assets/icon account/Back Button black.svg'
 import logoGradient from '../assets/icon account/logo gradient.svg'
 
-import favouritesIcon from '../assets/icons main pages/Favourites.svg'
+import favoritesIcon from '../assets/icons main pages/Favorites.svg'
 import homeIcon from '../assets/icons main pages/Home.svg'
 import profileIcon from '../assets/icons main pages/Profile.svg'
 
@@ -92,9 +92,9 @@ function PersonalInformationPage() {
             <span>Home</span>
           </a>
 
-          <a className="bottom-nav-link" href="/favourites">
-            <img src={favouritesIcon} alt="" aria-hidden="true" />
-            <span>Favourites</span>
+          <a className="bottom-nav-link" href="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
+            <span>Favorites</span>
           </a>
 
           <a className="bottom-nav-link active" href="/profile">

@@ -647,18 +647,18 @@ svg {
 }
 
 /* =========================
-   Home and favourites pages
+   Home and favorites pages
    ========================= */
 
 .home-page,
-.favourites-page {
+.favorites-page {
   display: flex;
   justify-content: center;
   background: #d9d9d9;
 }
 
 .home-screen,
-.favourites-screen {
+.favorites-screen {
   position: relative;
   width: 100%;
   max-width: 428px;
@@ -683,7 +683,7 @@ svg {
 }
 
 .home-top-bar,
-.favourites-top-bar {
+.favorites-top-bar {
   position: relative;
   display: flex;
   min-height: 42px;
@@ -692,14 +692,14 @@ svg {
 }
 
 .home-logo-image,
-.favourites-logo-image {
+.favorites-logo-image {
   width: 40px;
   height: auto;
 }
 
 .home-notification-button,
-.favourites-notification-button,
-.favourites-back-button {
+.favorites-notification-button,
+.favorites-back-button {
   position: absolute;
   display: flex;
   width: 42px;
@@ -712,17 +712,17 @@ svg {
 }
 
 .home-notification-button,
-.favourites-notification-button {
+.favorites-notification-button {
   right: -6px;
 }
 
-.favourites-back-button {
+.favorites-back-button {
   left: -6px;
   color: #000000;
 }
 
 .home-notification-button img,
-.favourites-notification-button img {
+.favorites-notification-button img {
   width: 22px;
   height: 22px;
   object-fit: contain;
@@ -925,7 +925,7 @@ svg {
 }
 
 .food-section,
-.favourites-food-section {
+.favorites-food-section {
   margin-top: 22px;
 }
 
@@ -1020,16 +1020,16 @@ svg {
 }
 
 /* =========================
-   Favourites page
+   Favorites page
    ========================= */
 
-.favourites-header {
+.favorites-header {
   min-height: 64px;
   padding: 12px 16px 0;
   background: #ffffff;
 }
 
-.favourites-logo-image {
+.favorites-logo-image {
   width: 40px;
   height: auto;
   object-fit: contain;
@@ -1037,17 +1037,17 @@ svg {
     saturate(2847%) hue-rotate(204deg) brightness(101%) contrast(97%);
 }
 
-.favourites-notification-button img {
+.favorites-notification-button img {
   width: 22px;
   height: 22px;
   object-fit: contain;
 }
 
-.favourites-content {
+.favorites-content {
   padding: 8px 16px 24px;
 }
 
-.favourites-title {
+.favorites-title {
   margin: 8px 0 22px;
   color: #000000;
   font-size: 22px;
@@ -1362,7 +1362,7 @@ svg {
   body,
   .mobile-page,
   .home-page,
-  .favourites-page,
+  .favorites-page,
   .account-page {
     background: #ffffff;
   }
@@ -1374,7 +1374,7 @@ svg {
   .login-content,
   .register-content,
   .home-screen,
-  .favourites-screen,
+  .favorites-screen,
   .profile-screen,
   .account-settings-screen,
   .account-form-screen {
@@ -1407,7 +1407,7 @@ svg {
   .profile-header,
   .profile-content,
   .home-header,
-  .favourites-header,
+  .favorites-header,
   .account-header,
   .account-form-header {
     padding-right: 12px;
@@ -1415,7 +1415,7 @@ svg {
   }
 
   .home-content,
-  .favourites-content,
+  .favorites-content,
   .account-form-content,
   .account-settings-content {
     padding-right: 12px;
@@ -1457,7 +1457,7 @@ svg {
     font-size: 12px;
   }
 
-  .favourites-title {
+  .favorites-title {
     font-size: 18px;
   }
 

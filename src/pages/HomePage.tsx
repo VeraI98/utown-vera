@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import adOneImage from '../assets/icons main pages/Ad 1.svg'
 import adTwoImage from '../assets/icons main pages/Ad 2.svg'
 import bellIcon from '../assets/icons main pages/bell.svg'
-import favouritesIcon from '../assets/icons main pages/Favourites.svg'
+import favoritesIcon from '../assets/icons main pages/Favorites.svg'
 import foodDeliveryIcon from '../assets/icons main pages/Food delivery icon.svg'
 import homeIcon from '../assets/icons main pages/Home.svg'
 import jobsIcon from '../assets/icons main pages/Jobs icon.svg'
@@ -212,9 +212,9 @@ function HomePage() {
             <span>Home</span>
           </Link>
 
-          <Link className="bottom-nav-link" to="/favourites">
-            <img src={favouritesIcon} alt="" aria-hidden="true" />
-            <span>Favourites</span>
+          <Link className="bottom-nav-link" to="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
+            <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/profile">

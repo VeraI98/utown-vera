@@ -5,7 +5,7 @@ import ProtectedRoute from '../components/ProtectedRoute'
 import AccountPasswordPage from '../pages/AccountPasswordPage'
 import AccountSettingPage from '../pages/AccountSettingPage'
 import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
-import FavouritesPage from '../pages/FavouritesPage'
+import FavoritesPage from '../pages/FavoritesPage'
 import HomePage from '../pages/HomePage'
 import InformationPage from '../pages/InformationPage/InformationPage'
 import LoginPage from '../pages/LoginPage'
@@ -28,8 +28,8 @@ export const router = createBrowserRouter([
     element: <RegisterPage />,
   },
   {
-    path: '/favourites',
-    element: <FavouritesPage />,
+    path: '/favorites',
+    element: <FavoritesPage />,
   },
   {
     path: '/profile',

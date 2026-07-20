@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import backButton from '../assets/icon bell/Back Button black.svg'
 import logoGradient from '../assets/icon bell/logo gradient.svg'
 
-import favouritesIcon from '../assets/icons main pages/Favourites.svg'
+import favoritesIcon from '../assets/icons main pages/Favorites.svg'
 import homeIcon from '../assets/icons main pages/Home.svg'
 import profileIcon from '../assets/icons main pages/Profile.svg'
 
@@ -87,9 +87,9 @@ function NotificationsPage() {
             <span>Home</span>
           </Link>
 
-          <Link className="bottom-nav-link" to="/favourites">
-            <img src={favouritesIcon} alt="" aria-hidden="true" />
-            <span>Favourites</span>
+          <Link className="bottom-nav-link" to="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
+            <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/profile">

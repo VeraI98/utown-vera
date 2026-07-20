@@ -7,7 +7,7 @@ import backButtonIcon from '../assets/icon account/Back Button.svg'
 import logoWhite from '../assets/icon account/logo white.svg'
 
 import bellIcon from '../assets/icons main pages/bell-color.svg'
-import favouritesIcon from '../assets/icons main pages/Favourites.svg'
+import favoritesIcon from '../assets/icons main pages/Favorites.svg'
 import homeIcon from '../assets/icons main pages/Home.svg'
 import profileIcon from '../assets/icons main pages/Profile.svg'
 
@@ -85,9 +85,9 @@ function AccountSettingPage() {
             <span>Home</span>
           </Link>
 
-          <Link className="bottom-nav-link" to="/favourites">
-            <img src={favouritesIcon} alt="" aria-hidden="true" />
-            <span>Favourites</span>
+          <Link className="bottom-nav-link" to="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
+            <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link active" to="/profile">

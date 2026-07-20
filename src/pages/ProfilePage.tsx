@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 import bellIcon from '../assets/icons main pages/bell-color.svg'
-import favouritesIcon from '../assets/icons main pages/Favourites.svg'
+import favoritesIcon from '../assets/icons main pages/Favorites.svg'
 import homeIcon from '../assets/icons main pages/Home.svg'
 import logo from '../assets/icons main pages/logo.svg'
 import profileIcon from '../assets/icons main pages/Profile.svg'
@@ -92,9 +92,9 @@ function ProfilePage() {
               <span>Information</span>
             </Link>
 
-            <Link className="profile-menu-link" to="/favourites">
+            <Link className="profile-menu-link" to="/favorites">
               <img src={starIcon} alt="" aria-hidden="true" />
-              <span>Favourites</span>
+              <span>Favorites</span>
             </Link>
 
             <Link className="profile-menu-link" to="/contact-support">
@@ -122,9 +122,9 @@ function ProfilePage() {
             <span>Home</span>
           </Link>
 
-          <Link className="bottom-nav-link" to="/favourites">
-            <img src={favouritesIcon} alt="" aria-hidden="true" />
-            <span>Favourites</span>
+          <Link className="bottom-nav-link" to="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
+            <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link active" to="/profile">

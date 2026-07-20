@@ -5,7 +5,7 @@ import logoWhite from '../../assets/icon info/logo white.svg'
 import bell from '../../assets/icon info/bell.svg'
 import arrowAddress from '../../assets/icon info/arrow-address.svg'
 
-import favouritesIcon from '../../assets/icons main pages/Favourites.svg'
+import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
 
@@ -84,9 +84,9 @@ function ContactSupportPage() {
             <span>Home</span>
           </Link>
 
-          <Link className="bottom-nav-link" to="/favourites">
-            <img src={favouritesIcon} alt="" aria-hidden="true" />
-            <span>Favourites</span>
+          <Link className="bottom-nav-link" to="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
+            <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link active" to="/profile">
