@@ -8,7 +8,7 @@ import logo from '../assets/icons main pages/logo.svg'
 import longRestaurantImage from '../assets/icons main pages/long restaurant name.svg'
 import profileIcon from '../assets/icons main pages/Profile.svg'
 
-const favouriteRestaurants = [
+const favoriteRestaurants = [
   {
     id: 1,
     title: 'Local Cuisine',
@@ -90,7 +90,7 @@ function FavoritesPage() {
         </header>
 
         <div className="favorites-content">
-          <h1 className="favorites-title">Your Favourites</h1>
+          <h1 className="favorites-title">Your Favorites</h1>
 
           <section className="favorites-food-section">
             <div className="section-header">
@@ -102,7 +102,7 @@ function FavoritesPage() {
             </div>
 
             <div className="restaurant-list">
-              {favouriteRestaurants.map((restaurant) => (
+              {favoriteRestaurants.map((restaurant) => (
                 <Link
                   className="restaurant-card"
                   to={`/restaurants/${restaurant.id}`}
