@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+
+import { changePassword } from '../services/authService'
 
 import backButtonBlackIcon from '../assets/icon account/Back Button black.svg'
 import logoGradient from '../assets/icon account/logo gradient.svg'
@@ -11,13 +13,20 @@ import profileIcon from '../assets/icons main pages/Profile.svg'
 function AccountPasswordPage() {
   const navigate = useNavigate()
 
+  const [currentPassword, setCurrentPassword] = useState('')
   const [password, setPassword] = useState('')
   const [repeatPassword, setRepeatPassword] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
+
+    if (!currentPassword) {
+      setError('Enter your current password.')
+      return
+    }
 
     if (password.length < 6) {
       setError('Password must contain at least 6 characters.')
@@ -27,6 +36,22 @@ function AccountPasswordPage() {
     if (password !== repeatPassword) {
       setError('Passwords do not match.')
       return
+    }
+
+    try {
+      setIsSubmitting(true)
+
+      await changePassword({
+       oldPassword: currentPassword,
+       newPassword: password,
+       confirmPassword: repeatPassword,
+ })
+
+      navigate('/account')
+    } catch {
+      setError('Failed to change password. Please check your current password.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -43,15 +68,41 @@ function AccountPasswordPage() {
             <img src={backButtonBlackIcon} alt="" aria-hidden="true" />
           </button>
 
-          <img className="account-logo-gradient" src={logoGradient} alt="UT" />
+          <img
+            className="account-logo-gradient"
+            src={logoGradient}
+            alt="UT"
+          />
         </header>
 
         <div className="account-form-content">
           <h1 className="account-form-title">Password</h1>
 
           <form className="account-form" onSubmit={handleSubmit}>
-            <label className="account-form-group" htmlFor="new-account-password">
+            <label
+              className="account-form-group"
+              htmlFor="current-account-password"
+            >
+              <span>Current Password</span>
+
+              <input
+                id="current-account-password"
+                type="password"
+                value={currentPassword}
+                onChange={(event) => {
+                  setCurrentPassword(event.target.value)
+                  setError('')
+                }}
+                placeholder="Enter current password"
+              />
+            </label>
+
+            <label
+              className="account-form-group"
+              htmlFor="new-account-password"
+            >
               <span>New Password</span>
+
               <input
                 id="new-account-password"
                 type="password"
@@ -60,7 +111,7 @@ function AccountPasswordPage() {
                   setPassword(event.target.value)
                   setError('')
                 }}
-                placeholder="Name"
+                placeholder="Enter new password"
               />
             </label>
 
@@ -69,6 +120,7 @@ function AccountPasswordPage() {
               htmlFor="repeat-account-password"
             >
               <span>Repeat Password</span>
+
               <input
                 id="repeat-account-password"
                 type="password"
@@ -77,7 +129,7 @@ function AccountPasswordPage() {
                   setRepeatPassword(event.target.value)
                   setError('')
                 }}
-                placeholder="Phone Number"
+                placeholder="Repeat new password"
               />
             </label>
 
@@ -87,27 +139,34 @@ function AccountPasswordPage() {
               </p>
             )}
 
-            <button className="account-save-button" type="submit">
-              Save
+            <button
+              className="account-save-button"
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : 'Save'}
             </button>
           </form>
         </div>
 
-        <nav className="bottom-nav account-bottom-nav" aria-label="Main navigation">
-          <a className="bottom-nav-link" href="/">
+        <nav
+          className="bottom-nav account-bottom-nav"
+          aria-label="Main navigation"
+        >
+          <Link className="bottom-nav-link" to="/">
             <img src={homeIcon} alt="" aria-hidden="true" />
             <span>Home</span>
-          </a>
+          </Link>
 
-          <a className="bottom-nav-link" href="/favorites">
+          <Link className="bottom-nav-link" to="/favorites">
             <img src={favoritesIcon} alt="" aria-hidden="true" />
             <span>Favorites</span>
-          </a>
+          </Link>
 
-          <a className="bottom-nav-link active" href="/profile">
+          <Link className="bottom-nav-link active" to="/profile">
             <img src={profileIcon} alt="" aria-hidden="true" />
             <span>Profile</span>
-          </a>
+          </Link>
         </nav>
       </section>
     </main>

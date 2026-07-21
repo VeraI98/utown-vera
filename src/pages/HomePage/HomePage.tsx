@@ -1,18 +1,21 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
 
-import adOneImage from '../assets/icons main pages/Ad 1.svg'
-import adTwoImage from '../assets/icons main pages/Ad 2.svg'
-import bellIcon from '../assets/icons main pages/bell.svg'
-import favoritesIcon from '../assets/icons main pages/Favorites.svg'
-import foodDeliveryIcon from '../assets/icons main pages/Food delivery icon.svg'
-import homeIcon from '../assets/icons main pages/Home.svg'
-import jobsIcon from '../assets/icons main pages/Jobs icon.svg'
-import localCuisineImage from '../assets/icons main pages/Local cuisine.svg'
-import logo from '../assets/icons main pages/logo.svg'
-import longRestaurantImage from '../assets/icons main pages/long restaurant name.svg'
-import mobileConnectionIcon from '../assets/icons main pages/Mobile connection icon.svg'
-import profileIcon from '../assets/icons main pages/Profile.svg'
-import servicesIcon from '../assets/icons main pages/Services icon.svg'
+import adOneImage from '../../assets/icons main pages/Ad 1.svg'
+import adTwoImage from '../../assets/icons main pages/Ad 2.svg'
+import bellIcon from '../../assets/icons main pages/bell.svg'
+import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
+import foodDeliveryIcon from '../../assets/icons main pages/Food delivery icon.svg'
+import homeIcon from '../../assets/icons main pages/Home.svg'
+import jobsIcon from '../../assets/icons main pages/Jobs icon.svg'
+import localCuisineImage from '../../assets/icons main pages/Local cuisine.svg'
+import logo from '../../assets/icons main pages/logo.svg'
+import longRestaurantImage from '../../assets/icons main pages/long restaurant name.svg'
+import mobileConnectionIcon from '../../assets/icons main pages/Mobile connection icon.svg'
+import profileIcon from '../../assets/icons main pages/Profile.svg'
+import servicesIcon from '../../assets/icons main pages/Services icon.svg'
+
+import './HomePage.css'
 
 const ads = [
   {
@@ -81,6 +84,7 @@ const restaurants = [
 
 function HomePage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   return (
     <main className="mobile-page home-page">
@@ -102,7 +106,9 @@ function HomePage() {
 
         <div className="home-content">
           <section className="home-greeting-section">
-            <h1>Hello, User!</h1>
+            <h1>
+              Hello, {user?.fullName || user?.username || 'User'}!
+            </h1>
 
             <div className="home-info-grid">
               <article className="weather-card">

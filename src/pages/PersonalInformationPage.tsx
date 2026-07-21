@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 import arrowAddressIcon from '../assets/icon account/arrow-address.svg'
@@ -35,7 +35,11 @@ function PersonalInformationPage() {
             <img src={backButtonBlackIcon} alt="" aria-hidden="true" />
           </button>
 
-          <img className="account-logo-gradient" src={logoGradient} alt="UT" />
+          <img
+            className="account-logo-gradient"
+            src={logoGradient}
+            alt="UT"
+          />
         </header>
 
         <div className="account-form-content">
@@ -44,6 +48,7 @@ function PersonalInformationPage() {
           <form className="account-form" onSubmit={handleSubmit}>
             <label className="account-form-group" htmlFor="account-name">
               <span>Your Name</span>
+
               <input
                 id="account-name"
                 type="text"
@@ -55,6 +60,7 @@ function PersonalInformationPage() {
 
             <label className="account-form-group" htmlFor="account-phone">
               <span>Your Phone Number</span>
+
               <input
                 id="account-phone"
                 type="tel"
@@ -86,21 +92,24 @@ function PersonalInformationPage() {
           </form>
         </div>
 
-        <nav className="bottom-nav account-bottom-nav" aria-label="Main navigation">
-          <a className="bottom-nav-link" href="/">
+        <nav
+          className="bottom-nav account-bottom-nav"
+          aria-label="Main navigation"
+        >
+          <Link className="bottom-nav-link" to="/">
             <img src={homeIcon} alt="" aria-hidden="true" />
             <span>Home</span>
-          </a>
+          </Link>
 
-          <a className="bottom-nav-link" href="/favorites">
+          <Link className="bottom-nav-link" to="/favorites">
             <img src={favoritesIcon} alt="" aria-hidden="true" />
             <span>Favorites</span>
-          </a>
+          </Link>
 
-          <a className="bottom-nav-link active" href="/profile">
+          <Link className="bottom-nav-link active" to="/profile">
             <img src={profileIcon} alt="" aria-hidden="true" />
             <span>Profile</span>
-          </a>
+          </Link>
         </nav>
       </section>
     </main>

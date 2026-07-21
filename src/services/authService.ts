@@ -5,6 +5,12 @@ import type {
   RegisterData,
 } from '../types/auth'
 
+export interface ChangePasswordData {
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
 export async function login(
   data: LoginData,
 ): Promise<AuthResponse> {
@@ -25,4 +31,10 @@ export async function register(
   )
 
   return response.data
+}
+
+export async function changePassword(
+  data: ChangePasswordData,
+): Promise<void> {
+  await api.post('/auth/password/change', data)
 }

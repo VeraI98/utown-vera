@@ -1,12 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom'
 
-import bellIcon from '../assets/icons main pages/bell-color.svg'
-import favoritesIcon from '../assets/icons main pages/Favorites.svg'
-import homeIcon from '../assets/icons main pages/Home.svg'
-import localCuisineImage from '../assets/icons main pages/Local cuisine.svg'
-import logo from '../assets/icons main pages/logo.svg'
-import longRestaurantImage from '../assets/icons main pages/long restaurant name.svg'
-import profileIcon from '../assets/icons main pages/Profile.svg'
+import bellIcon from '../../assets/icons main pages/bell-color.svg'
+import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
+import homeIcon from '../../assets/icons main pages/Home.svg'
+import localCuisineImage from '../../assets/icons main pages/Local cuisine.svg'
+import logo from '../../assets/icons main pages/logo.svg'
+import longRestaurantImage from '../../assets/icons main pages/long restaurant name.svg'
+import profileIcon from '../../assets/icons main pages/Profile.svg'
+
+import './FavoritesPage.css'
 
 const favoriteRestaurants = [
   {

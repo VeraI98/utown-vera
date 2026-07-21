@@ -1,20 +1,22 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../../hooks/useAuth'
 
-import bellIcon from '../assets/icons main pages/bell-color.svg'
-import favoritesIcon from '../assets/icons main pages/Favorites.svg'
-import homeIcon from '../assets/icons main pages/Home.svg'
-import logo from '../assets/icons main pages/logo.svg'
-import profileIcon from '../assets/icons main pages/Profile.svg'
+import bellIcon from '../../assets/icons main pages/bell-color.svg'
+import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
+import homeIcon from '../../assets/icons main pages/Home.svg'
+import logo from '../../assets/icons main pages/logo.svg'
+import profileIcon from '../../assets/icons main pages/Profile.svg'
 
-import connectionIcon from '../assets/icons profile/Connection Icon.svg'
-import foodIcon from '../assets/icons profile/Food Icon.svg'
-import jobsIcon from '../assets/icons profile/Jobs Icon.svg'
-import logoutIcon from '../assets/icons profile/logout.svg'
-import servicesIcon from '../assets/icons profile/Services Icon.svg'
-import smsTrackingIcon from '../assets/icons profile/sms-tracking.svg'
-import starIcon from '../assets/icons profile/star.svg'
-import settingIcon from '../assets/icons profile/setting-2.svg'
+import connectionIcon from '../../assets/icons profile/Connection Icon.svg'
+import foodIcon from '../../assets/icons profile/Food Icon.svg'
+import jobsIcon from '../../assets/icons profile/Jobs Icon.svg'
+import logoutIcon from '../../assets/icons profile/logout.svg'
+import servicesIcon from '../../assets/icons profile/Services Icon.svg'
+import smsTrackingIcon from '../../assets/icons profile/sms-tracking.svg'
+import starIcon from '../../assets/icons profile/star.svg'
+import settingIcon from '../../assets/icons profile/setting-2.svg'
+
+import './ProfilePage.css'
 
 function ProfilePage() {
   const navigate = useNavigate()
@@ -48,7 +50,9 @@ function ProfilePage() {
         </header>
 
         <div className="profile-content">
-          <h1 className="profile-greeting">Hello, User!</h1>
+          <h1 className="profile-greeting">
+            Hello, {user.fullName || user.username || 'User'}!
+          </h1>
 
           <section
             className="profile-service-row"
