@@ -2,17 +2,17 @@ import { createBrowserRouter } from 'react-router-dom'
 
 import ProtectedRoute from '../components/ProtectedRoute'
 
-import AccountPasswordPage from '../pages/AccountPasswordPage'
-import AccountSettingPage from '../pages/AccountSettingPage'
+import AccountPasswordPage from '../pages/AccountPasswordPage/AccountPasswordPage'
+import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
 import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
 import FavoritesPage from '../pages/FavoritesPage/FavoritesPage'
 import HomePage from '../pages/HomePage/HomePage'
 import InformationPage from '../pages/InformationPage/InformationPage'
-import LoginPage from '../pages/LoginPage'
-import NotificationsPage from '../pages/NotificationsPage'
-import PersonalInformationPage from '../pages/PersonalInformationPage'
+import LoginPage from '../pages/LoginPage/LoginPage'
+import NotificationsPage from '../pages/NotificationsPage/NotificationsPage'
+import PersonalInformationPage from '../pages/PersonalInformationPage/PersonalInformationPage'
 import ProfilePage from '../pages/ProfilePage/ProfilePage'
-import RegisterPage from '../pages/RegisterPage'
+import RegisterPage from '../pages/RegisterPage/RegisterPage'
 
 export const router = createBrowserRouter([
   {

@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import logo from '../assets/ut-business-logo.svg'
+import { useAuth } from '../../hooks/useAuth'
+import logo from '../../assets/ut-business-logo.svg'
+
+import './LoginPage.css'
 
 function LoginPage() {
   const navigate = useNavigate()

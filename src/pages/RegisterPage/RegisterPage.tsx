@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../../hooks/useAuth'
 
-import arrowLeftIcon from '../assets/icons/arrow-left.svg'
-import phoneIcon from '../assets/icons/phone.svg'
-import lockIcon from '../assets/icons/lock.svg'
+import arrowLeftIcon from '../../assets/icons/arrow-left.svg'
+import phoneIcon from '../../assets/icons/phone.svg'
+import lockIcon from '../../assets/icons/lock.svg'
+
+import './RegisterPage.css'
 
 function RegisterPage() {
   const navigate = useNavigate()

@@ -1,14 +1,16 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { changePassword } from '../services/authService'
+import { changePassword } from '../../services/authService'
 
-import backButtonBlackIcon from '../assets/icon account/Back Button black.svg'
-import logoGradient from '../assets/icon account/logo gradient.svg'
+import backButtonBlackIcon from '../../assets/icon account/Back Button black.svg'
+import logoGradient from '../../assets/icon account/logo gradient.svg'
 
-import favoritesIcon from '../assets/icons main pages/Favorites.svg'
-import homeIcon from '../assets/icons main pages/Home.svg'
-import profileIcon from '../assets/icons main pages/Profile.svg'
+import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
+import homeIcon from '../../assets/icons main pages/Home.svg'
+import profileIcon from '../../assets/icons main pages/Profile.svg'
+
+import './AccountPasswordPage.css'
 
 function AccountPasswordPage() {
   const navigate = useNavigate()
@@ -42,14 +44,16 @@ function AccountPasswordPage() {
       setIsSubmitting(true)
 
       await changePassword({
-       oldPassword: currentPassword,
-       newPassword: password,
-       confirmPassword: repeatPassword,
- })
+        oldPassword: currentPassword,
+        newPassword: password,
+        confirmPassword: repeatPassword,
+      })
 
       navigate('/account')
     } catch {
-      setError('Failed to change password. Please check your current password.')
+      setError(
+        'Failed to change password. Please check your current password.',
+      )
     } finally {
       setIsSubmitting(false)
     }

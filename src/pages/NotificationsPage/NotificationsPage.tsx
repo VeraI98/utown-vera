@@ -1,11 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom'
 
-import backButton from '../assets/icon bell/Back Button black.svg'
-import logoGradient from '../assets/icon bell/logo gradient.svg'
+import backButton from '../../assets/icon bell/Back Button black.svg'
+import logoGradient from '../../assets/icon bell/logo gradient.svg'
 
-import favoritesIcon from '../assets/icons main pages/Favorites.svg'
-import homeIcon from '../assets/icons main pages/Home.svg'
-import profileIcon from '../assets/icons main pages/Profile.svg'
+import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
+import homeIcon from '../../assets/icons main pages/Home.svg'
+import profileIcon from '../../assets/icons main pages/Profile.svg'
+
+import './NotificationsPage.css'
 
 function NotificationsPage() {
   const navigate = useNavigate()

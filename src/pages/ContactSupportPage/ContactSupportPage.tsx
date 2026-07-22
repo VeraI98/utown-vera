@@ -42,12 +42,12 @@ function ContactSupportPage() {
           />
 
           <button
-              className="support-header-button"
-              type="button"
-              onClick={() => navigate('/notifications')}
-              aria-label="Notifications"
-            >
-              <img src={bell} alt="" aria-hidden="true" />
+            className="support-header-button"
+            type="button"
+            onClick={() => navigate('/notifications')}
+            aria-label="Notifications"
+          >
+            <img src={bell} alt="" aria-hidden="true" />
           </button>
         </header>
 

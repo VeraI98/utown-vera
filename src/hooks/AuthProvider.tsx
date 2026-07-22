@@ -1,9 +1,20 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import type { LoginData, RegisterData, User } from '../types/auth'
+import {
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react'
+
+import type {
+  LoginData,
+  RegisterData,
+  User,
+} from '../types/auth'
+
 import {
   login as loginRequest,
   register as registerRequest,
 } from '../services/authService'
+
 import { api } from '../services/api'
 import { AuthContext } from './auth-context'
 
@@ -36,8 +47,13 @@ function getStoredUser(): User | null {
   }
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(getStoredUser)
+export function AuthProvider({
+  children,
+}: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(
+    getStoredUser,
+  )
+
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -52,9 +68,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       try {
-        const { data } = await api.get<User>('/user/profile')
+        const { data } = await api.get<User>(
+          '/users/profile',
+        )
 
-        localStorage.setItem(USER_KEY, JSON.stringify(data))
+        localStorage.setItem(
+          USER_KEY,
+          JSON.stringify(data),
+        )
+
         setUser(data)
       } catch {
         clearStoredAuthData()
@@ -67,44 +89,64 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkAuth()
   }, [])
 
-  const saveAuthData = (
-    token: string,
-    refreshToken: string,
-    authenticatedUser: User,
-  ) => {
-    localStorage.setItem(TOKEN_KEY, token)
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
-    localStorage.setItem(
-      USER_KEY,
-      JSON.stringify(authenticatedUser),
-    )
-
-    setUser(authenticatedUser)
-  }
-
   const login = async (data: LoginData) => {
     const response = await loginRequest(data)
 
-    saveAuthData(
+    localStorage.setItem(
+      TOKEN_KEY,
       response.token,
-      response.refreshToken,
-      response.user,
     )
+
+    localStorage.setItem(
+      REFRESH_TOKEN_KEY,
+      response.refreshToken,
+    )
+
+    localStorage.setItem(
+      USER_KEY,
+      JSON.stringify(response.user),
+    )
+
+    setUser(response.user)
   }
 
-  const register = async (data: RegisterData) => {
+  const register = async (
+    data: RegisterData,
+  ) => {
     const response = await registerRequest(data)
 
-    saveAuthData(
+    localStorage.setItem(
+      TOKEN_KEY,
       response.token,
-      response.refreshToken,
-      response.user,
     )
+
+    localStorage.setItem(
+      REFRESH_TOKEN_KEY,
+      response.refreshToken,
+    )
+
+    localStorage.setItem(
+      USER_KEY,
+      JSON.stringify(response.user),
+    )
+
+    setUser(response.user)
   }
 
   const logout = () => {
     clearStoredAuthData()
     setUser(null)
+  }
+
+  const updateUser = (
+    updatedUser: User,
+  ) => {
+    localStorage.setItem(
+      USER_KEY,
+      JSON.stringify(updatedUser),
+    )
+
+    setUser(updatedUser)
   }
 
   return (
@@ -116,6 +158,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         login,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}

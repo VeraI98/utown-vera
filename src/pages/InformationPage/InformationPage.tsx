@@ -34,13 +34,13 @@ function InformationPage() {
           />
 
           <button
-             className="information-header-button"
-             type="button"
-             onClick={() => navigate('/notifications')}
-             aria-label="Notifications"
-            >
-             <img src={bell} alt="" aria-hidden="true" />
-        </button>
+            className="information-header-button"
+            type="button"
+            onClick={() => navigate('/notifications')}
+            aria-label="Notifications"
+          >
+            <img src={bell} alt="" aria-hidden="true" />
+          </button>
         </header>
 
         <div className="information-content">
