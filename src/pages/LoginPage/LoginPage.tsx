@@ -1,36 +1,56 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import logo from '../assets/ut-business-logo.svg'
+import { useAuth } from '../../hooks/useAuth'
+import logo from '../../assets/ut-business-logo.svg'
+
+import './LoginPage.css'
 
 function LoginPage() {
   const navigate = useNavigate()
   const { login, isAuthenticated } = useAuth()
 
-  const [username, setUsername] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (isAuthenticated) {
-    return <Navigate to="/profile" replace />
+    return <Navigate to="/" replace />
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     setError('')
+
+    const normalizedPhone = phoneNumber.replace(/\D/g, '')
+
+    if (!normalizedPhone) {
+      setError('Enter your phone number.')
+      return
+    }
+
+    if (normalizedPhone.length < 8) {
+      setError('Enter a valid phone number.')
+      return
+    }
+
+    if (!password) {
+      setError('Enter your password.')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
       await login({
-        username,
+        username: normalizedPhone,
         password,
       })
 
-      navigate('/profile')
+      navigate('/', { replace: true })
     } catch {
-      setError('Invalid username or password.')
+      setError('Invalid phone number or password.')
     } finally {
       setIsSubmitting(false)
     }
@@ -48,23 +68,20 @@ function LoginPage() {
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-field">
             <input
-              id="username"
-              name="username"
-              type="text"
-              value={username}
+              id="phone-number"
+              name="phoneNumber"
+              type="tel"
+              value={phoneNumber}
               onChange={(event) => {
-                setUsername(event.target.value)
+                setPhoneNumber(event.target.value)
                 setError('')
               }}
-              placeholder="Username"
-              autoComplete="username"
+              placeholder="Phone Number"
+              autoComplete="tel"
+              inputMode="tel"
               aria-invalid={Boolean(error)}
               required
             />
-
-            {error && (
-              <p className="input-error">Invalid data</p>
-            )}
           </div>
 
           <div className="form-field">
@@ -83,11 +100,13 @@ function LoginPage() {
               minLength={6}
               required
             />
-
-            {error && (
-              <p className="input-error">Invalid data</p>
-            )}
           </div>
+
+          {error && (
+            <p className="input-error" role="alert">
+              {error}
+            </p>
+          )}
 
           <button
             className="primary-button"
