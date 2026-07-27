@@ -6,6 +6,8 @@ import AccountPasswordPage from '../pages/AccountPasswordPage/AccountPasswordPag
 import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
 import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
 import FavoritesPage from '../pages/FavoritesPage/FavoritesPage'
+import FoodMorePage from '../pages/FoodMorePage/FoodMorePage'
+import FoodPage from '../pages/FoodPage/FoodPage'
 import HomePage from '../pages/HomePage/HomePage'
 import InformationPage from '../pages/InformationPage/InformationPage'
 import LoginPage from '../pages/LoginPage/LoginPage'
@@ -30,6 +32,18 @@ export const router = createBrowserRouter([
   {
     path: '/favorites',
     element: <FavoritesPage />,
+  },
+  {
+    path: '/food',
+    element: <FoodPage />,
+  },
+  {
+    path: '/food/establishments',
+    element: <FoodMorePage title="Establishments" />,
+  },
+  {
+    path: '/food/fastest-delivery',
+    element: <FoodMorePage title="The fastest delivery" />,
   },
   {
     path: '/profile',
