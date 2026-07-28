@@ -174,19 +174,22 @@ function FoodPage() {
             <span aria-hidden="true">⌄</span>
           </button>
 
-          <label className="food-search">
+          <button
+            className="food-search"
+            type="button"
+            onClick={() => navigate('/food/search')}
+            aria-label="Open food search"
+          >
             <img
               src={searchIcon}
               alt=""
               aria-hidden="true"
             />
 
-            <input
-              type="search"
-              placeholder="Search for cafes, restaurants and dishes"
-              aria-label="Search for cafes, restaurants and dishes"
-            />
-          </label>
+            <span>
+              Search for cafes, restaurants and dishes
+            </span>
+          </button>
 
           <section className="food-banner">
             <img

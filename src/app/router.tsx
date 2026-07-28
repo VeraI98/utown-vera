@@ -8,6 +8,7 @@ import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
 import FavoritesPage from '../pages/FavoritesPage/FavoritesPage'
 import FoodMorePage from '../pages/FoodMorePage/FoodMorePage'
 import FoodPage from '../pages/FoodPage/FoodPage'
+import FoodSearch from '../pages/FoodSearch/FoodSearch'
 import HomePage from '../pages/HomePage/HomePage'
 import InformationPage from '../pages/InformationPage/InformationPage'
 import LoginPage from '../pages/LoginPage/LoginPage'
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
   {
     path: '/food',
     element: <FoodPage />,
+  },
+  {
+    path: '/food/search',
+    element: <FoodSearch />,
   },
   {
     path: '/food/establishments',
