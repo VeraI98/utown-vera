@@ -1,0 +1,57 @@
+.restaurant-product-card {
+  width: 100%;
+  min-height: 112px;
+  padding: 10px 16px;
+  border: 0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.restaurant-product-card:hover {
+  background: #f8f8f8;
+}
+
+.restaurant-product-card--selected {
+  background: #efefef;
+}
+
+.restaurant-product-card__content {
+  min-width: 0;
+  flex: 1;
+}
+
+.restaurant-product-card__name {
+  margin: 0 0 4px;
+  color: #1f1f1f;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.restaurant-product-card__description {
+  margin: 0 0 4px;
+  color: #737373;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.restaurant-product-card__price {
+  color: #3478f6;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.restaurant-product-card__image {
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  object-fit: cover;
+}

@@ -13,9 +13,11 @@ import HomePage from '../pages/HomePage/HomePage'
 import InformationPage from '../pages/InformationPage/InformationPage'
 import LoginPage from '../pages/LoginPage/LoginPage'
 import NotificationsPage from '../pages/NotificationsPage/NotificationsPage'
+import OrderPage from '../pages/OrderPage/OrderPage'
 import PersonalInformationPage from '../pages/PersonalInformationPage/PersonalInformationPage'
 import ProfilePage from '../pages/ProfilePage/ProfilePage'
 import RegisterPage from '../pages/RegisterPage/RegisterPage'
+import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +43,14 @@ export const router = createBrowserRouter([
   {
     path: '/food/search',
     element: <FoodSearch />,
+  },
+  {
+    path: '/food/restaurant',
+    element: <RestaurantPage />,
+  },
+  {
+    path: '/food/order',
+    element: <OrderPage />,
   },
   {
     path: '/food/establishments',

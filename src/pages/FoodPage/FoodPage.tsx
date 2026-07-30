@@ -73,12 +73,14 @@ interface RestaurantSectionProps {
   title: string
   moreTo: string
   restaurants: typeof restaurants
+  onRestaurantClick: () => void
 }
 
 function RestaurantSection({
   title,
   moreTo,
   restaurants: restaurantItems,
+  onRestaurantClick,
 }: RestaurantSectionProps) {
   return (
     <section className="food-section">
@@ -96,6 +98,8 @@ function RestaurantSection({
             className="food-restaurant-card"
             type="button"
             key={`${title}-${restaurant.id}`}
+            onClick={onRestaurantClick}
+            aria-label={`Open ${restaurant.title}`}
           >
             <img
               className="food-restaurant-image"
@@ -122,6 +126,10 @@ function RestaurantSection({
 
 function FoodPage() {
   const navigate = useNavigate()
+
+  const handleRestaurantClick = () => {
+    navigate('/food/restaurant')
+  }
 
   return (
     <main className="mobile-page food-page">
@@ -246,18 +254,21 @@ function FoodPage() {
             title="Establishments"
             moreTo="/food/establishments"
             restaurants={restaurants}
+            onRestaurantClick={handleRestaurantClick}
           />
 
           <RestaurantSection
             title="Fastest delivery"
             moreTo="/food/fastest-delivery"
             restaurants={restaurants}
+            onRestaurantClick={handleRestaurantClick}
           />
 
           <RestaurantSection
             title="Fastest delivery"
             moreTo="/food/fastest-delivery"
             restaurants={restaurants}
+            onRestaurantClick={handleRestaurantClick}
           />
         </div>
 
