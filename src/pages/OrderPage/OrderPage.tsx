@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/restaurant page/Back button.svg'
 import bellIcon from '../../assets/restaurant page/bell.svg'
+import deleteButtonIcon from '../../assets/restaurant page/Delete button.svg'
 import foodLogo from '../../assets/restaurant page/food.svg'
 import utLogo from '../../assets/restaurant page/ut.svg'
 
@@ -113,7 +114,11 @@ function OrderPage() {
   }
 
   const handleProceedToPayment = () => {
-    console.log('Proceed to payment:', orderItems)
+    navigate('/food/order/payment', {
+      state: {
+        orderItems,
+      },
+    })
   }
 
   return (
@@ -146,7 +151,11 @@ function OrderPage() {
           onClick={() => navigate('/notifications')}
           aria-label="Notifications"
         >
-          <img src={bellIcon} alt="" aria-hidden="true" />
+          <img
+            src={bellIcon}
+            alt=""
+            aria-hidden="true"
+          />
         </button>
       </header>
 
@@ -216,18 +225,11 @@ function OrderPage() {
                             }
                             aria-label={`Remove ${item.product.name}`}
                           >
-                            <svg
-                              viewBox="0 0 24 24"
+                            <img
+                              src={deleteButtonIcon}
+                              alt=""
                               aria-hidden="true"
-                            >
-                              <path
-                                d="M8 7V5.5C8 4.67 8.67 4 9.5 4h5c.83 0 1.5.67 1.5 1.5V7m-10 0h12m-10 0 .7 11.2c.05.78.7 1.4 1.49 1.4h3.62c.79 0 1.44-.62 1.49-1.4L16 7M10 10v6m4-6v6"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.8"
-                                strokeLinecap="round"
-                              />
-                            </svg>
+                            />
                           </button>
                         ) : (
                           <div className="order-page__quantity">
@@ -273,6 +275,7 @@ function OrderPage() {
             className="order-page__payment-button"
             type="button"
             onClick={handleProceedToPayment}
+            aria-label={`Proceed to payment for ${totalQuantity} items`}
           >
             <span className="order-page__count">
               {totalQuantity}
