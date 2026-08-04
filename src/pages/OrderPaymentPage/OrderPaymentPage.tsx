@@ -66,8 +66,18 @@ function OrderPaymentPage() {
     })
 
     sendingTimerRef.current = window.setTimeout(() => {
-      setIsSending(false)
       sendingTimerRef.current = null
+
+      navigate('/food/order/rating', {
+        replace: true,
+        state: {
+          orderItems,
+          orderAmount,
+          deliveryPrice: DELIVERY_PRICE,
+          serviceFee: SERVICE_FEE,
+          totalPrice,
+        },
+      })
     }, SENDING_DURATION)
   }
 
@@ -202,11 +212,15 @@ function OrderPaymentPage() {
 
           <div className="order-payment-page__summary-row">
             <span>Order Amount</span>
-            <strong>{formatPrice(orderAmount)}</strong>
+
+            <strong>
+              {formatPrice(orderAmount)}
+            </strong>
           </div>
 
           <div className="order-payment-page__summary-row">
             <span>Delivery</span>
+
             <strong>
               {formatPrice(DELIVERY_PRICE)}
             </strong>
@@ -214,6 +228,7 @@ function OrderPaymentPage() {
 
           <div className="order-payment-page__summary-row">
             <span>Service Fee</span>
+
             <strong>
               {formatPrice(SERVICE_FEE)}
             </strong>
@@ -221,7 +236,10 @@ function OrderPaymentPage() {
 
           <div className="order-payment-page__summary-row">
             <span>Total</span>
-            <strong>{formatPrice(totalPrice)}</strong>
+
+            <strong>
+              {formatPrice(totalPrice)}
+            </strong>
           </div>
         </section>
       </section>

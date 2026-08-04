@@ -1,0 +1,289 @@
+.order-status-page,
+.order-status-page * {
+  box-sizing: border-box;
+}
+
+.order-status-page {
+  width: 100%;
+  max-width: 428px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  overflow-x: hidden;
+
+  background: #877bd1;
+  color: #000000;
+}
+
+/* Purple area */
+
+.order-status-page__hero {
+  position: relative;
+
+  width: 100%;
+  height: 435px;
+
+  background: #877bd1;
+}
+
+.order-status-page__header {
+  position: relative;
+  z-index: 10;
+
+  width: 100%;
+  height: 56px;
+  padding: 0 16px;
+
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+}
+
+.order-status-page__header-button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+
+  border: 0;
+  background: transparent;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.order-status-page__header-button img {
+  display: block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.order-status-page__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.order-status-page__logo img {
+  display: block;
+  width: auto;
+  height: 24px;
+}
+
+/* Status illustration */
+
+.order-status-page__illustration {
+  position: absolute;
+  right: 50%;
+  bottom: -2px;
+
+  width: 270px;
+  height: 250px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  transform: translateX(50%);
+}
+
+.order-status-page__illustration img {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+  object-position: center bottom;
+
+  animation: order-status-image-appear 350ms ease-out;
+}
+
+@keyframes order-status-image-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* White status sheet */
+
+.order-status-page__sheet {
+  position: relative;
+  z-index: 5;
+
+  width: 100%;
+  min-height: calc(100dvh - 398px);
+  margin-top: -37px;
+  padding: 34px 16px 112px;
+
+  border-radius: 24px 24px 0 0;
+  background: #ffffff;
+
+  text-align: center;
+}
+
+.order-status-page__delivery-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.order-status-page__delivery-time strong {
+  color: #000000;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.order-status-page__delivery-time span {
+  margin-top: 2px;
+
+  color: #7d7d7d;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.order-status-page__sheet > h1 {
+  margin: 24px 0 0;
+
+  color: #000000;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Status text */
+
+.order-status-page__status {
+  margin-top: 48px;
+}
+
+.order-status-page__status h2 {
+  margin: 0;
+
+  color: #000000;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.order-status-page__status p {
+  margin: 46px 0 0;
+
+  color: #828282;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.order-status-page__support-button {
+  margin-top: 24px;
+  padding: 4px 0;
+
+  border: 0;
+  background: transparent;
+
+  color: #828282;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: underline;
+
+  cursor: pointer;
+}
+
+/* Bottom button */
+
+.order-status-page__bottom {
+  position: fixed;
+  right: 50%;
+  bottom: 0;
+  z-index: 30;
+
+  width: 100%;
+  max-width: 428px;
+  min-height: 96px;
+  padding: 14px 16px 18px;
+
+  border-top: 1px solid #eeeeee;
+  border-radius: 18px 18px 0 0;
+  background: #ffffff;
+
+  transform: translateX(50%);
+
+  box-shadow: 0 -4px 14px rgb(0 0 0 / 7%);
+}
+
+.order-status-page__hide-button {
+  width: 100%;
+  height: 56px;
+  padding: 0 16px;
+
+  border: 0;
+  border-radius: 10px;
+  background: #3478f6;
+
+  color: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 14px rgb(52 120 246 / 22%);
+}
+
+.order-status-page__state-data {
+  display: none;
+}
+
+/* Small screens */
+
+@media (max-width: 380px) {
+  .order-status-page__hero {
+    height: 405px;
+  }
+
+  .order-status-page__illustration {
+    width: 240px;
+    height: 225px;
+  }
+
+  .order-status-page__sheet {
+    min-height: calc(100dvh - 370px);
+  }
+
+  .order-status-page__status {
+    margin-top: 38px;
+  }
+
+  .order-status-page__status p {
+    margin-top: 36px;
+  }
+}
+
+/* Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .order-status-page__illustration img {
+    animation: none;
+  }
+}
+
+/* Desktop */
+
+@media (min-width: 429px) {
+  .order-status-page {
+    box-shadow: 0 0 24px rgb(0 0 0 / 8%);
+  }
+}

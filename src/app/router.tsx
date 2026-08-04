@@ -14,8 +14,10 @@ import InformationPage from '../pages/InformationPage/InformationPage'
 import LoginPage from '../pages/LoginPage/LoginPage'
 import NotificationsPage from '../pages/NotificationsPage/NotificationsPage'
 import OrderPage from '../pages/OrderPage/OrderPage'
-import PersonalInformationPage from '../pages/PersonalInformationPage/PersonalInformationPage'
 import OrderPaymentPage from '../pages/OrderPaymentPage/OrderPaymentPage'
+import OrderRatingPage from '../pages/OrderRatingPage/OrderRatingPage'
+import OrderStatusPage from '../pages/OrderStatusPage/OrderStatusPage'
+import PersonalInformationPage from '../pages/PersonalInformationPage/PersonalInformationPage'
 import ProfilePage from '../pages/ProfilePage/ProfilePage'
 import RegisterPage from '../pages/RegisterPage/RegisterPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
@@ -53,20 +55,27 @@ export const router = createBrowserRouter([
     path: '/food/order',
     element: <OrderPage />,
   },
-
   {
-  path: '/food/order/payment',
-  element: <OrderPaymentPage />,
+    path: '/food/order/payment',
+    element: <OrderPaymentPage />,
   },
-
-
+  {
+    path: '/food/order/rating',
+    element: <OrderRatingPage />,
+  },
+  {
+    path: '/food/order/status',
+    element: <OrderStatusPage />,
+  },
   {
     path: '/food/establishments',
     element: <FoodMorePage title="Establishments" />,
   },
   {
     path: '/food/fastest-delivery',
-    element: <FoodMorePage title="The fastest delivery" />,
+    element: (
+      <FoodMorePage title="The fastest delivery" />
+    ),
   },
   {
     path: '/profile',
