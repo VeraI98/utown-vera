@@ -48,9 +48,9 @@ export const router = createBrowserRouter([
     element: <FoodSearch />,
   },
   {
-    path: '/food/restaurant',
-    element: <RestaurantPage />,
-  },
+  path: '/food/restaurants/:restaurantId',
+  element: <RestaurantPage />,
+},
   {
     path: '/food/order',
     element: <OrderPage />,
@@ -60,13 +60,13 @@ export const router = createBrowserRouter([
     element: <OrderPaymentPage />,
   },
   {
-    path: '/food/order/rating',
-    element: <OrderRatingPage />,
-  },
+  path: '/food/order/:orderId/rating',
+  element: <OrderRatingPage />,
+},
   {
-    path: '/food/order/status',
-    element: <OrderStatusPage />,
-  },
+  path: '/food/order/:orderId/status',
+  element: <OrderStatusPage />,
+},
   {
     path: '/food/establishments',
     element: <FoodMorePage title="Establishments" />,

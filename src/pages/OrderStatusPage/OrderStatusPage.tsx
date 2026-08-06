@@ -1,5 +1,15 @@
-import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
+import {
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 
 import deliveredImage from '../../assets/waiting order/60999822 1.svg'
 import backButtonIcon from '../../assets/waiting order/Back button.svg'
@@ -9,77 +19,238 @@ import courierImage from '../../assets/waiting order/Illustration.svg'
 import preparingImage from '../../assets/waiting order/Item quantity.svg'
 import utLogo from '../../assets/waiting order/ut.svg'
 
-import type { OrderItem } from '../OrderPage/OrderPage'
+import { getOrderById } from '../../services/orderService'
+import type { OrderResponse } from '../../types/cart'
 
 import './OrderStatusPage.css'
 
-interface OrderStatusPageState {
-  orderItems?: OrderItem[]
-  orderAmount?: number
-  deliveryPrice?: number
-  serviceFee?: number
-  totalPrice?: number
-}
-
-interface OrderStatus {
-  id: number
+interface StatusContent {
   image: string
   imageAlt: string
   title: string
   message: string
+  phase: 'preparing' | 'courier' | 'delivered' | 'cancelled'
 }
 
-const STATUS_CHANGE_DELAY = 10_000
+const POLLING_INTERVAL = 7000
 
-const orderStatuses: OrderStatus[] = [
-  {
-    id: 1,
+function getErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const responseData = error.response?.data
+
+    if (
+      responseData &&
+      typeof responseData === 'object' &&
+      'message' in responseData &&
+      typeof responseData.message === 'string'
+    ) {
+      return responseData.message
+    }
+
+    if (typeof responseData === 'string') {
+      return responseData
+    }
+
+    if (error.response?.status === 404) {
+      return 'Order not found.'
+    }
+  }
+
+  return 'Failed to load order status. Please try again.'
+}
+
+function normalizeStatus(status?: string): string {
+  return status?.trim().toUpperCase() ?? ''
+}
+
+function getStatusContent(
+  order: OrderResponse,
+): StatusContent {
+  const orderStatus = normalizeStatus(order.status)
+  const deliveryStatus = normalizeStatus(
+    order.deliveryStatus,
+  )
+
+  const combinedStatus = `${orderStatus} ${deliveryStatus}`
+
+  if (
+    combinedStatus.includes('CANCEL') ||
+    combinedStatus.includes('REJECT') ||
+    combinedStatus.includes('FAILED')
+  ) {
+    return {
+      image: preparingImage,
+      imageAlt: 'Order cancelled',
+      title: 'Order cancelled',
+      message:
+        'Unfortunately, your order was cancelled.\nPlease contact support for more information.',
+      phase: 'cancelled',
+    }
+  }
+
+  if (
+    combinedStatus.includes('DELIVERED') ||
+    combinedStatus.includes('COMPLETED')
+  ) {
+    return {
+      image: deliveredImage,
+      imageAlt: 'Order delivered',
+      title: 'Order delivered',
+      message:
+        'Your order has been delivered!\nThank you for choosing UT Food',
+      phase: 'delivered',
+    }
+  }
+
+  if (
+    combinedStatus.includes('DELIVERING') ||
+    combinedStatus.includes('DELIVERY') ||
+    combinedStatus.includes('COURIER') ||
+    combinedStatus.includes('PICKED') ||
+    combinedStatus.includes('ON_THE_WAY') ||
+    combinedStatus.includes('ON THE WAY')
+  ) {
+    return {
+      image: courierImage,
+      imageAlt: 'Courier delivering the order',
+      title: 'The courier is on the way',
+      message:
+        'The courier has picked up your order!\nYour order will arrive soon.',
+      phase: 'courier',
+    }
+  }
+
+  return {
     image: preparingImage,
     imageAlt: 'Restaurant preparing the order',
     title: 'Your order is being prepared',
     message:
-      'The restaurant has confirmed your order!\nIt will be delivered at 00:00',
-  },
-  {
-    id: 2,
-    image: courierImage,
-    imageAlt: 'Courier delivering the order',
-    title: 'The courier is on the way',
-    message:
-      'The courier has picked up your order!\nIt will be delivered at 00:00',
-  },
-  {
-    id: 3,
-    image: deliveredImage,
-    imageAlt: 'Order delivered',
-    title: 'Order delivered',
-    message:
-      'Your order has been delivered!\nThank you for choosing UT Food',
-  },
-]
+      'The restaurant is processing your order.\nWe will update this page automatically.',
+    phase: 'preparing',
+  }
+}
 
 function OrderStatusPage() {
   const navigate = useNavigate()
-  const location = useLocation()
+  const { orderId } = useParams()
 
-  const [statusIndex, setStatusIndex] = useState(0)
+  const [order, setOrder] = useState<OrderResponse | null>(
+    null,
+  )
+  const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const state = location.state as OrderStatusPageState | null
-  const currentStatus = orderStatuses[statusIndex]
+  const requestInProgressRef = useRef(false)
+
+  const numericOrderId = Number(orderId)
+  const isValidOrderId =
+    Number.isInteger(numericOrderId) &&
+    numericOrderId > 0
+
+  const loadOrder = useCallback(
+    async (initialLoad = false) => {
+      if (
+        !isValidOrderId ||
+        requestInProgressRef.current
+      ) {
+        return
+      }
+
+      requestInProgressRef.current = true
+
+      if (!initialLoad) {
+        setIsRefreshing(true)
+      }
+
+      try {
+        const currentOrder = await getOrderById(
+          numericOrderId,
+        )
+
+        setOrder(currentOrder)
+        setErrorMessage('')
+      } catch (error) {
+        setErrorMessage(getErrorMessage(error))
+      } finally {
+        requestInProgressRef.current = false
+        setIsLoading(false)
+        setIsRefreshing(false)
+      }
+    },
+    [isValidOrderId, numericOrderId],
+  )
 
   useEffect(() => {
-    if (statusIndex >= orderStatuses.length - 1) {
+    if (!isValidOrderId) {
       return
     }
 
-    const statusTimer = window.setTimeout(() => {
-      setStatusIndex((currentIndex) => currentIndex + 1)
-    }, STATUS_CHANGE_DELAY)
+    let isActive = true
+
+    const fetchInitialOrder = async () => {
+      requestInProgressRef.current = true
+
+      try {
+        const currentOrder = await getOrderById(
+          numericOrderId,
+        )
+
+        if (!isActive) {
+          return
+        }
+
+        setOrder(currentOrder)
+        setErrorMessage('')
+      } catch (error) {
+        if (!isActive) {
+          return
+        }
+
+        setErrorMessage(getErrorMessage(error))
+      } finally {
+        requestInProgressRef.current = false
+
+        if (isActive) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    void fetchInitialOrder()
 
     return () => {
-      window.clearTimeout(statusTimer)
+      isActive = false
     }
-  }, [statusIndex])
+  }, [isValidOrderId, numericOrderId])
+
+  const currentStatus = useMemo(
+    () => (order ? getStatusContent(order) : null),
+    [order],
+  )
+
+  useEffect(() => {
+    if (
+      !isValidOrderId ||
+      !currentStatus ||
+      currentStatus.phase === 'delivered' ||
+      currentStatus.phase === 'cancelled'
+    ) {
+      return
+    }
+
+    const pollingTimer = window.setInterval(() => {
+      void loadOrder()
+    }, POLLING_INTERVAL)
+
+    return () => {
+      window.clearInterval(pollingTimer)
+    }
+  }, [
+    currentStatus,
+    isValidOrderId,
+    loadOrder,
+  ])
 
   const handleHideStatus = () => {
     navigate('/food', {
@@ -87,16 +258,49 @@ function OrderStatusPage() {
     })
   }
 
-  const messageLines = currentStatus.message.split('\n')
+  const handleRateOrder = () => {
+    if (!order) {
+      return
+    }
+
+    navigate(`/food/order/${order.id}/rating`, {
+      state: {
+        order,
+      },
+    })
+  }
+
+  if (!isValidOrderId) {
+    return (
+      <main className="order-status-page">
+        <section className="order-status-page__sheet order-status-page__sheet--error">
+          <h1>Invalid order</h1>
+
+          <p>The order ID in the address is invalid.</p>
+
+          <button
+            className="order-status-page__support-button"
+            type="button"
+            onClick={() => navigate('/food')}
+          >
+            Return to Food
+          </button>
+        </section>
+      </main>
+    )
+  }
 
   return (
-    <main className="order-status-page">
+    <main
+      className="order-status-page"
+      aria-busy={isLoading || isRefreshing}
+    >
       <section className="order-status-page__hero">
         <header className="order-status-page__header">
           <button
             className="order-status-page__header-button"
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/food')}
             aria-label="Go back"
           >
             <img
@@ -129,46 +333,113 @@ function OrderStatusPage() {
         </header>
 
         <div className="order-status-page__illustration">
-          <img
-            key={currentStatus.id}
-            src={currentStatus.image}
-            alt={currentStatus.imageAlt}
-          />
+          {isLoading ? (
+            <div
+              className="order-status-page__spinner"
+              aria-hidden="true"
+            />
+          ) : currentStatus ? (
+            <img
+              src={currentStatus.image}
+              alt={currentStatus.imageAlt}
+            />
+          ) : null}
         </div>
       </section>
 
       <section className="order-status-page__sheet">
-        <div className="order-status-page__delivery-time">
-          <strong>50–60</strong>
-          <span>minutes until delivery</span>
-        </div>
-
-        <h1>Pizzalio</h1>
-
-        <section
-          className="order-status-page__status"
-          aria-live="polite"
-        >
-          <h2>{currentStatus.title}</h2>
-
-          <p>
-            {messageLines.map((line, index) => (
-              <span key={`${currentStatus.id}-${line}`}>
-                {line}
-
-                {index < messageLines.length - 1 && <br />}
-              </span>
-            ))}
-          </p>
-
-          <button
-            className="order-status-page__support-button"
-            type="button"
-            onClick={() => navigate('/contact-support')}
+        {errorMessage && (
+          <div
+            className="order-status-page__error"
+            role="alert"
           >
-            Contact support
-          </button>
-        </section>
+            <p>{errorMessage}</p>
+
+            <button
+              type="button"
+              onClick={() => void loadOrder()}
+              disabled={isRefreshing}
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
+        {isLoading ? (
+          <div
+            className="order-status-page__loading"
+            role="status"
+          >
+            Loading order status...
+          </div>
+        ) : order && currentStatus ? (
+          <>
+            <div className="order-status-page__delivery-time">
+              <strong>
+                {order.deliveryTime || '50–60'}
+              </strong>
+
+              <span>
+                {order.deliveryTime
+                  ? 'estimated delivery time'
+                  : 'minutes until delivery'}
+              </span>
+            </div>
+
+            <h1>
+              {order.restaurantName || 'Restaurant'}
+            </h1>
+
+            <section
+              className="order-status-page__status"
+              aria-live="polite"
+            >
+              <h2>{currentStatus.title}</h2>
+
+              <p>
+                {currentStatus.message
+                  .split('\n')
+                  .map((line, index, lines) => (
+                    <span key={`${line}-${index}`}>
+                      {line}
+
+                      {index < lines.length - 1 && (
+                        <br />
+                      )}
+                    </span>
+                  ))}
+              </p>
+
+              {isRefreshing && (
+                <span className="order-status-page__refreshing">
+                  Updating status...
+                </span>
+              )}
+
+              {currentStatus.phase === 'delivered' && (
+                <button
+                  className="order-status-page__rating-button"
+                  type="button"
+                  onClick={handleRateOrder}
+                >
+                  Rate the service
+                </button>
+              )}
+
+              {currentStatus.phase !== 'delivered' && (
+                <button
+                  className="order-status-page__support-button"
+                  type="button"
+                  onClick={() =>
+                    navigate('/contact-support')
+                  }
+                >
+                  Contact support
+                </button>
+              )}
+            </section>
+          </>
+        ) : null}
 
         <div className="order-status-page__bottom">
           <button
@@ -179,10 +450,6 @@ function OrderStatusPage() {
             Hide order status
           </button>
         </div>
-
-        <span className="order-status-page__state-data">
-          {state?.orderItems?.length ?? 0}
-        </span>
       </section>
     </main>
   )

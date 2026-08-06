@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/order/Back button.svg'
@@ -10,81 +11,174 @@ import mapIcon from '../../assets/order/map.svg'
 import utLogo from '../../assets/order/ut.svg'
 import warningIcon from '../../assets/order/warning.svg'
 
-import type { OrderItem } from '../OrderPage/OrderPage'
+import {
+  checkoutMyCart,
+  getMyCart,
+} from '../../services/cartService'
+import type { CartResponse } from '../../types/cart'
+
 import { formatPrice } from '../RestaurantPage/restaurantData'
 
 import './OrderPaymentPage.css'
 
 interface OrderPaymentPageState {
-  orderItems?: OrderItem[]
+  cart?: CartResponse
 }
 
-const DELIVERY_PRICE = 6000
-const SERVICE_FEE = 300
-const SENDING_DURATION = 2000
+interface StoredUser {
+  username?: string
+}
+
+const MIN_ORDER_AMOUNT = 15000
+
+function getErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const responseData = error.response?.data
+
+    if (
+      responseData &&
+      typeof responseData === 'object' &&
+      'message' in responseData &&
+      typeof responseData.message === 'string'
+    ) {
+      return responseData.message
+    }
+
+    if (typeof responseData === 'string') {
+      return responseData
+    }
+  }
+
+  return 'Failed to place the order. Please try again.'
+}
+
+function getClientPhone(): string {
+  const storedUser = localStorage.getItem('user')
+
+  if (!storedUser) {
+    return ''
+  }
+
+  try {
+    const user = JSON.parse(storedUser) as StoredUser
+
+    return user.username ?? ''
+  } catch {
+    return ''
+  }
+}
 
 function OrderPaymentPage() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const [isSending, setIsSending] = useState(false)
-  const sendingTimerRef = useRef<number | null>(null)
+  const locationState =
+    location.state as OrderPaymentPageState | null
 
-  const state = location.state as OrderPaymentPageState | null
-  const orderItems = state?.orderItems ?? []
-
-  const orderAmount = orderItems.reduce(
-    (total, item) =>
-      total + item.product.price * item.quantity,
-    0,
+  const [cart, setCart] = useState<CartResponse | null>(
+    locationState?.cart ?? null,
   )
-
-  const totalPrice =
-    orderAmount + DELIVERY_PRICE + SERVICE_FEE
+  const [isLoadingCart, setIsLoadingCart] = useState(
+    !locationState?.cart,
+  )
+  const [isSending, setIsSending] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
-    return () => {
-      if (sendingTimerRef.current !== null) {
-        window.clearTimeout(sendingTimerRef.current)
+    let isMounted = true
+
+    const loadCurrentCart = async () => {
+      try {
+        const currentCart = await getMyCart()
+
+        if (!isMounted) {
+          return
+        }
+
+        setCart(currentCart)
+        setErrorMessage('')
+      } catch (error) {
+        if (!isMounted) {
+          return
+        }
+
+        setErrorMessage(getErrorMessage(error))
+      } finally {
+        if (isMounted) {
+          setIsLoadingCart(false)
+        }
       }
+    }
+
+    void loadCurrentCart()
+
+    return () => {
+      isMounted = false
     }
   }, [])
 
-  const handlePay = () => {
-    if (isSending || orderItems.length === 0) {
+  const orderAmount = cart?.sumOrder ?? 0
+  const deliveryPrice = cart?.deliveryPrice ?? 0
+  const totalPrice =
+    cart?.totalSum ?? orderAmount + deliveryPrice
+
+  const restaurant = cart?.items[0]
+  const restaurantId = restaurant?.restaurantId
+  const restaurantName =
+    restaurant?.restaurantName ?? 'Restaurant'
+
+  const canPay =
+    Boolean(cart) &&
+    Boolean(restaurantId) &&
+    orderAmount >= MIN_ORDER_AMOUNT &&
+    !isSending &&
+    !isLoadingCart
+
+  const handlePay = async () => {
+    if (!canPay || !restaurantId) {
       return
     }
 
     setIsSending(true)
+    setErrorMessage('')
 
-    console.log('Pay order:', {
-      orderItems,
-      orderAmount,
-      delivery: DELIVERY_PRICE,
-      serviceFee: SERVICE_FEE,
-      totalPrice,
-    })
+    try {
+      const order = await checkoutMyCart({
+        restaurantId,
+        fullAddress:
+          '569 Byeongyeong-ro, Seobuk-gu, Cheonan',
+        area: 'Seobuk-gu',
+        city: 'Cheonan',
+        state: 'Chungcheongnam-do',
+        postcode: '31115',
+        street: '569 Byeongyeong-ro',
+        latitude: 0,
+        longitude: 0,
+        typeAddress: 0,
+        intercomCode: '',
+        clientPhone: getClientPhone(),
+        deliveryTime: '45–55 minutes',
+        payment: 'CASH',
+        noteForCourier: 'Leave at the door',
+        details: '',
+      })
 
-    sendingTimerRef.current = window.setTimeout(() => {
-      sendingTimerRef.current = null
-
-      navigate('/food/order/rating', {
+      navigate(`/food/order/${order.id}/status`, {
         replace: true,
         state: {
-          orderItems,
-          orderAmount,
-          deliveryPrice: DELIVERY_PRICE,
-          serviceFee: SERVICE_FEE,
-          totalPrice,
+          order,
         },
       })
-    }, SENDING_DURATION)
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error))
+      setIsSending(false)
+    }
   }
 
   return (
     <main
       className="order-payment-page"
-      aria-busy={isSending}
+      aria-busy={isSending || isLoadingCart}
     >
       <header className="order-payment-page__header">
         <button
@@ -127,134 +221,149 @@ function OrderPaymentPage() {
       <section className="order-payment-page__content">
         <h1>Order Payment</h1>
 
-        <h2>Pizzalio</h2>
-
-        <div className="order-payment-page__info-list">
-          <button
-            className="order-payment-page__info-card"
-            type="button"
-            disabled={isSending}
+        {errorMessage && (
+          <div
+            className="order-payment-page__error"
+            role="alert"
           >
-            <img
-              src={deliveryIcon}
-              alt=""
-              aria-hidden="true"
-            />
+            {errorMessage}
+          </div>
+        )}
 
-            <div>
-              <strong>
-                Delivery in 45–55 minutes.
-              </strong>
-            </div>
-          </button>
-
-          <button
-            className="order-payment-page__info-card"
-            type="button"
-            disabled={isSending}
+        {isLoadingCart ? (
+          <div
+            className="order-payment-page__loading"
+            role="status"
           >
-            <img
-              src={mapIcon}
-              alt=""
-              aria-hidden="true"
-            />
+            Loading order...
+          </div>
+        ) : (
+          <>
+            <h2>{restaurantName}</h2>
 
-            <div>
-              <strong>
-                Home, 569 Byeongyeong-ro, Seobuk-gu
-              </strong>
+            <div className="order-payment-page__info-list">
+              <button
+                className="order-payment-page__info-card"
+                type="button"
+                disabled={isSending}
+              >
+                <img
+                  src={deliveryIcon}
+                  alt=""
+                  aria-hidden="true"
+                />
 
-              <span>Delivery Location</span>
+                <div>
+                  <strong>
+                    Delivery in 45–55 minutes.
+                  </strong>
+                </div>
+              </button>
+
+              <button
+                className="order-payment-page__info-card"
+                type="button"
+                disabled={isSending}
+              >
+                <img
+                  src={mapIcon}
+                  alt=""
+                  aria-hidden="true"
+                />
+
+                <div>
+                  <strong>
+                    Home, 569 Byeongyeong-ro,
+                    Seobuk-gu
+                  </strong>
+
+                  <span>Delivery Location</span>
+                </div>
+              </button>
+
+              <button
+                className="order-payment-page__info-card"
+                type="button"
+                disabled={isSending}
+              >
+                <img
+                  src={warningIcon}
+                  alt=""
+                  aria-hidden="true"
+                />
+
+                <div>
+                  <strong>Note for the courier</strong>
+                  <span>Leave at the door</span>
+                </div>
+              </button>
             </div>
-          </button>
 
-          <button
-            className="order-payment-page__info-card"
-            type="button"
-            disabled={isSending}
-          >
-            <img
-              src={warningIcon}
-              alt=""
-              aria-hidden="true"
-            />
+            <section className="order-payment-page__section">
+              <h2>Payment</h2>
 
-            <div>
-              <strong>Note for the courier</strong>
-              <span>Leave at the door</span>
-            </div>
-          </button>
-        </div>
+              <button
+                className="order-payment-page__info-card"
+                type="button"
+                disabled={isSending}
+              >
+                <img
+                  src={bankIcon}
+                  alt=""
+                  aria-hidden="true"
+                />
 
-        <section className="order-payment-page__section">
-          <h2>Payment</h2>
+                <div>
+                  <strong>Cash</strong>
+                  <span>Payment to the courier</span>
+                </div>
+              </button>
+            </section>
 
-          <button
-            className="order-payment-page__info-card"
-            type="button"
-            disabled={isSending}
-          >
-            <img
-              src={bankIcon}
-              alt=""
-              aria-hidden="true"
-            />
+            <section className="order-payment-page__summary">
+              <h2>Total (won)</h2>
 
-            <div>
-              <strong>KEB Hana Bank</strong>
-              <span>4400 4200 1343 1234</span>
-            </div>
-          </button>
-        </section>
+              <div className="order-payment-page__summary-row">
+                <span>Order Amount</span>
 
-        <section className="order-payment-page__summary">
-          <h2>Total (won)</h2>
+                <strong>
+                  {formatPrice(orderAmount)}
+                </strong>
+              </div>
 
-          <div className="order-payment-page__summary-row">
-            <span>Order Amount</span>
+              <div className="order-payment-page__summary-row">
+                <span>Delivery</span>
 
-            <strong>
-              {formatPrice(orderAmount)}
-            </strong>
-          </div>
+                <strong>
+                  {formatPrice(deliveryPrice)}
+                </strong>
+              </div>
 
-          <div className="order-payment-page__summary-row">
-            <span>Delivery</span>
+              <div className="order-payment-page__summary-row">
+                <span>Total</span>
 
-            <strong>
-              {formatPrice(DELIVERY_PRICE)}
-            </strong>
-          </div>
-
-          <div className="order-payment-page__summary-row">
-            <span>Service Fee</span>
-
-            <strong>
-              {formatPrice(SERVICE_FEE)}
-            </strong>
-          </div>
-
-          <div className="order-payment-page__summary-row">
-            <span>Total</span>
-
-            <strong>
-              {formatPrice(totalPrice)}
-            </strong>
-          </div>
-        </section>
+                <strong>
+                  {formatPrice(totalPrice)}
+                </strong>
+              </div>
+            </section>
+          </>
+        )}
       </section>
 
-      <div className="order-payment-page__bottom">
-        <strong>{formatPrice(totalPrice)}</strong>
+      {!isLoadingCart && (
+        <div className="order-payment-page__bottom">
+          <strong>{formatPrice(totalPrice)}</strong>
 
-        <button
-          type="button"
-          onClick={handlePay}
-          disabled={isSending || orderItems.length === 0}
-        >
-          {isSending ? 'Sending...' : 'Pay'}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => void handlePay()}
+            disabled={!canPay}
+          >
+            {isSending ? 'Sending...' : 'Pay'}
+          </button>
+        </div>
+      )}
 
       {isSending && (
         <div
