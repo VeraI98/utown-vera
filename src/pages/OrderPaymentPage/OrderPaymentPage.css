@@ -52,6 +52,7 @@
 
 .order-payment-page__header-button:disabled {
   cursor: default;
+  opacity: 0.7;
 }
 
 .order-payment-page__header-button img {
@@ -225,6 +226,20 @@
   white-space: nowrap;
 }
 
+.order-payment-page__minimum-message {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+
+  border-radius: 10px;
+  background: #fff4d6;
+
+  color: #765700;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+}
+
 /* Bottom payment area */
 
 .order-payment-page__bottom {
@@ -259,7 +274,7 @@
 
 .order-payment-page__bottom button {
   width: 100%;
-  height: 54px;
+  min-height: 54px;
   padding: 0 18px;
 
   border: 0;
@@ -277,7 +292,58 @@
 }
 
 .order-payment-page__bottom button:disabled {
-  cursor: default;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Empty / loading / error */
+
+.order-payment-page__error {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+
+  border: 1px solid #f0b5b5;
+  border-radius: 10px;
+  background: #fff1f1;
+
+  color: #b42318;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.order-payment-page__loading,
+.order-payment-page__empty {
+  min-height: 300px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+
+  color: #777777;
+  font-size: 14px;
+  text-align: center;
+}
+
+.order-payment-page__empty p {
+  margin: 0;
+}
+
+.order-payment-page__empty button {
+  min-height: 48px;
+  padding: 0 22px;
+
+  border: 0;
+  border-radius: 10px;
+  background: #3478f6;
+
+  color: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
 }
 
 /* Sending order overlay */
@@ -337,47 +403,14 @@
   }
 }
 
-/* Reduced motion */
-
 @media (prefers-reduced-motion: reduce) {
   .order-payment-page__spinner {
     animation-duration: 2.5s;
   }
 }
 
-/* Desktop */
-
 @media (min-width: 429px) {
   .order-payment-page {
     box-shadow: 0 0 24px rgb(0 0 0 / 8%);
   }
-}
-
-.order-payment-page__error {
-  margin: 0 0 16px;
-  padding: 12px 14px;
-
-  border: 1px solid #f0b5b5;
-  border-radius: 10px;
-  background: #fff1f1;
-
-  color: #b42318;
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.order-payment-page__loading {
-  min-height: 300px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: #777777;
-  font-size: 14px;
-}
-
-.order-payment-page__bottom button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
 }

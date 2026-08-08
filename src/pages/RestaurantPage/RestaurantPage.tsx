@@ -1,5 +1,12 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
+import {
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 
 import backButtonIcon from '../../assets/restaurant page/Back button.svg'
 import backgroundImage from '../../assets/restaurant page/Background.svg'
@@ -18,123 +25,439 @@ import searchIcon from '../../assets/restaurant page/search.svg'
 import deliveryIcon from '../../assets/restaurant page/time delivery.svg'
 import utLogo from '../../assets/restaurant page/ut.svg'
 
+import {
+  addItemToCart,
+  checkMyCartExists,
+  getMyCart,
+} from '../../services/cartService'
+
+import {
+  getRestaurantById,
+  getRestaurantDishes,
+} from '../../services/restaurantService'
+
+import type { CartResponse } from '../../types/cart'
+import type {
+  DishResponse,
+  RestaurantResponse,
+} from '../../types/restaurant'
+
 import ProductModal from './ProductModal'
 import RestaurantProductCard from './RestaurantProductCard'
+
 import {
-  drinkProducts,
   formatPrice,
-  pizzaProducts,
-  saladProducts,
   type RestaurantProduct,
 } from './restaurantData'
 
 import './RestaurantPage.css'
 
-interface OrderItem {
-  product: RestaurantProduct
-  quantity: number
+interface ProductGroup {
+  id: string
+  title: string
+  products: RestaurantProduct[]
+  image: string
 }
 
-const categories = [
-  {
-    id: 'pizza',
-    title: 'Pizza',
-    subtitle: '12 items',
-    image: categoriesPizzaImage,
-  },
-  {
-    id: 'salads',
-    title: 'Salads',
-    subtitle: '5 items',
-    image: categoriesSaladsImage,
-  },
-  {
-    id: 'drinks',
-    title: 'Drinks',
-    subtitle: '8 items',
-    image: categoriesDrinksImage,
-  },
-]
+const getMinOrderAmount = (amount: number) => {
+  if (amount > 0 && amount < 1000) {
+    return amount * 1000
+  }
+
+  return amount
+}
+
+const getCategoryImage = (
+  categoryName: string,
+  dishImageUrl?: string,
+) => {
+  const normalizedName = categoryName.toLowerCase()
+
+  if (normalizedName.includes('pizza')) {
+    return categoriesPizzaImage
+  }
+
+  if (normalizedName.includes('salad')) {
+    return categoriesSaladsImage
+  }
+
+  if (
+    normalizedName.includes('drink') ||
+    normalizedName.includes('beverage') ||
+    normalizedName.includes('juice')
+  ) {
+    return categoriesDrinksImage
+  }
+
+  if (dishImageUrl?.trim()) {
+    return dishImageUrl
+  }
+
+  return ''
+}
+
+const getProductCategory = (
+  categoryName: string,
+): RestaurantProduct['category'] => {
+  const normalizedName = categoryName.toLowerCase()
+
+  if (normalizedName.includes('salad')) {
+    return 'salads'
+  }
+
+  if (
+    normalizedName.includes('drink') ||
+    normalizedName.includes('beverage') ||
+    normalizedName.includes('juice')
+  ) {
+    return 'drinks'
+  }
+
+  return 'pizza'
+}
+
+const createSectionId = (
+  categoryName: string,
+  categoryId: number,
+) => {
+  const normalizedName = categoryName
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+  return `category-${categoryId}-${normalizedName || 'other'}`
+}
+
+const mapDishToProduct = (
+  dish: DishResponse,
+): RestaurantProduct => ({
+  id: dish.id,
+  name: dish.title,
+  description: dish.description,
+  price: dish.price,
+  category: getProductCategory(dish.categoryName),
+  image: dish.imageUrl,
+  options: dish.options,
+})
+
+const getOperatingHours = (
+  restaurant: RestaurantResponse | null,
+) => {
+  if (!restaurant?.operatingModes?.length) {
+    return 'Opening hours unavailable'
+  }
+
+  const workingDay =
+    restaurant.operatingModes.find(
+      (mode) => !mode.dayOff,
+    )
+
+  if (!workingDay) {
+    return 'Closed'
+  }
+
+  return `${workingDay.start}–${workingDay.end}`
+}
 
 function RestaurantPage() {
   const navigate = useNavigate()
 
+  const { restaurantId } = useParams<{
+    restaurantId: string
+  }>()
+
+  const [restaurant, setRestaurant] =
+    useState<RestaurantResponse | null>(null)
+
+  const [dishes, setDishes] =
+    useState<DishResponse[]>([])
+
+  const [cart, setCart] =
+    useState<CartResponse | null>(null)
+
   const [selectedProduct, setSelectedProduct] =
     useState<RestaurantProduct | null>(null)
 
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([])
+  const [isFavorite, setIsFavorite] =
+    useState(false)
 
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] =
+    useState(false)
 
-  const handleProductClick = (product: RestaurantProduct) => {
+  const [isLoading, setIsLoading] =
+    useState(true)
+
+  const [isAddingToCart, setIsAddingToCart] =
+    useState(false)
+
+  const [pageError, setPageError] =
+    useState('')
+
+  const [cartError, setCartError] =
+    useState('')
+
+  useEffect(() => {
+    const loadPage = async () => {
+      const id = Number(restaurantId)
+
+      if (
+        !restaurantId ||
+        Number.isNaN(id) ||
+        id <= 0
+      ) {
+        setPageError('Invalid restaurant ID.')
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        setIsLoading(true)
+        setPageError('')
+
+        const [
+          restaurantData,
+          dishesData,
+        ] = await Promise.all([
+          getRestaurantById(id),
+          getRestaurantDishes(id),
+        ])
+
+        setRestaurant(restaurantData)
+
+        setDishes(
+          dishesData.content.filter(
+            (dish) =>
+              dish.isActive &&
+              !dish.isDeleted,
+          ),
+        )
+      } catch (error) {
+        console.error(
+          'Failed to load restaurant:',
+          error,
+        )
+
+        setPageError(
+          'Failed to load restaurant.',
+        )
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    void loadPage()
+  }, [restaurantId])
+
+  useEffect(() => {
+    const loadCart = async () => {
+      try {
+        const exists =
+          await checkMyCartExists()
+
+        if (!exists) {
+          setCart(null)
+          return
+        }
+
+        const currentCart =
+          await getMyCart()
+
+        setCart(currentCart)
+      } catch (error) {
+        console.error(
+          'Failed to load cart:',
+          error,
+        )
+
+        setCart(null)
+      }
+    }
+
+    void loadCart()
+  }, [])
+
+  const productGroups =
+    useMemo<ProductGroup[]>(() => {
+      const groups = new Map<
+        number,
+        ProductGroup
+      >()
+
+      dishes.forEach((dish) => {
+        const existingGroup =
+          groups.get(dish.dishCategoryId)
+
+        const product =
+          mapDishToProduct(dish)
+
+        if (existingGroup) {
+          existingGroup.products.push(product)
+          return
+        }
+
+        groups.set(
+          dish.dishCategoryId,
+          {
+            id: createSectionId(
+              dish.categoryName,
+              dish.dishCategoryId,
+            ),
+            title:
+              dish.categoryName ||
+              'Other',
+            products: [product],
+            image: getCategoryImage(
+              dish.categoryName,
+              dish.imageUrl,
+            ),
+          },
+        )
+      })
+
+      return Array.from(groups.values())
+    }, [dishes])
+
+  const handleProductClick = (
+    product: RestaurantProduct,
+  ) => {
     setSelectedProduct(product)
+    setCartError('')
   }
 
   const handleCloseProductModal = () => {
+    if (isAddingToCart) {
+      return
+    }
+
     setSelectedProduct(null)
+    setCartError('')
   }
 
-  const handleAddToOrder = (
+  const handleAddToOrder = async (
     product: RestaurantProduct,
     quantity: number,
+    elementIds: number[],
   ) => {
-    setOrderItems((currentItems) => {
-      const existingItem = currentItems.find(
-        (item) => item.product.id === product.id,
+    if (isAddingToCart) {
+      return
+    }
+
+    try {
+      setIsAddingToCart(true)
+      setCartError('')
+
+      const updatedCart =
+        await addItemToCart({
+          dishId: product.id,
+          count: quantity,
+          elements: elementIds,
+        })
+
+      setCart(updatedCart)
+      setSelectedProduct(null)
+    } catch (error) {
+      console.error(
+        'Failed to add item to cart:',
+        error,
       )
 
-      if (existingItem) {
-        return currentItems.map((item) =>
-          item.product.id === product.id
-            ? {
-                ...item,
-                quantity: item.quantity + quantity,
-              }
-            : item,
-        )
-      }
-
-      return [
-        ...currentItems,
-        {
-          product,
-          quantity,
-        },
-      ]
-    })
-
-    setSelectedProduct(null)
+      setCartError(
+        'Failed to add the item to your cart. Please try again.',
+      )
+    } finally {
+      setIsAddingToCart(false)
+    }
   }
 
-  const handleCategoryClick = (categoryId: string) => {
-    document.getElementById(categoryId)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    })
+  const handleCategoryClick = (
+    categoryId: string,
+  ) => {
+    document
+      .getElementById(categoryId)
+      ?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
   }
 
   const handleOpenOrder = () => {
-    navigate('/food/order', {
-      state: {
-        orderItems,
-      },
-    })
+    navigate('/food/order')
   }
 
-  const isProductOrdered = (productId: number) =>
-    orderItems.some((item) => item.product.id === productId)
+  const isProductOrdered = (
+    productId: number,
+  ) =>
+    cart?.items.some(
+      (item) =>
+        item.dishId === productId,
+    ) ?? false
 
-  const orderTotal = orderItems.reduce(
-    (total, item) =>
-      total + item.product.price * item.quantity,
-    0,
-  )
+  const totalQuantity =
+    cart?.totalDish ?? 0
 
-  const totalQuantity = orderItems.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  )
+  const orderTotal =
+    cart?.totalSum ?? 0
+
+  if (isLoading) {
+    return (
+      <main className="restaurant-page">
+        <p
+          style={{
+            padding: '40px 16px',
+            textAlign: 'center',
+          }}
+        >
+          Loading restaurant...
+        </p>
+      </main>
+    )
+  }
+
+  if (pageError || !restaurant) {
+    return (
+      <main className="restaurant-page">
+        <header className="restaurant-page__header">
+          <button
+            className="restaurant-page__header-button"
+            type="button"
+            onClick={() => navigate(-1)}
+            aria-label="Go back"
+          >
+            <img
+              src={backButtonIcon}
+              alt=""
+              aria-hidden="true"
+            />
+          </button>
+
+          <div
+            className="restaurant-page__logo"
+            aria-label="UT Food"
+          >
+            <img src={utLogo} alt="UT" />
+            <img
+              src={foodLogo}
+              alt="Food"
+            />
+          </div>
+
+          <div className="restaurant-page__header-button" />
+        </header>
+
+        <p
+          role="alert"
+          style={{
+            padding: '40px 16px',
+            textAlign: 'center',
+          }}
+        >
+          {pageError ||
+            'Restaurant not found.'}
+        </p>
+      </main>
+    )
+  }
 
   return (
     <main className="restaurant-page">
@@ -157,13 +480,18 @@ function RestaurantPage() {
           aria-label="UT Food"
         >
           <img src={utLogo} alt="UT" />
-          <img src={foodLogo} alt="Food" />
+          <img
+            src={foodLogo}
+            alt="Food"
+          />
         </div>
 
         <button
           className="restaurant-page__header-button"
           type="button"
-          onClick={() => navigate('/notifications')}
+          onClick={() =>
+            navigate('/notifications')
+          }
           aria-label="Notifications"
         >
           <img
@@ -177,8 +505,15 @@ function RestaurantPage() {
       <section className="restaurant-page__hero">
         <img
           className="restaurant-page__hero-image"
-          src={backgroundImage}
-          alt="Pizzalio restaurant"
+          src={
+            restaurant.imageUrl ||
+            backgroundImage
+          }
+          alt={`${restaurant.title} restaurant`}
+          onError={(event) => {
+            event.currentTarget.src =
+              backgroundImage
+          }}
         />
 
         <div className="restaurant-page__hero-actions">
@@ -190,8 +525,13 @@ function RestaurantPage() {
             />
 
             <span>
-              <strong>4.2</strong>
-              <small>300+</small>
+              <strong>
+                {restaurant.ratings}
+              </strong>
+
+              <small>
+                {restaurant.totalRatings}+
+              </small>
             </span>
           </div>
 
@@ -203,7 +543,11 @@ function RestaurantPage() {
             />
 
             <span>
-              <strong>45–55</strong>
+              <strong>
+                {restaurant.deliveryTime ||
+                  '—'}
+              </strong>
+
               <small>min</small>
             </span>
           </div>
@@ -213,7 +557,10 @@ function RestaurantPage() {
               className="restaurant-page__square-button"
               type="button"
               onClick={() =>
-                setIsMenuOpen((currentValue) => !currentValue)
+                setIsMenuOpen(
+                  (currentValue) =>
+                    !currentValue,
+                )
               }
               aria-label="Open restaurant menu"
               aria-expanded={isMenuOpen}
@@ -227,9 +574,13 @@ function RestaurantPage() {
 
             {isMenuOpen && (
               <div className="restaurant-page__popup-menu">
-                <button type="button">Call</button>
+                <button type="button">
+                  Call
+                </button>
 
-                <button type="button">Share</button>
+                <button type="button">
+                  Share
+                </button>
 
                 <button
                   className="restaurant-page__report-button"
@@ -245,7 +596,10 @@ function RestaurantPage() {
             className="restaurant-page__square-button"
             type="button"
             onClick={() =>
-              setIsFavorite((currentValue) => !currentValue)
+              setIsFavorite(
+                (currentValue) =>
+                  !currentValue,
+              )
             }
             aria-label={
               isFavorite
@@ -255,7 +609,11 @@ function RestaurantPage() {
             aria-pressed={isFavorite}
           >
             <img
-              src={isFavorite ? likeOnIcon : likeOffIcon}
+              src={
+                isFavorite
+                  ? likeOnIcon
+                  : likeOffIcon
+              }
               alt=""
               aria-hidden="true"
             />
@@ -264,10 +622,12 @@ function RestaurantPage() {
       </section>
 
       <section className="restaurant-page__information">
-        <h1>Pizzalio</h1>
+        <h1>
+          {restaurant.title}
+        </h1>
 
         <p className="restaurant-page__description">
-          Pizza, pasta and fries
+          {restaurant.description}
         </p>
 
         <div className="restaurant-page__information-row">
@@ -277,7 +637,14 @@ function RestaurantPage() {
             aria-hidden="true"
           />
 
-          <span>Min. order: 15,000 won</span>
+          <span>
+            Min. order:{' '}
+            {formatPrice(
+              getMinOrderAmount(
+                restaurant.minOrderAmount,
+              ),
+            )}
+          </span>
         </div>
 
         <div className="restaurant-page__information-row">
@@ -287,14 +654,20 @@ function RestaurantPage() {
             aria-hidden="true"
           />
 
-          <span>10:00–22:00</span>
+          <span>
+            {getOperatingHours(
+              restaurant,
+            )}
+          </span>
         </div>
       </section>
 
       <button
         className="restaurant-page__search"
         type="button"
-        onClick={() => navigate('/food/search')}
+        onClick={() =>
+          navigate('/food/search')
+        }
       >
         <img
           src={searchIcon}
@@ -302,103 +675,135 @@ function RestaurantPage() {
           aria-hidden="true"
         />
 
-        <span>Search Pizzalio</span>
+        <span>
+          Search {restaurant.title}
+        </span>
       </button>
 
-      <section className="restaurant-page__categories">
-        <h2>Categories</h2>
+      {productGroups.length > 0 && (
+        <section className="restaurant-page__categories">
+          <h2>Categories</h2>
 
-        <div className="restaurant-page__category-list">
-          {categories.map((category) => (
-            <button
-              className="restaurant-page__category-card"
-              type="button"
-              key={category.id}
-              onClick={() => handleCategoryClick(category.id)}
-            >
-              <img
-                src={category.image}
-                alt={category.title}
-              />
+          <div className="restaurant-page__category-list">
+            {productGroups.map(
+              (group) => (
+                <button
+                  className="restaurant-page__category-card"
+                  type="button"
+                  key={group.id}
+                  onClick={() =>
+                    handleCategoryClick(
+                      group.id,
+                    )
+                  }
+                >
+                  {group.image ? (
+                    <img
+                      src={group.image}
+                      alt={group.title}
+                      onError={(event) => {
+                        event.currentTarget.style.display =
+                          'none'
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className="restaurant-page__category-image-placeholder"
+                      aria-hidden="true"
+                    >
+                      No image
+                    </div>
+                  )}
 
-              <strong>{category.title}</strong>
-              <span>{category.subtitle}</span>
-            </button>
-          ))}
-        </div>
-      </section>
+                  <strong>
+                    {group.title}
+                  </strong>
+
+                  <span>
+                    {group.products.length}{' '}
+                    {group.products.length ===
+                    1
+                      ? 'item'
+                      : 'items'}
+                  </span>
+                </button>
+              ),
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="restaurant-page__products">
-        <div
-          className="restaurant-page__section"
-          id="pizza"
-        >
-          <h2 className="restaurant-page__section-title">
-            Pizza
-          </h2>
+        {productGroups.map(
+          (group) => (
+            <div
+              className="restaurant-page__section"
+              id={group.id}
+              key={group.id}
+            >
+              <h2 className="restaurant-page__section-title">
+                {group.title}
+              </h2>
 
-          <div className="restaurant-page__product-list">
-            {pizzaProducts.map((product) => (
-              <RestaurantProductCard
-                key={product.id}
-                product={product}
-                isSelected={isProductOrdered(product.id)}
-                onClick={handleProductClick}
-              />
-            ))}
-          </div>
-        </div>
+              <div className="restaurant-page__product-list">
+                {group.products.map(
+                  (product) => (
+                    <RestaurantProductCard
+                      key={product.id}
+                      product={product}
+                      isSelected={isProductOrdered(
+                        product.id,
+                      )}
+                      onClick={
+                        handleProductClick
+                      }
+                    />
+                  ),
+                )}
+              </div>
+            </div>
+          ),
+        )}
 
-        <div
-          className="restaurant-page__section"
-          id="salads"
-        >
-          <h2 className="restaurant-page__section-title">
-            Salads
-          </h2>
-
-          <div className="restaurant-page__product-list">
-            {saladProducts.map((product) => (
-              <RestaurantProductCard
-                key={product.id}
-                product={product}
-                isSelected={isProductOrdered(product.id)}
-                onClick={handleProductClick}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div
-          className="restaurant-page__section"
-          id="drinks"
-        >
-          <h2 className="restaurant-page__section-title">
-            Something else
-          </h2>
-
-          <div className="restaurant-page__product-list">
-            {drinkProducts.map((product) => (
-              <RestaurantProductCard
-                key={product.id}
-                product={product}
-                isSelected={isProductOrdered(product.id)}
-                onClick={handleProductClick}
-              />
-            ))}
-          </div>
-        </div>
+        {productGroups.length === 0 && (
+          <p
+            style={{
+              padding: '20px 16px',
+              textAlign: 'center',
+            }}
+          >
+            No dishes available.
+          </p>
+        )}
       </section>
+
+      {cartError && (
+        <p
+          role="alert"
+          style={{
+            margin: '16px',
+            color: '#d32f2f',
+            fontSize: '13px',
+            textAlign: 'center',
+          }}
+        >
+          {cartError}
+        </p>
+      )}
 
       {selectedProduct && (
         <ProductModal
           product={selectedProduct}
-          onClose={handleCloseProductModal}
-          onAddToOrder={handleAddToOrder}
+          onClose={
+            handleCloseProductModal
+          }
+          onAddToOrder={
+            handleAddToOrder
+          }
         />
       )}
 
-      {orderItems.length > 0 && (
+      {totalQuantity > 0 && (
         <button
           className="restaurant-page__order-button"
           type="button"

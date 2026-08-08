@@ -40,6 +40,17 @@
   border-radius: 24px 24px 0 0;
 }
 
+.product-modal__image--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f2f2f2;
+
+  color: #9c9c9c;
+  font-size: 13px;
+}
+
 .product-modal__close {
   position: absolute;
   top: 16px;
@@ -100,10 +111,29 @@
 }
 
 .product-modal__options {
-  padding: 24px 16px 18px;
+  padding: 0 16px;
 }
 
-.product-modal__options h3 {
+.product-modal__option-group {
+  padding: 24px 0 18px;
+
+  border-bottom: 1px solid #eeeeee;
+}
+
+.product-modal__option-group:last-child {
+  border-bottom: 0;
+}
+
+.product-modal__option-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin-bottom: 12px;
+}
+
+.product-modal__option-header h3 {
   margin: 0 0 4px;
 
   color: #000000;
@@ -112,12 +142,21 @@
   line-height: 1.2;
 }
 
-.product-modal__options > span {
+.product-modal__option-header span {
   display: block;
-  margin-bottom: 14px;
 
   color: #777777;
   font-size: 13px;
+  line-height: 1.2;
+}
+
+.product-modal__option-header > small {
+  flex-shrink: 0;
+
+  padding-top: 2px;
+
+  color: #8b8b8b;
+  font-size: 11px;
   line-height: 1.2;
 }
 
@@ -138,6 +177,8 @@
   margin: 0;
 
   accent-color: #222222;
+
+  cursor: pointer;
 }
 
 .product-modal__option span {
@@ -150,11 +191,31 @@
   color: #8b8b8b;
   font-size: 13px;
   line-height: 1.2;
+  white-space: nowrap;
+}
+
+.product-modal__option--disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.product-modal__option--disabled input {
+  cursor: default;
+}
+
+.product-modal__no-options {
+  padding: 22px 16px;
+
+  color: #8b8b8b;
+  font-size: 14px;
+
+  border-bottom: 1px solid #eeeeee;
 }
 
 .product-modal__footer {
   position: sticky;
   bottom: 0;
+  z-index: 5;
 
   width: 100%;
   min-height: 92px;
@@ -204,6 +265,7 @@
 }
 
 .product-modal__add-button {
+  min-width: 0;
   height: 52px;
   padding: 0 16px;
 
@@ -211,11 +273,33 @@
   border-radius: 10px;
   background: #222222;
 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
   color: #ffffff;
-  font-size: 15px;
-  font-weight: 500;
 
   cursor: pointer;
+}
+
+.product-modal__add-button span {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.product-modal__add-button small {
+  color: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.product-modal__add-button:disabled {
+  background: #cccccc;
+  color: #ffffff;
+
+  cursor: not-allowed;
 }
 
 @media (max-width: 428px) {

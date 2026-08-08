@@ -1,6 +1,10 @@
 import axios from 'axios'
-import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/order/Back button.svg'
 import bankIcon from '../../assets/order/bank.svg'
@@ -15,21 +19,26 @@ import {
   checkoutMyCart,
   getMyCart,
 } from '../../services/cartService'
+import { getRestaurantById } from '../../services/restaurantService'
 import type { CartResponse } from '../../types/cart'
 
 import { formatPrice } from '../RestaurantPage/restaurantData'
 
 import './OrderPaymentPage.css'
 
-interface OrderPaymentPageState {
-  cart?: CartResponse
-}
-
 interface StoredUser {
   username?: string
 }
 
-const MIN_ORDER_AMOUNT = 15000
+const FALLBACK_MIN_ORDER_AMOUNT = 15000
+
+function normalizeMinOrderAmount(amount: number): number {
+  if (amount > 0 && amount < 1000) {
+    return amount * 1000
+  }
+
+  return amount
+}
 
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -61,7 +70,6 @@ function getClientPhone(): string {
 
   try {
     const user = JSON.parse(storedUser) as StoredUser
-
     return user.username ?? ''
   } catch {
     return ''
@@ -70,17 +78,12 @@ function getClientPhone(): string {
 
 function OrderPaymentPage() {
   const navigate = useNavigate()
-  const location = useLocation()
 
-  const locationState =
-    location.state as OrderPaymentPageState | null
-
-  const [cart, setCart] = useState<CartResponse | null>(
-    locationState?.cart ?? null,
+  const [cart, setCart] = useState<CartResponse | null>(null)
+  const [minimumOrderAmount, setMinimumOrderAmount] = useState(
+    FALLBACK_MIN_ORDER_AMOUNT,
   )
-  const [isLoadingCart, setIsLoadingCart] = useState(
-    !locationState?.cart,
-  )
+  const [isLoadingCart, setIsLoadingCart] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -97,6 +100,47 @@ function OrderPaymentPage() {
 
         setCart(currentCart)
         setErrorMessage('')
+
+        const restaurantId =
+          currentCart.items[0]?.restaurantId
+
+        if (!restaurantId) {
+          setMinimumOrderAmount(
+            FALLBACK_MIN_ORDER_AMOUNT,
+          )
+          return
+        }
+
+        try {
+          const restaurant =
+            await getRestaurantById(restaurantId)
+
+          if (!isMounted) {
+            return
+          }
+
+          const normalizedAmount =
+            normalizeMinOrderAmount(
+              restaurant.minOrderAmount,
+            )
+
+          setMinimumOrderAmount(
+            normalizedAmount > 0
+              ? normalizedAmount
+              : FALLBACK_MIN_ORDER_AMOUNT,
+          )
+        } catch (error) {
+          console.error(
+            'Failed to load restaurant minimum order:',
+            error,
+          )
+
+          if (isMounted) {
+            setMinimumOrderAmount(
+              FALLBACK_MIN_ORDER_AMOUNT,
+            )
+          }
+        }
       } catch (error) {
         if (!isMounted) {
           return
@@ -120,19 +164,32 @@ function OrderPaymentPage() {
   const orderAmount = cart?.sumOrder ?? 0
   const deliveryPrice = cart?.deliveryPrice ?? 0
   const totalPrice =
-    cart?.totalSum ?? orderAmount + deliveryPrice
+    cart?.totalSum ??
+    orderAmount + deliveryPrice
 
   const restaurant = cart?.items[0]
   const restaurantId = restaurant?.restaurantId
   const restaurantName =
     restaurant?.restaurantName ?? 'Restaurant'
 
+  const missingAmount = Math.max(
+    minimumOrderAmount - orderAmount,
+    0,
+  )
+
+  const hasReachedMinimum = missingAmount === 0
+
   const canPay =
     Boolean(cart) &&
     Boolean(restaurantId) &&
-    orderAmount >= MIN_ORDER_AMOUNT &&
+    hasReachedMinimum &&
     !isSending &&
     !isLoadingCart
+
+  const deliveryTimeText = useMemo(
+    () => '45–55 minutes',
+    [],
+  )
 
   const handlePay = async () => {
     if (!canPay || !restaurantId) {
@@ -157,7 +214,7 @@ function OrderPaymentPage() {
         typeAddress: 0,
         intercomCode: '',
         clientPhone: getClientPhone(),
-        deliveryTime: '45–55 minutes',
+        deliveryTime: deliveryTimeText,
         payment: 'CASH',
         noteForCourier: 'Leave at the door',
         details: '',
@@ -237,6 +294,17 @@ function OrderPaymentPage() {
           >
             Loading order...
           </div>
+        ) : !cart || cart.items.length === 0 ? (
+          <div className="order-payment-page__empty">
+            <p>Your order is empty</p>
+
+            <button
+              type="button"
+              onClick={() => navigate('/food')}
+            >
+              Return to restaurants
+            </button>
+          </div>
         ) : (
           <>
             <h2>{restaurantName}</h2>
@@ -255,7 +323,7 @@ function OrderPaymentPage() {
 
                 <div>
                   <strong>
-                    Delivery in 45–55 minutes.
+                    Delivery in {deliveryTimeText}.
                   </strong>
                 </div>
               </button>
@@ -347,23 +415,40 @@ function OrderPaymentPage() {
                 </strong>
               </div>
             </section>
+
+            {!hasReachedMinimum && (
+              <div
+                className="order-payment-page__minimum-message"
+                role="status"
+              >
+                Minimum order is{' '}
+                {formatPrice(minimumOrderAmount)}.
+                Add {formatPrice(missingAmount)} more.
+              </div>
+            )}
           </>
         )}
       </section>
 
-      {!isLoadingCart && (
-        <div className="order-payment-page__bottom">
-          <strong>{formatPrice(totalPrice)}</strong>
+      {!isLoadingCart &&
+        cart &&
+        cart.items.length > 0 && (
+          <div className="order-payment-page__bottom">
+            <strong>{formatPrice(totalPrice)}</strong>
 
-          <button
-            type="button"
-            onClick={() => void handlePay()}
-            disabled={!canPay}
-          >
-            {isSending ? 'Sending...' : 'Pay'}
-          </button>
-        </div>
-      )}
+            <button
+              type="button"
+              onClick={() => void handlePay()}
+              disabled={!canPay}
+            >
+              {isSending
+                ? 'Sending...'
+                : hasReachedMinimum
+                  ? 'Pay'
+                  : `Add ${formatPrice(missingAmount)} more`}
+            </button>
+          </div>
+        )}
 
       {isSending && (
         <div

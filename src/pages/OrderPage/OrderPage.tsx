@@ -18,6 +18,7 @@ import {
   removeCartItem,
   updateCartItemQuantity,
 } from '../../services/cartService'
+import { getRestaurantById } from '../../services/restaurantService'
 import type {
   CartItemResponse,
   CartResponse,
@@ -33,7 +34,15 @@ export interface OrderItem {
   quantity: number
 }
 
-const MIN_ORDER_AMOUNT = 15000
+const FALLBACK_MIN_ORDER_AMOUNT = 15000
+
+function normalizeMinOrderAmount(amount: number): number {
+  if (amount > 0 && amount < 1000) {
+    return amount * 1000
+  }
+
+  return amount
+}
 
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -72,8 +81,10 @@ function createTemporaryOrderItems(
         item.count > 0
           ? Math.round(item.sum / item.count)
           : item.sum,
+      category: 'pizza',
       image: item.dishImageUrl,
-    } as RestaurantProduct,
+      options: [],
+    },
     quantity: item.count,
   }))
 }
@@ -81,94 +92,164 @@ function createTemporaryOrderItems(
 function OrderPage() {
   const navigate = useNavigate()
 
-  const [cart, setCart] = useState<CartResponse | null>(
-    null,
+  const [cart, setCart] = useState<CartResponse | null>(null)
+  const [minimumOrderAmount, setMinimumOrderAmount] = useState(
+    FALLBACK_MIN_ORDER_AMOUNT,
   )
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const [updatingDishId, setUpdatingDishId] = useState<
     number | null
   >(null)
+  const [failedImageIds, setFailedImageIds] = useState<Set<number>>(
+    () => new Set(),
+  )
 
   const [isEditing, setIsEditing] = useState(false)
   const [deleteCandidateId, setDeleteCandidateId] = useState<
     number | null
   >(null)
 
+  const loadRestaurantMinimum = useCallback(
+    async (currentCart: CartResponse) => {
+      const restaurantId = currentCart.items[0]?.restaurantId
+
+      if (!restaurantId) {
+        setMinimumOrderAmount(FALLBACK_MIN_ORDER_AMOUNT)
+        return
+      }
+
+      try {
+        const restaurant = await getRestaurantById(restaurantId)
+        const normalizedAmount = normalizeMinOrderAmount(
+          restaurant.minOrderAmount,
+        )
+
+        setMinimumOrderAmount(
+          normalizedAmount > 0
+            ? normalizedAmount
+            : FALLBACK_MIN_ORDER_AMOUNT,
+        )
+      } catch (error) {
+        console.error('Failed to load restaurant minimum order:', error)
+        setMinimumOrderAmount(FALLBACK_MIN_ORDER_AMOUNT)
+      }
+    },
+    [],
+  )
+
   const loadCart = useCallback(
-  async (showLoading = true) => {
-    if (showLoading) {
-      setIsLoading(true)
-    }
+    async (showLoading = true) => {
+      if (showLoading) {
+        setIsLoading(true)
+      }
 
-    try {
-      const currentCart = await getMyCart()
+      try {
+        const currentCart = await getMyCart()
 
-      setCart(currentCart)
-      setErrorMessage('')
-    } catch (error) {
-      if (
-        axios.isAxiosError(error) &&
-        error.response?.status === 404
-      ) {
-        setCart(null)
+        setCart(currentCart)
         setErrorMessage('')
-        return
-      }
+        await loadRestaurantMinimum(currentCart)
+      } catch (error) {
+        if (
+          axios.isAxiosError(error) &&
+          error.response?.status === 404
+        ) {
+          setCart(null)
+          setErrorMessage('')
+          setMinimumOrderAmount(FALLBACK_MIN_ORDER_AMOUNT)
+          return
+        }
 
-      setErrorMessage(getErrorMessage(error))
-    } finally {
-      setIsLoading(false)
-    }
-  },
-  [],
-)
-
-useEffect(() => {
-  let isMounted = true
-
-  const fetchInitialCart = async () => {
-    try {
-      const currentCart = await getMyCart()
-
-      if (!isMounted) {
-        return
-      }
-
-      setCart(currentCart)
-      setErrorMessage('')
-    } catch (error) {
-      if (!isMounted) {
-        return
-      }
-
-      if (
-        axios.isAxiosError(error) &&
-        error.response?.status === 404
-      ) {
-        setCart(null)
-        setErrorMessage('')
-      } else {
         setErrorMessage(getErrorMessage(error))
-      }
-    } finally {
-      if (isMounted) {
+      } finally {
         setIsLoading(false)
       }
+    },
+    [loadRestaurantMinimum],
+  )
+
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchInitialCart = async () => {
+      try {
+        const currentCart = await getMyCart()
+
+        if (!isMounted) {
+          return
+        }
+
+        setCart(currentCart)
+        setErrorMessage('')
+
+        const restaurantId = currentCart.items[0]?.restaurantId
+
+        if (!restaurantId) {
+          setMinimumOrderAmount(FALLBACK_MIN_ORDER_AMOUNT)
+          return
+        }
+
+        try {
+          const restaurant = await getRestaurantById(restaurantId)
+
+          if (!isMounted) {
+            return
+          }
+
+          const normalizedAmount = normalizeMinOrderAmount(
+            restaurant.minOrderAmount,
+          )
+
+          setMinimumOrderAmount(
+            normalizedAmount > 0
+              ? normalizedAmount
+              : FALLBACK_MIN_ORDER_AMOUNT,
+          )
+        } catch (error) {
+          console.error(
+            'Failed to load restaurant minimum order:',
+            error,
+          )
+
+          if (isMounted) {
+            setMinimumOrderAmount(FALLBACK_MIN_ORDER_AMOUNT)
+          }
+        }
+      } catch (error) {
+        if (!isMounted) {
+          return
+        }
+
+        if (
+          axios.isAxiosError(error) &&
+          error.response?.status === 404
+        ) {
+          setCart(null)
+          setErrorMessage('')
+          setMinimumOrderAmount(FALLBACK_MIN_ORDER_AMOUNT)
+          return
+        }
+
+        setErrorMessage(getErrorMessage(error))
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
     }
-  }
 
-  void fetchInitialCart()
+    void fetchInitialCart()
 
-  return () => {
-    isMounted = false
-  }
-}, [])
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
-const orderItems = useMemo(
-  () => cart?.items ?? [],
-  [cart],
-)
+  const orderItems = useMemo(
+    () => cart?.items ?? [],
+    [cart],
+  )
 
   const totalQuantity = useMemo(
     () =>
@@ -182,7 +263,7 @@ const orderItems = useMemo(
   const orderAmount = cart?.sumOrder ?? 0
 
   const missingAmount = Math.max(
-    MIN_ORDER_AMOUNT - orderAmount,
+    minimumOrderAmount - orderAmount,
     0,
   )
 
@@ -214,15 +295,11 @@ const orderItems = useMemo(
     }
   }
 
-  const increaseQuantity = (
-    item: CartItemResponse,
-  ) => {
+  const increaseQuantity = (item: CartItemResponse) => {
     void updateQuantity(item.dishId, item.count + 1)
   }
 
-  const decreaseQuantity = (
-    item: CartItemResponse,
-  ) => {
+  const decreaseQuantity = (item: CartItemResponse) => {
     if (item.count === 1) {
       setDeleteCandidateId(item.dishId)
       return
@@ -244,6 +321,10 @@ const orderItems = useMemo(
 
       setCart(updatedCart)
       setDeleteCandidateId(null)
+
+      if (updatedCart.items.length === 0) {
+        setIsEditing(false)
+      }
     } catch (error) {
       setErrorMessage(getErrorMessage(error))
     } finally {
@@ -256,6 +337,14 @@ const orderItems = useMemo(
     setDeleteCandidateId(null)
   }
 
+  const handleImageError = (dishId: number) => {
+    setFailedImageIds((currentIds) => {
+      const nextIds = new Set(currentIds)
+      nextIds.add(dishId)
+      return nextIds
+    })
+  }
+
   const handleProceedToPayment = () => {
     if (
       orderItems.length === 0 ||
@@ -265,8 +354,7 @@ const orderItems = useMemo(
       return
     }
 
-    const temporaryOrderItems =
-      createTemporaryOrderItems(orderItems)
+    const temporaryOrderItems = createTemporaryOrderItems(orderItems)
 
     navigate('/food/order/payment', {
       state: {
@@ -324,7 +412,7 @@ const orderItems = useMemo(
           >
             <p>{errorMessage}</p>
 
-            {isLoading === false && orderItems.length === 0 && (
+            {!isLoading && orderItems.length === 0 && (
               <button
                 type="button"
                 onClick={() => void loadCart()}
@@ -380,11 +468,18 @@ const orderItems = useMemo(
                 const isUpdating =
                   updatingDishId === item.dishId
 
+                const selectedElements = item.elements
+                  .map((element) => element.name)
+                  .filter(Boolean)
+
                 const description =
-                  item.elements
-                    .map((element) => element.name)
-                    .filter(Boolean)
-                    .join(', ') || item.restaurantName
+                  selectedElements.length > 0
+                    ? selectedElements.join(', ')
+                    : item.restaurantName
+
+                const hasImage =
+                  Boolean(item.dishImageUrl?.trim()) &&
+                  !failedImageIds.has(item.dishId)
 
                 return (
                   <article
@@ -407,17 +502,22 @@ const orderItems = useMemo(
                     </div>
 
                     <div className="order-page__image-wrapper">
-                      {item.dishImageUrl ? (
+                      {hasImage ? (
                         <img
                           className="order-page__item-image"
                           src={item.dishImageUrl}
                           alt={item.dishTitle}
+                          onError={() =>
+                            handleImageError(item.dishId)
+                          }
                         />
                       ) : (
                         <div
                           className="order-page__image-placeholder"
                           aria-label="No dish image"
-                        />
+                        >
+                          No image
+                        </div>
                       )}
 
                       {isEditing &&
@@ -441,9 +541,7 @@ const orderItems = useMemo(
                           <div className="order-page__quantity">
                             <button
                               type="button"
-                              onClick={() =>
-                                decreaseQuantity(item)
-                              }
+                              onClick={() => decreaseQuantity(item)}
                               aria-label={`Decrease ${item.dishTitle} quantity`}
                               disabled={isUpdating}
                             >
@@ -454,9 +552,7 @@ const orderItems = useMemo(
 
                             <button
                               type="button"
-                              onClick={() =>
-                                increaseQuantity(item)
-                              }
+                              onClick={() => increaseQuantity(item)}
                               aria-label={`Increase ${item.dishTitle} quantity`}
                               disabled={isUpdating}
                             >
@@ -476,7 +572,7 @@ const orderItems = useMemo(
                 role="status"
               >
                 Minimum order is{' '}
-                {formatPrice(MIN_ORDER_AMOUNT)}.
+                {formatPrice(minimumOrderAmount)}.
                 Add {formatPrice(missingAmount)} more.
               </div>
             )}
