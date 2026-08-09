@@ -67,66 +67,97 @@ function getStatusContent(
   order: OrderResponse,
 ): StatusContent {
   const orderStatus = normalizeStatus(order.status)
-  const deliveryStatus = normalizeStatus(
-    order.deliveryStatus,
-  )
 
-  const combinedStatus = `${orderStatus} ${deliveryStatus}`
+  switch (orderStatus) {
+    case 'PENDING':
+      return {
+        image: preparingImage,
+        imageAlt: 'Order pending',
+        title: 'Order received',
+        message:
+          'The restaurant received your order.\nWaiting for confirmation.',
+        phase: 'preparing',
+      }
 
-  if (
-    combinedStatus.includes('CANCEL') ||
-    combinedStatus.includes('REJECT') ||
-    combinedStatus.includes('FAILED')
-  ) {
-    return {
-      image: preparingImage,
-      imageAlt: 'Order cancelled',
-      title: 'Order cancelled',
-      message:
-        'Unfortunately, your order was cancelled.\nPlease contact support for more information.',
-      phase: 'cancelled',
-    }
-  }
+    case 'CONFIRMED':
+      return {
+        image: preparingImage,
+        imageAlt: 'Order confirmed',
+        title: 'Your order is confirmed',
+        message:
+          'The restaurant confirmed your order.\nPreparation will begin soon.',
+        phase: 'preparing',
+      }
 
-  if (
-    combinedStatus.includes('DELIVERED') ||
-    combinedStatus.includes('COMPLETED')
-  ) {
-    return {
-      image: deliveredImage,
-      imageAlt: 'Order delivered',
-      title: 'Order delivered',
-      message:
-        'Your order has been delivered!\nThank you for choosing UT Food',
-      phase: 'delivered',
-    }
-  }
+    case 'PREPARING':
+      return {
+        image: preparingImage,
+        imageAlt: 'Restaurant preparing the order',
+        title: 'Your order is being prepared',
+        message:
+          'The restaurant is preparing your order.\nWe will update this page automatically.',
+        phase: 'preparing',
+      }
 
-  if (
-    combinedStatus.includes('DELIVERING') ||
-    combinedStatus.includes('DELIVERY') ||
-    combinedStatus.includes('COURIER') ||
-    combinedStatus.includes('PICKED') ||
-    combinedStatus.includes('ON_THE_WAY') ||
-    combinedStatus.includes('ON THE WAY')
-  ) {
-    return {
-      image: courierImage,
-      imageAlt: 'Courier delivering the order',
-      title: 'The courier is on the way',
-      message:
-        'The courier has picked up your order!\nYour order will arrive soon.',
-      phase: 'courier',
-    }
-  }
+    case 'READY':
+      return {
+        image: preparingImage,
+        imageAlt: 'Order ready',
+        title: 'Your order is ready',
+        message:
+          'The restaurant finished preparing your order.\nWaiting for the courier.',
+        phase: 'preparing',
+      }
 
-  return {
-    image: preparingImage,
-    imageAlt: 'Restaurant preparing the order',
-    title: 'Your order is being prepared',
-    message:
-      'The restaurant is processing your order.\nWe will update this page automatically.',
-    phase: 'preparing',
+    case 'OUT_FOR_DELIVERY':
+      return {
+        image: courierImage,
+        imageAlt: 'Courier delivering the order',
+        title: 'The courier is on the way',
+        message:
+          'The courier has picked up your order!\nYour order will arrive soon.',
+        phase: 'courier',
+      }
+
+    case 'DELIVERED':
+      return {
+        image: deliveredImage,
+        imageAlt: 'Order delivered',
+        title: 'Order delivered',
+        message:
+          'Your order has been delivered!\nThank you for choosing UT Food.',
+        phase: 'delivered',
+      }
+
+    case 'CANCELLED':
+      return {
+        image: preparingImage,
+        imageAlt: 'Order cancelled',
+        title: 'Order cancelled',
+        message:
+          'Unfortunately, your order was cancelled.\nPlease contact support for more information.',
+        phase: 'cancelled',
+      }
+
+    case 'REFUNDED':
+      return {
+        image: preparingImage,
+        imageAlt: 'Order refunded',
+        title: 'Order refunded',
+        message:
+          'The order has been refunded.\nPlease contact support if you have any questions.',
+        phase: 'cancelled',
+      }
+
+    default:
+      return {
+        image: preparingImage,
+        imageAlt: 'Order status',
+        title: 'Order status',
+        message:
+          'We are checking the current order status.\nThis page will update automatically.',
+        phase: 'preparing',
+      }
   }
 }
 

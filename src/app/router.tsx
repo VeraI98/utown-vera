@@ -4,6 +4,7 @@ import ProtectedRoute from '../components/ProtectedRoute'
 
 import AccountPasswordPage from '../pages/AccountPasswordPage/AccountPasswordPage'
 import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
+import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
 import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
 import FavoritesPage from '../pages/FavoritesPage/FavoritesPage'
 import FoodMorePage from '../pages/FoodMorePage/FoodMorePage'
@@ -16,6 +17,7 @@ import NotificationsPage from '../pages/NotificationsPage/NotificationsPage'
 import OrderPage from '../pages/OrderPage/OrderPage'
 import OrderPaymentPage from '../pages/OrderPaymentPage/OrderPaymentPage'
 import OrderRatingPage from '../pages/OrderRatingPage/OrderRatingPage'
+import OrdersHistoryPage from '../pages/OrdersHistoryPage/OrdersHistoryPage'
 import OrderStatusPage from '../pages/OrderStatusPage/OrderStatusPage'
 import PersonalInformationPage from '../pages/PersonalInformationPage/PersonalInformationPage'
 import ProfilePage from '../pages/ProfilePage/ProfilePage'
@@ -48,9 +50,9 @@ export const router = createBrowserRouter([
     element: <FoodSearch />,
   },
   {
-  path: '/food/restaurants/:restaurantId',
-  element: <RestaurantPage />,
-},
+    path: '/food/restaurants/:restaurantId',
+    element: <RestaurantPage />,
+  },
   {
     path: '/food/order',
     element: <OrderPage />,
@@ -60,13 +62,29 @@ export const router = createBrowserRouter([
     element: <OrderPaymentPage />,
   },
   {
-  path: '/food/order/:orderId/rating',
-  element: <OrderRatingPage />,
-},
+    path: '/food/order/address',
+    element: (
+      <ProtectedRoute>
+        <AddressCreatePage />
+      </ProtectedRoute>
+    ),
+  },
   {
-  path: '/food/order/:orderId/status',
-  element: <OrderStatusPage />,
-},
+    path: '/food/orders',
+    element: (
+      <ProtectedRoute>
+        <OrdersHistoryPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/food/order/:orderId/rating',
+    element: <OrderRatingPage />,
+  },
+  {
+    path: '/food/order/:orderId/status',
+    element: <OrderStatusPage />,
+  },
   {
     path: '/food/establishments',
     element: <FoodMorePage title="Establishments" />,

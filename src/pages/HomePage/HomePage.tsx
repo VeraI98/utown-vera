@@ -87,11 +87,15 @@ function HomePage() {
   const { user } = useAuth()
 
   return (
-    <main className="mobile-page home-page">
+    <main className="home-page">
       <section className="home-screen">
         <header className="home-header">
           <div className="home-top-bar">
-            <img className="home-logo-image" src={logo} alt="UT" />
+            <img
+              className="home-logo-image"
+              src={logo}
+              alt="UT"
+            />
 
             <button
               className="home-notification-button"
@@ -99,7 +103,11 @@ function HomePage() {
               onClick={() => navigate('/notifications')}
               aria-label="Notifications"
             >
-              <img src={bellIcon} alt="" aria-hidden="true" />
+              <img
+                src={bellIcon}
+                alt=""
+                aria-hidden="true"
+              />
             </button>
           </div>
         </header>
@@ -107,16 +115,25 @@ function HomePage() {
         <div className="home-content">
           <section className="home-greeting-section">
             <h1>
-              Hello, {user?.fullName || user?.username || 'User'}!
+              Hello,{' '}
+              {user?.fullName ||
+                user?.username ||
+                'User'}
+              !
             </h1>
 
             <div className="home-info-grid">
               <article className="weather-card">
-                <p className="weather-city">City name</p>
+                <p className="weather-city">
+                  City name
+                </p>
 
                 <div className="weather-main">
                   <span>+12°</span>
-                  <span className="weather-sun">☼</span>
+
+                  <span className="weather-sun">
+                    ☼
+                  </span>
                 </div>
 
                 <div className="weather-details">
@@ -126,16 +143,38 @@ function HomePage() {
                 </div>
               </article>
 
-              <button className="active-orders-card" type="button">
-                <span className="active-orders-icon">🛒</span>
-                <span>Your active orders</span>
+              <button
+                className="active-orders-card"
+                type="button"
+                onClick={() =>
+                  navigate('/food/orders')
+                }
+              >
+                <span className="active-orders-icon">
+                  🛒
+                </span>
+
+                <span>
+                  Your active orders
+                </span>
               </button>
             </div>
           </section>
 
-          <section className="home-service-grid" aria-label="Main services">
-            <Link className="service-card service-food" to="/food">
-              <img src={foodDeliveryIcon} alt="" aria-hidden="true" />
+          <section
+            className="home-service-grid"
+            aria-label="Main services"
+          >
+            <Link
+              className="service-card service-food"
+              to="/food"
+            >
+              <img
+                src={foodDeliveryIcon}
+                alt=""
+                aria-hidden="true"
+              />
+
               <span>Food delivery</span>
             </Link>
 
@@ -143,22 +182,48 @@ function HomePage() {
               className="service-card service-mobile"
               to="/mobile-connection"
             >
-              <img src={mobileConnectionIcon} alt="" aria-hidden="true" />
-              <span>Mobile connection</span>
+              <img
+                src={mobileConnectionIcon}
+                alt=""
+                aria-hidden="true"
+              />
+
+              <span>
+                Mobile connection
+              </span>
             </Link>
 
-            <Link className="service-card service-services" to="/services">
-              <img src={servicesIcon} alt="" aria-hidden="true" />
+            <Link
+              className="service-card service-services"
+              to="/services"
+            >
+              <img
+                src={servicesIcon}
+                alt=""
+                aria-hidden="true"
+              />
+
               <span>Services</span>
             </Link>
 
-            <Link className="service-card service-jobs" to="/jobs">
-              <img src={jobsIcon} alt="" aria-hidden="true" />
+            <Link
+              className="service-card service-jobs"
+              to="/jobs"
+            >
+              <img
+                src={jobsIcon}
+                alt=""
+                aria-hidden="true"
+              />
+
               <span>Jobs</span>
             </Link>
           </section>
 
-          <section className="home-ad-section" aria-label="Advertisements">
+          <section
+            className="home-ad-section"
+            aria-label="Advertisements"
+          >
             <div className="home-ad-list">
               {ads.map((ad, index) => (
                 <article
@@ -169,7 +234,10 @@ function HomePage() {
                   }
                   key={ad.id}
                 >
-                  <img src={ad.image} alt={ad.alt} />
+                  <img
+                    src={ad.image}
+                    alt={ad.alt}
+                  />
                 </article>
               ))}
             </div>
@@ -179,52 +247,92 @@ function HomePage() {
             <div className="section-header">
               <h2>Food delivery</h2>
 
-              <Link className="section-more-link" to="/food">
+              <Link
+                className="section-more-link"
+                to="/food"
+              >
                 More
               </Link>
             </div>
 
             <div className="restaurant-list">
-              {restaurants.map((restaurant) => (
-                <Link
-                  className="restaurant-card"
-                  to={`/restaurants/${restaurant.id}`}
-                  key={restaurant.id}
-                >
-                  <img
-                    className="restaurant-image"
-                    src={restaurant.image}
-                    alt={restaurant.title}
-                  />
+              {restaurants.map(
+                (restaurant) => (
+                  <Link
+                    className="restaurant-card"
+                    to={`/food/restaurants/${restaurant.id}`}
+                    key={restaurant.id}
+                  >
+                    <img
+                      className="restaurant-image"
+                      src={restaurant.image}
+                      alt={restaurant.title}
+                    />
 
-                  <div className="restaurant-body">
-                    <h3>{restaurant.title}</h3>
-                    <p>{restaurant.subtitle}</p>
+                    <div className="restaurant-body">
+                      <h3>
+                        {restaurant.title}
+                      </h3>
 
-                    <div className="restaurant-meta">
-                      <span>♿</span>
-                      <span>3,000 won · 45-55 min</span>
+                      <p>
+                        {restaurant.subtitle}
+                      </p>
+
+                      <div className="restaurant-meta">
+                        <span>♿</span>
+
+                        <span>
+                          3,000 won · 45-55 min
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                ),
+              )}
             </div>
           </section>
         </div>
 
-        <nav className="bottom-nav" aria-label="Main navigation">
-          <Link className="bottom-nav-link active" to="/">
-            <img src={homeIcon} alt="" aria-hidden="true" />
+        <nav
+          className="bottom-nav"
+          aria-label="Main navigation"
+        >
+          <Link
+            className="bottom-nav-link active"
+            to="/"
+          >
+            <img
+              src={homeIcon}
+              alt=""
+              aria-hidden="true"
+            />
+
             <span>Home</span>
           </Link>
 
-          <Link className="bottom-nav-link" to="/favorites">
-            <img src={favoritesIcon} alt="" aria-hidden="true" />
+          <Link
+            className="bottom-nav-link"
+            to="/favorites"
+          >
+            <img
+              src={favoritesIcon}
+              alt=""
+              aria-hidden="true"
+            />
+
             <span>Favorites</span>
           </Link>
 
-          <Link className="bottom-nav-link" to="/profile">
-            <img src={profileIcon} alt="" aria-hidden="true" />
+          <Link
+            className="bottom-nav-link"
+            to="/profile"
+          >
+            <img
+              src={profileIcon}
+              alt=""
+              aria-hidden="true"
+            />
+
             <span>Profile</span>
           </Link>
         </nav>

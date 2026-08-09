@@ -116,8 +116,9 @@
   margin: 2px 0;
 }
 
-.registration-error-link {
+.registration-link {
   margin-top: 24px;
+
   color: #3478f6;
   font-size: 14px;
   font-weight: 600;
@@ -125,7 +126,7 @@
   text-decoration: none;
 }
 
-.registration-error-link:hover {
+.registration-link:hover {
   text-decoration: underline;
 }
 
