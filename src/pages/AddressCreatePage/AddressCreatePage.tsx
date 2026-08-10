@@ -71,8 +71,11 @@ function AddressCreatePage() {
   const [form, setForm] =
     useState<AddressFormState>(initialFormState)
 
-  const [isSaving, setIsSaving] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
+  const [isSaving, setIsSaving] =
+    useState(false)
+
+  const [errorMessage, setErrorMessage] =
+    useState('')
 
   const handleChange = (
     event: ChangeEvent<
@@ -85,10 +88,12 @@ function AddressCreatePage() {
       ...currentForm,
       [name]: value,
     }))
+
+    setErrorMessage('')
   }
 
   const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>,
+    event: FormEvent,
   ) => {
     event.preventDefault()
 
@@ -109,6 +114,7 @@ function AddressCreatePage() {
       setErrorMessage(
         'Please fill in the required address fields.',
       )
+
       return
     }
 
@@ -120,6 +126,7 @@ function AddressCreatePage() {
       setErrorMessage(
         'Latitude, longitude and address type must be valid numbers.',
       )
+
       return
     }
 
@@ -134,20 +141,31 @@ function AddressCreatePage() {
       state: form.state.trim(),
       street: form.street.trim(),
       typeAddress,
-      intercomCode: form.intercomCode.trim(),
+      intercomCode:
+        form.intercomCode.trim(),
     }
 
     try {
       setIsSaving(true)
       setErrorMessage('')
 
-      await createAddress(request)
+      const createdAddress =
+        await createAddress(request)
 
-      navigate('/food/order/payment', {
-        replace: true,
-      })
+      navigate(
+        '/food/order/payment',
+        {
+          replace: true,
+          state: {
+            createdAddress,
+          },
+        },
+      )
     } catch (error) {
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(
+        getErrorMessage(error),
+      )
+
       setIsSaving(false)
     }
   }
@@ -173,18 +191,28 @@ function AddressCreatePage() {
           className="address-create-page__logo"
           aria-label="UT Food"
         >
-          <img src={utLogo} alt="UT" />
-          <img src={foodLogo} alt="Food" />
+          <img
+            src={utLogo}
+            alt="UT"
+          />
+
+          <img
+            src={foodLogo}
+            alt="Food"
+          />
         </div>
 
         <div />
       </header>
 
       <section className="address-create-page__content">
-        <h1>Add delivery address</h1>
+        <h1>
+          Add delivery address
+        </h1>
 
         <p className="address-create-page__intro">
-          Enter the address details that will be used for delivery.
+          Enter the address details that will be
+          used for delivery.
         </p>
 
         {errorMessage && (
@@ -198,10 +226,13 @@ function AddressCreatePage() {
 
         <form
           className="address-create-page__form"
-          onSubmit={(event) => void handleSubmit(event)}
+          onSubmit={(event) =>
+            void handleSubmit(event)
+          }
         >
           <label>
             <span>Full address *</span>
+
             <input
               name="fullAddress"
               value={form.fullAddress}
@@ -213,6 +244,7 @@ function AddressCreatePage() {
 
           <label>
             <span>Street *</span>
+
             <input
               name="street"
               value={form.street}
@@ -225,6 +257,7 @@ function AddressCreatePage() {
           <div className="address-create-page__row">
             <label>
               <span>City *</span>
+
               <input
                 name="city"
                 value={form.city}
@@ -236,6 +269,7 @@ function AddressCreatePage() {
 
             <label>
               <span>Postcode *</span>
+
               <input
                 name="postcode"
                 value={form.postcode}
@@ -248,7 +282,10 @@ function AddressCreatePage() {
 
           <div className="address-create-page__row">
             <label>
-              <span>State / Province</span>
+              <span>
+                State / Province
+              </span>
+
               <input
                 name="state"
                 value={form.state}
@@ -260,6 +297,7 @@ function AddressCreatePage() {
 
             <label>
               <span>Area</span>
+
               <input
                 name="area"
                 value={form.area}
@@ -273,6 +311,7 @@ function AddressCreatePage() {
           <div className="address-create-page__row">
             <label>
               <span>Latitude</span>
+
               <input
                 name="latitude"
                 type="number"
@@ -285,6 +324,7 @@ function AddressCreatePage() {
 
             <label>
               <span>Longitude</span>
+
               <input
                 name="longitude"
                 type="number"
@@ -298,6 +338,7 @@ function AddressCreatePage() {
 
           <label>
             <span>Address type</span>
+
             <input
               name="typeAddress"
               type="number"
@@ -309,6 +350,7 @@ function AddressCreatePage() {
 
           <label>
             <span>Intercom code</span>
+
             <input
               name="intercomCode"
               value={form.intercomCode}
@@ -320,6 +362,7 @@ function AddressCreatePage() {
 
           <label>
             <span>Details</span>
+
             <textarea
               name="details"
               value={form.details}

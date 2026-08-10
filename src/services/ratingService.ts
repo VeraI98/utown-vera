@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 import { api } from './api'
 
 export interface CreateRatingRequest {
@@ -23,4 +25,25 @@ export async function createRating(
   )
 
   return data
+}
+
+export async function getMyRestaurantRating(
+  restaurantId: number,
+): Promise<RatingResponse | null> {
+  try {
+    const { data } = await api.get<RatingResponse>(
+      `/ratings/my-rating/restaurant/${restaurantId}`,
+    )
+
+    return data
+  } catch (error) {
+    if (
+      axios.isAxiosError(error) &&
+      error.response?.status === 404
+    ) {
+      return null
+    }
+
+    throw error
+  }
 }

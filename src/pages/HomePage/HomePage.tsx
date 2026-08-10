@@ -1,5 +1,14 @@
-import { Link, useNavigate } from 'react-router-dom'
+import {
+  useEffect,
+  useState,
+} from 'react'
+import {
+  Link,
+  useNavigate,
+} from 'react-router-dom'
+
 import { useAuth } from '../../hooks/useAuth'
+import { getMyOrders } from '../../services/orderService'
 
 import adOneImage from '../../assets/icons main pages/Ad 1.svg'
 import adTwoImage from '../../assets/icons main pages/Ad 2.svg'
@@ -82,9 +91,70 @@ const restaurants = [
   },
 ]
 
+const ACTIVE_ORDER_STATUSES = [
+  'PENDING',
+  'CONFIRMED',
+  'PREPARING',
+  'READY',
+  'OUT_FOR_DELIVERY',
+]
+
 function HomePage() {
   const navigate = useNavigate()
   const { user } = useAuth()
+
+  const [activeOrdersCount, setActiveOrdersCount] =
+    useState(0)
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadActiveOrders = async () => {
+      if (!user) {
+        return
+      }
+
+      try {
+        const orders = await getMyOrders()
+
+        if (!isMounted) {
+          return
+        }
+
+        const activeOrders = orders.filter(
+          (order) => {
+            const status =
+              order.status
+                ?.trim()
+                .toUpperCase() ?? ''
+
+            return ACTIVE_ORDER_STATUSES.includes(
+              status,
+            )
+          },
+        )
+
+        setActiveOrdersCount(
+          activeOrders.length,
+        )
+      } catch (error) {
+        console.error(
+          'Failed to load active orders:',
+          error,
+        )
+
+        if (isMounted) {
+          setActiveOrdersCount(0)
+        }
+      }
+    }
+
+    void loadActiveOrders()
+
+    return () => {
+      isMounted = false
+    }
+  }, [user])
 
   return (
     <main className="home-page">
@@ -100,7 +170,9 @@ function HomePage() {
             <button
               className="home-notification-button"
               type="button"
-              onClick={() => navigate('/notifications')}
+              onClick={() =>
+                navigate('/notifications')
+              }
               aria-label="Notifications"
             >
               <img
@@ -157,6 +229,12 @@ function HomePage() {
                 <span>
                   Your active orders
                 </span>
+
+                {activeOrdersCount > 0 && (
+                  <strong className="active-orders-count">
+                    {activeOrdersCount}
+                  </strong>
+                )}
               </button>
             </div>
           </section>

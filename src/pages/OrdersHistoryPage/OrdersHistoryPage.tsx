@@ -175,11 +175,13 @@ function OrdersHistoryPage() {
     <main className="orders-history-page">
       <header className="orders-history-page__header">
         <button
-          className="orders-history-page__header-button"
-          type="button"
-          onClick={() => navigate('/food')}
-          aria-label="Go back"
-        >
+        className="orders-history-page__header-button"
+        type="button"
+        onClick={() =>
+        navigate('/', { replace: true })
+        }
+        aria-label="Go back"
+>
           <img
             src={backButtonIcon}
             alt=""

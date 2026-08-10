@@ -16,6 +16,32 @@ export async function getRestaurantById(
   return data
 }
 
+export async function getActiveRestaurants(): Promise<
+  RestaurantResponse[]
+> {
+  const { data } = await api.get<RestaurantResponse[]>(
+    '/public/restaurants/active',
+  )
+
+  return data
+}
+
+export async function getRestaurants(
+  page = 0,
+  size = 20,
+): Promise<PaginatedResponse<RestaurantResponse>> {
+  const { data } = await api.get<
+    PaginatedResponse<RestaurantResponse>
+  >('/public/restaurants', {
+    params: {
+      page,
+      size,
+    },
+  })
+
+  return data
+}
+
 export async function getRestaurantDishes(
   restaurantId: number,
   page = 0,

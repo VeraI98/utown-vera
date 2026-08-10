@@ -43,6 +43,16 @@ export interface RestaurantResponse {
   updatedAt: string
 }
 
+export interface DishCategoryResponse {
+  id: number
+  name: string
+  sort: number
+  isActive: boolean
+  imageUrl: string
+  restaurantId: number
+  restaurantName: string
+}
+
 export interface DishOptionElement {
   id: number
   name: string

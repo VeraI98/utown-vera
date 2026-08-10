@@ -406,16 +406,30 @@ function OrderStatusPage() {
         ) : order && currentStatus ? (
           <>
             <div className="order-status-page__delivery-time">
-              <strong>
-                {order.deliveryTime || '50–60'}
-              </strong>
+             {currentStatus.phase === 'delivered' ? (
+           <>
+             <strong>Delivered</strong>
+             <span>order completed</span>
+           </>
+         ) : currentStatus.phase === 'cancelled' ? (
+           <>
+             <strong>Closed</strong>
+             <span>order is no longer active</span>
+           </>
+         ) : (
+           <>
+             <strong>
+               {order.deliveryTime || '50–60'}
+             </strong>
 
-              <span>
-                {order.deliveryTime
-                  ? 'estimated delivery time'
-                  : 'minutes until delivery'}
-              </span>
-            </div>
+             <span>
+               {order.deliveryTime
+          ? 'estimated delivery time'
+          : 'minutes until delivery'}
+             </span>
+           </>
+         )}
+       </div>
 
             <h1>
               {order.restaurantName || 'Restaurant'}

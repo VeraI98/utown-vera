@@ -5,15 +5,9 @@ import type {
   CreateAddressRequest,
 } from '../types/address'
 
-export async function getDefaultAddress(): Promise<AddressResponse> {
-  const { data } = await api.get<AddressResponse>(
-    '/addresses/default',
-  )
-
-  return data
-}
-
-export async function getMyAddresses(): Promise<AddressResponse[]> {
+export async function getMyAddresses(): Promise<
+  AddressResponse[]
+> {
   const { data } = await api.get<AddressResponse[]>(
     '/addresses/my-addresses',
   )

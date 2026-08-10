@@ -4,7 +4,10 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { useNavigate } from 'react-router-dom'
+import {
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 
 import backButtonIcon from '../../assets/order/Back button.svg'
 import bankIcon from '../../assets/order/bank.svg'
@@ -15,10 +18,7 @@ import mapIcon from '../../assets/order/map.svg'
 import utLogo from '../../assets/order/ut.svg'
 import warningIcon from '../../assets/order/warning.svg'
 
-import {
-  getDefaultAddress,
-  getMyAddresses,
-} from '../../services/addressService'
+import { getMyAddresses } from '../../services/addressService'
 import {
   checkoutMyCart,
   getMyCart,
@@ -36,9 +36,20 @@ interface StoredUser {
   username?: string
 }
 
+interface OrderPaymentPageState {
+  createdAddress?: AddressResponse
+}
+
+type AddressWithDefault = AddressResponse & {
+  isDefault?: boolean
+  default?: boolean
+}
+
 const FALLBACK_MIN_ORDER_AMOUNT = 15000
 
-function normalizeMinOrderAmount(amount: number): number {
+function normalizeMinOrderAmount(
+  amount: number,
+): number {
   if (amount > 0 && amount < 1000) {
     return amount * 1000
   }
@@ -46,7 +57,9 @@ function normalizeMinOrderAmount(amount: number): number {
   return amount
 }
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(
+  error: unknown,
+): string {
   if (axios.isAxiosError(error)) {
     const responseData = error.response?.data
 
@@ -68,14 +81,16 @@ function getErrorMessage(error: unknown): string {
 }
 
 function getClientPhone(): string {
-  const storedUser = localStorage.getItem('user')
+  const storedUser =
+    localStorage.getItem('user')
 
   if (!storedUser) {
     return ''
   }
 
   try {
-    const user = JSON.parse(storedUser) as StoredUser
+    const user =
+      JSON.parse(storedUser) as StoredUser
 
     const phone = user.username ?? ''
 
@@ -85,36 +100,78 @@ function getClientPhone(): string {
   }
 }
 
+function findDeliveryAddress(
+  addresses: AddressResponse[],
+): AddressResponse | null {
+  if (addresses.length === 0) {
+    return null
+  }
+
+  const defaultAddress = addresses.find(
+    (address) => {
+      const addressWithDefault =
+        address as AddressWithDefault
+
+      return (
+        addressWithDefault.isDefault === true ||
+        addressWithDefault.default === true
+      )
+    },
+  )
+
+  return defaultAddress ?? addresses[0]
+}
+
 function OrderPaymentPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const locationState =
+    location.state as OrderPaymentPageState | null
+
+  const createdAddress =
+    locationState?.createdAddress ?? null
 
   const [cart, setCart] =
     useState<CartResponse | null>(null)
 
-  const [defaultAddress, setDefaultAddress] =
-    useState<AddressResponse | null>(null)
+  const [
+    defaultAddress,
+    setDefaultAddress,
+  ] = useState<AddressResponse | null>(
+    createdAddress,
+  )
 
-  const [minimumOrderAmount, setMinimumOrderAmount] =
-    useState(FALLBACK_MIN_ORDER_AMOUNT)
+  const [
+    minimumOrderAmount,
+    setMinimumOrderAmount,
+  ] = useState(FALLBACK_MIN_ORDER_AMOUNT)
 
-  const [isLoadingCart, setIsLoadingCart] =
-    useState(true)
+  const [
+    isLoadingCart,
+    setIsLoadingCart,
+  ] = useState(true)
 
   const [isSending, setIsSending] =
     useState(false)
 
-  const [errorMessage, setErrorMessage] =
-    useState('')
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState('')
 
-  const [addressError, setAddressError] =
-    useState('')
+  const [
+    addressError,
+    setAddressError,
+  ] = useState('')
 
   useEffect(() => {
     let isMounted = true
 
     const loadPageData = async () => {
       try {
-        const currentCart = await getMyCart()
+        const currentCart =
+          await getMyCart()
 
         if (!isMounted) {
           return
@@ -123,22 +180,13 @@ function OrderPaymentPage() {
         setCart(currentCart)
         setErrorMessage('')
 
-        try {
-          const address =
-            await getDefaultAddress()
-
-          if (!isMounted) {
-            return
-          }
-
-          setDefaultAddress(address)
-          setAddressError('')
-        } catch (error) {
-          console.error(
-            'Failed to load default address:',
-            error,
+        if (createdAddress) {
+          setDefaultAddress(
+            createdAddress,
           )
 
+          setAddressError('')
+        } else {
           try {
             const addresses =
               await getMyAddresses()
@@ -147,26 +195,27 @@ function OrderPaymentPage() {
               return
             }
 
-            const firstAddress =
-              addresses[0] ?? null
+            const selectedAddress =
+              findDeliveryAddress(addresses)
 
             setDefaultAddress(
-              firstAddress,
+              selectedAddress,
             )
 
             setAddressError(
-              firstAddress
+              selectedAddress
                 ? ''
                 : 'No delivery address found.',
             )
-          } catch (addressesError) {
+          } catch (error) {
             console.error(
               'Failed to load user addresses:',
-              addressesError,
+              error,
             )
 
             if (isMounted) {
               setDefaultAddress(null)
+
               setAddressError(
                 'No delivery address found.',
               )
@@ -237,7 +286,7 @@ function OrderPaymentPage() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [createdAddress])
 
   const orderAmount =
     cart?.sumOrder ?? 0
@@ -412,9 +461,7 @@ function OrderPaymentPage() {
           className="order-payment-page__header-button"
           type="button"
           onClick={() =>
-            navigate(
-              '/notifications',
-            )
+            navigate('/notifications')
           }
           aria-label="Notifications"
           disabled={isSending}
@@ -517,7 +564,7 @@ function OrderPaymentPage() {
                   <strong>
                     {defaultAddress
                       ?.fullAddress ??
-                      'No default address'}
+                      'No delivery address'}
                   </strong>
 
                   <span>

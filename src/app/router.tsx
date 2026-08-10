@@ -55,11 +55,19 @@ export const router = createBrowserRouter([
   },
   {
     path: '/food/order',
-    element: <OrderPage />,
+    element: (
+      <ProtectedRoute>
+        <OrderPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/food/order/payment',
-    element: <OrderPaymentPage />,
+    element: (
+      <ProtectedRoute>
+        <OrderPaymentPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/food/order/address',
@@ -79,11 +87,19 @@ export const router = createBrowserRouter([
   },
   {
     path: '/food/order/:orderId/rating',
-    element: <OrderRatingPage />,
+    element: (
+      <ProtectedRoute>
+        <OrderRatingPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/food/order/:orderId/status',
-    element: <OrderStatusPage />,
+    element: (
+      <ProtectedRoute>
+        <OrderStatusPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/food/establishments',

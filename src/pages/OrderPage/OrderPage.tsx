@@ -370,9 +370,11 @@ function OrderPage() {
         <button
           className="order-page__header-button"
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() =>
+          navigate('/', { replace: true })
+          }
           aria-label="Go back"
-        >
+          >
           <img
             src={backButtonIcon}
             alt=""
