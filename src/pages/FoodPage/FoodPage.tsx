@@ -11,14 +11,11 @@ import {
 import backButtonIcon from '../../assets/food-menu/Back button.svg'
 import bellIcon from '../../assets/food-menu/bell.svg'
 import coffeeImage from '../../assets/food-menu/coffee.svg'
-import cuisineAreaImage from '../../assets/food-menu/Cuisine in the area.svg'
 import foodLogo from '../../assets/food-menu/food.svg'
 import iceCreamImage from '../../assets/food-menu/ice cream.jpg'
-import longRestaurantImage from '../../assets/food-menu/Long name of the restaurant....svg'
 import mapIcon from '../../assets/food-menu/map.svg'
 import panAsianImage from '../../assets/food-menu/Pan Asian.svg'
 import pizzaImage from '../../assets/food-menu/pizza.svg'
-import redWhiteImage from '../../assets/food-menu/red white.svg'
 import saladsImage from '../../assets/food-menu/salads.svg'
 import searchIcon from '../../assets/food-menu/search.svg'
 import utLogo from '../../assets/food-menu/ut.svg'
@@ -27,116 +24,97 @@ import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
 
-import { api } from '../../services/api'
-import { getActiveRestaurants } from '../../services/restaurantService'
+import {
+  getCategories,
+} from '../../services/categoryService'
+import {
+  getActiveRestaurants,
+} from '../../services/restaurantService'
 
 import type {
-  PaginatedResponse,
+  DishCategoryResponse,
   RestaurantResponse,
 } from '../../types/restaurant'
 
 import './FoodPage.css'
-
-interface DishCategoryResponse {
-  id: number
-  name: string
-  sort: number
-  isActive: boolean
-  imageUrl: string
-  restaurantId: number
-  restaurantName: string
-}
-
-interface FoodCategory {
-  id: number
-  title: string
-  subtitle: string
-  image: string
-}
 
 interface RestaurantSectionProps {
   title: string
   moreTo: string
   restaurants: RestaurantResponse[]
   onRestaurantClick: (
-    restaurant: RestaurantResponse,
+    restaurantId: number,
   ) => void
 }
 
-const fallbackRestaurantImages = [
-  cuisineAreaImage,
-  longRestaurantImage,
-  redWhiteImage,
+const FALLBACK_CATEGORY_IMAGES = [
+  pizzaImage,
+  saladsImage,
+  panAsianImage,
+  iceCreamImage,
 ]
 
 function getCategoryFallbackImage(
-  categoryName: string,
+  index: number,
 ): string {
-  const normalizedName = categoryName
-    .trim()
-    .toLowerCase()
+  return FALLBACK_CATEGORY_IMAGES[
+    index % FALLBACK_CATEGORY_IMAGES.length
+  ]
+}
 
-  if (normalizedName.includes('pizza')) {
-    return pizzaImage
-  }
-
-  if (normalizedName.includes('salad')) {
-    return saladsImage
-  }
-
+function getRestaurantImage(
+  restaurant: RestaurantResponse,
+): string {
   if (
-    normalizedName.includes('asian') ||
-    normalizedName.includes('pan')
+    restaurant.imageUrl &&
+    restaurant.imageUrl.trim() !== ''
   ) {
-    return panAsianImage
-  }
-
-  if (
-    normalizedName.includes('ice cream') ||
-    normalizedName.includes('dessert')
-  ) {
-    return iceCreamImage
+    return restaurant.imageUrl
   }
 
   return pizzaImage
 }
 
-function getRestaurantFallbackImage(
-  index: number,
-): string {
-  return fallbackRestaurantImages[
-    index % fallbackRestaurantImages.length
-  ]
-}
-
-function getDeliveryMinutes(
-  deliveryTime?: string,
-): number {
-  if (!deliveryTime) {
-    return Number.MAX_SAFE_INTEGER
-  }
-
-  const match = deliveryTime.match(/\d+/)
-
-  if (!match) {
-    return Number.MAX_SAFE_INTEGER
-  }
-
-  return Number(match[0])
-}
-
-function formatMinOrderAmount(
-  amount?: number,
+function getRestaurantCategory(
+  restaurant: RestaurantResponse,
 ): string {
   if (
-    amount === undefined ||
-    amount === null ||
-    Number.isNaN(amount)
+    restaurant.category &&
+    restaurant.category.trim() !== ''
   ) {
-    return '0 won'
+    return restaurant.category
   }
 
-  return `${amount.toLocaleString('en-US')} won`
+  return 'Restaurant'
+}
+
+function getRestaurantDeliveryTime(
+  restaurant: RestaurantResponse,
+): string {
+  if (
+    restaurant.deliveryTime &&
+    restaurant.deliveryTime.trim() !== ''
+  ) {
+    return restaurant.deliveryTime
+  }
+
+  return '30–45 min'
+}
+
+function formatPrice(
+  value: number | null | undefined,
+): string {
+  if (
+    value === null ||
+    value === undefined ||
+    Number.isNaN(value)
+  ) {
+    return '0'
+  }
+
+  return new Intl.NumberFormat(
+    'en-US',
+  ).format(value)
 }
 
 function RestaurantSection({
@@ -159,63 +137,60 @@ function RestaurantSection({
       </div>
 
       <div className="food-horizontal-list food-restaurant-list">
-        {restaurants.map((restaurant, index) => {
-          const fallbackImage =
-            getRestaurantFallbackImage(index)
+        {restaurants.map((restaurant) => (
+          <button
+            className="food-restaurant-card"
+            type="button"
+            key={`${title}-${restaurant.id}`}
+            onClick={() =>
+              onRestaurantClick(
+                restaurant.id,
+              )
+            }
+            aria-label={`Open ${restaurant.title}`}
+          >
+            <img
+              className="food-restaurant-image"
+              src={getRestaurantImage(
+                restaurant,
+              )}
+              alt={restaurant.title}
+              onError={(event) => {
+                event.currentTarget.onerror =
+                  null
 
-          return (
-            <button
-              className="food-restaurant-card"
-              type="button"
-              key={`${title}-${restaurant.id}`}
-              onClick={() =>
-                onRestaurantClick(restaurant)
-              }
-              aria-label={`Open ${restaurant.title}`}
-            >
-              <img
-                className="food-restaurant-image"
-                src={
-                  restaurant.imageUrl ||
-                  fallbackImage
-                }
-                alt={restaurant.title}
-                onError={(event) => {
-                  event.currentTarget.onerror =
-                    null
+                event.currentTarget.src =
+                  pizzaImage
+              }}
+            />
 
-                  event.currentTarget.src =
-                    fallbackImage
-                }}
-              />
+            <div className="food-restaurant-body">
+              <h3>{restaurant.title}</h3>
 
-              <div className="food-restaurant-body">
-                <h3>{restaurant.title}</h3>
+              <p>
+                {getRestaurantCategory(
+                  restaurant,
+                )}
+              </p>
 
-                <p>
-                  {restaurant.category ||
-                    restaurant.description ||
-                    'Restaurant'}
-                </p>
+              <div className="food-restaurant-meta">
+                <span aria-hidden="true">
+                  ♿
+                </span>
 
-                <div className="food-restaurant-meta">
-                  <span aria-hidden="true">
-                    ♿
-                  </span>
-
-                  <span>
-                    {formatMinOrderAmount(
-                      restaurant.minOrderAmount,
-                    )}
-                    {' · '}
-                    {restaurant.deliveryTime ||
-                      'Delivery time unavailable'}
-                  </span>
-                </div>
+                <span>
+                  {formatPrice(
+                    restaurant.minOrderAmount,
+                  )}{' '}
+                  won ·{' '}
+                  {getRestaurantDeliveryTime(
+                    restaurant,
+                  )}
+                </span>
               </div>
-            </button>
-          )
-        })}
+            </div>
+          </button>
+        ))}
       </div>
     </section>
   )
@@ -224,225 +199,131 @@ function RestaurantSection({
 function FoodPage() {
   const navigate = useNavigate()
 
-  const [restaurants, setRestaurants] =
-    useState<RestaurantResponse[]>([])
+  const [
+    categories,
+    setCategories,
+  ] = useState<DishCategoryResponse[]>([])
 
-  const [backendCategories, setBackendCategories] =
-    useState<DishCategoryResponse[]>([])
+  const [
+    restaurants,
+    setRestaurants,
+  ] = useState<RestaurantResponse[]>([])
 
-  const [isRestaurantsLoading, setIsRestaurantsLoading] =
-    useState(true)
+  const [
+    isLoading,
+    setIsLoading,
+  ] = useState(true)
 
-  const [isCategoriesLoading, setIsCategoriesLoading] =
-    useState(true)
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState('')
 
   useEffect(() => {
     let isMounted = true
 
-    const loadRestaurants = async () => {
+    const loadFoodPage = async () => {
       try {
-        const data =
-          await getActiveRestaurants()
+        const [
+          categoriesResponse,
+          restaurantsResponse,
+        ] = await Promise.all([
+          getCategories(0, 100),
+          getActiveRestaurants(),
+        ])
 
         if (!isMounted) {
           return
         }
+
+        const categoryItems =
+          categoriesResponse.content ?? []
+
+        setCategories(
+          categoryItems.filter(
+            (category) =>
+              category.isActive !== false,
+          ),
+        )
 
         setRestaurants(
-          Array.isArray(data)
-            ? data.filter(
-                (restaurant) =>
-                  restaurant.isActive !== false,
-              )
-            : [],
-        )
-      } catch (error) {
-        console.error(
-          'Failed to load restaurants:',
-          error,
-        )
-
-        if (isMounted) {
-          setRestaurants([])
-        }
-      } finally {
-        if (isMounted) {
-          setIsRestaurantsLoading(false)
-        }
-      }
-    }
-
-    void loadRestaurants()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
-  useEffect(() => {
-    let isMounted = true
-
-    const loadCategories = async () => {
-      try {
-        const { data } = await api.get<
-          PaginatedResponse<DishCategoryResponse>
-        >('/categories', {
-          params: {
-            page: 0,
-            size: 100,
-          },
-        })
-
-        if (!isMounted) {
-          return
-        }
-
-        setBackendCategories(
-          data.content ?? [],
-        )
-      } catch (error) {
-        console.error(
-          'Failed to load categories:',
-          error,
-        )
-
-        if (isMounted) {
-          setBackendCategories([])
-        }
-      } finally {
-        if (isMounted) {
-          setIsCategoriesLoading(false)
-        }
-      }
-    }
-
-    void loadCategories()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
-  const categories = useMemo<
-    FoodCategory[]
-  >(() => {
-    const categoryMap = new Map<
-      string,
-      {
-        id: number
-        title: string
-        image: string
-        restaurantIds: Set<number>
-      }
-    >()
-
-    backendCategories.forEach(
-      (category) => {
-        if (!category.isActive) {
-          return
-        }
-
-        const trimmedName =
-          category.name.trim()
-
-        if (!trimmedName) {
-          return
-        }
-
-        const key =
-          trimmedName.toLowerCase()
-
-        const existingCategory =
-          categoryMap.get(key)
-
-        if (existingCategory) {
-          existingCategory.restaurantIds.add(
-            category.restaurantId,
-          )
-
-          if (
-            !existingCategory.image &&
-            category.imageUrl
-          ) {
-            existingCategory.image =
-              category.imageUrl
-          }
-
-          return
-        }
-
-        categoryMap.set(key, {
-          id: category.id,
-          title: trimmedName,
-          image:
-            category.imageUrl ||
-            getCategoryFallbackImage(
-              trimmedName,
-            ),
-          restaurantIds: new Set([
-            category.restaurantId,
-          ]),
-        })
-      },
-    )
-
-    return Array.from(
-      categoryMap.values(),
-    ).map((category) => {
-      const restaurantCount =
-        category.restaurantIds.size
-
-      return {
-        id: category.id,
-        title: category.title,
-        image:
-          category.image ||
-          getCategoryFallbackImage(
-            category.title,
+          restaurantsResponse.filter(
+            (restaurant) =>
+              restaurant.isActive !== false,
           ),
-        subtitle: `${restaurantCount} ${
-          restaurantCount === 1
-            ? 'establishment'
-            : 'establishments'
-        }`,
-      }
-    })
-  }, [backendCategories])
+        )
 
-  const establishmentRestaurants =
-    useMemo(
-      () => restaurants.slice(0, 10),
-      [restaurants],
-    )
+        setErrorMessage('')
+      } catch (error) {
+        console.error(
+          'Failed to load food page:',
+          error,
+        )
+
+        if (isMounted) {
+          setCategories([])
+          setRestaurants([])
+          setErrorMessage(
+            'Failed to load restaurants and categories.',
+          )
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    void loadFoodPage()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const fastestRestaurants =
     useMemo(() => {
-      return [...restaurants]
-        .sort(
-          (firstRestaurant, secondRestaurant) =>
-            getDeliveryMinutes(
+      if (restaurants.length === 0) {
+        return []
+      }
+
+      return [...restaurants].sort(
+        (
+          firstRestaurant,
+          secondRestaurant,
+        ) => {
+          const firstTime =
+            Number.parseInt(
               firstRestaurant.deliveryTime,
-            ) -
-            getDeliveryMinutes(
+              10,
+            ) ||
+            Number.MAX_SAFE_INTEGER
+
+          const secondTime =
+            Number.parseInt(
               secondRestaurant.deliveryTime,
-            ),
-        )
-        .slice(0, 10)
+              10,
+            ) ||
+            Number.MAX_SAFE_INTEGER
+
+          return firstTime - secondTime
+        },
+      )
     }, [restaurants])
 
   const handleRestaurantClick = (
-    restaurant: RestaurantResponse,
+    restaurantId: number,
   ) => {
     navigate(
-      `/food/restaurants/${restaurant.id}`,
+      `/food/restaurants/${restaurantId}`,
     )
   }
 
   const handleCategoryClick = (
-    category: FoodCategory,
+    categoryId: number,
   ) => {
     navigate(
-      `/food/category/${category.id}`,
+      `/food/category/${categoryId}`,
     )
   }
 
@@ -453,11 +334,7 @@ function FoodPage() {
           <button
             className="food-header-button"
             type="button"
-            onClick={() =>
-              navigate('/', {
-                replace: true,
-              })
-            }
+            onClick={() => navigate(-1)}
             aria-label="Go back"
           >
             <img
@@ -568,109 +445,119 @@ function FoodPage() {
             <span />
           </div>
 
+          {errorMessage && (
+            <p className="food-error">
+              {errorMessage}
+            </p>
+          )}
+
           <section className="food-section">
             <div className="food-section-header">
               <h2>Categories</h2>
             </div>
 
-            {isCategoriesLoading ? (
-              <p>
+            {isLoading ? (
+              <p className="food-loading">
                 Loading categories...
               </p>
-            ) : categories.length > 0 ? (
+            ) : categories.length === 0 ? (
+              <p className="food-empty">
+                No categories available.
+              </p>
+            ) : (
               <div className="food-horizontal-list food-category-list">
                 {categories.map(
-                  (category) => (
-                    <button
-                      className="food-category-card"
-                      type="button"
-                      key={`${category.title}-${category.id}`}
-                      onClick={() =>
-                        handleCategoryClick(
-                          category,
-                        )
-                      }
-                    >
-                      <img
-                        src={category.image}
-                        alt={category.title}
-                        onError={(event) => {
-                          event.currentTarget.onerror =
-                            null
+                  (
+                    category,
+                    index,
+                  ) => {
+                    const imageSource =
+                      category.imageUrl &&
+                      category.imageUrl.trim() !==
+                        ''
+                        ? category.imageUrl
+                        : getCategoryFallbackImage(
+                            index,
+                          )
 
-                          event.currentTarget.src =
-                            getCategoryFallbackImage(
-                              category.title,
-                            )
-                        }}
-                      />
+                    return (
+                      <button
+                        className="food-category-card"
+                        type="button"
+                        key={category.id}
+                        onClick={() =>
+                          handleCategoryClick(
+                            category.id,
+                          )
+                        }
+                        aria-label={`Open ${category.name}`}
+                      >
+                        <img
+                          src={imageSource}
+                          alt={category.name}
+                          onError={(
+                            event,
+                          ) => {
+                            event.currentTarget.onerror =
+                              null
 
-                      <strong>
-                        {category.title}
-                      </strong>
+                            event.currentTarget.src =
+                              getCategoryFallbackImage(
+                                index,
+                              )
+                          }}
+                        />
 
-                      <span>
-                        {category.subtitle}
-                      </span>
-                    </button>
-                  ),
+                        <strong>
+                          {category.name}
+                        </strong>
+
+                        <span>
+                          {category.restaurantName ||
+                            'Food category'}
+                        </span>
+                      </button>
+                    )
+                  },
                 )}
               </div>
-            ) : (
-              <p>
-                No categories available
-              </p>
             )}
           </section>
 
-          {isRestaurantsLoading ? (
-            <section className="food-section">
-              <p>
-                Loading restaurants...
-              </p>
-            </section>
-          ) : restaurants.length > 0 ? (
-            <>
-              <RestaurantSection
-                title="Establishments"
-                moreTo="/food/establishments"
-                restaurants={
-                  establishmentRestaurants
-                }
-                onRestaurantClick={
-                  handleRestaurantClick
-                }
-              />
+          {!isLoading &&
+            restaurants.length > 0 && (
+              <>
+                <RestaurantSection
+                  title="Establishments"
+                  moreTo="/food/establishments"
+                  restaurants={
+                    restaurants
+                  }
+                  onRestaurantClick={
+                    handleRestaurantClick
+                  }
+                />
 
-              <RestaurantSection
-                title="Fastest delivery"
-                moreTo="/food/fastest-delivery"
-                restaurants={
-                  fastestRestaurants
-                }
-                onRestaurantClick={
-                  handleRestaurantClick
-                }
-              />
+                <RestaurantSection
+                  title="Fastest delivery"
+                  moreTo="/food/fastest-delivery"
+                  restaurants={
+                    fastestRestaurants
+                  }
+                  onRestaurantClick={
+                    handleRestaurantClick
+                  }
+                />
+              </>
+            )}
 
-              <RestaurantSection
-                title="Fastest delivery"
-                moreTo="/food/fastest-delivery"
-                restaurants={
-                  fastestRestaurants
-                }
-                onRestaurantClick={
-                  handleRestaurantClick
-                }
-              />
-            </>
-          ) : (
-            <section className="food-section">
-              <p>
-                No restaurants available
+          {!isLoading &&
+            restaurants.length === 0 &&
+            !errorMessage && (
+              <p className="food-empty">
+                No restaurants available.
               </p>
-            </section>
-          )}
+            )}
         </div>
 
         <nav

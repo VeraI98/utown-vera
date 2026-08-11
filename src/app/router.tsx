@@ -7,6 +7,7 @@ import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
 import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
 import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
 import FavoritesPage from '../pages/FavoritesPage/FavoritesPage'
+import FoodCategoryPage from '../pages/FoodCategoryPage/FoodCategoryPage'
 import FoodMorePage from '../pages/FoodMorePage/FoodMorePage'
 import FoodPage from '../pages/FoodPage/FoodPage'
 import FoodSearch from '../pages/FoodSearch/FoodSearch'
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
     path: '/favorites',
     element: <FavoritesPage />,
   },
+
   {
     path: '/food',
     element: <FoodPage />,
@@ -49,10 +51,28 @@ export const router = createBrowserRouter([
     path: '/food/search',
     element: <FoodSearch />,
   },
+
+  // Реальная категория блюд
+  {
+    path: '/food/category/:categoryId',
+    element: <FoodCategoryPage />,
+  },
+
+  // Реальный ресторан
   {
     path: '/food/restaurants/:restaurantId',
     element: <RestaurantPage />,
   },
+
+  {
+    path: '/food/establishments',
+    element: <FoodMorePage title="Establishments" />,
+  },
+  {
+    path: '/food/fastest-delivery',
+    element: <FoodMorePage title="The fastest delivery" />,
+  },
+
   {
     path: '/food/order',
     element: (
@@ -78,14 +98,6 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/food/orders',
-    element: (
-      <ProtectedRoute>
-        <OrdersHistoryPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
     path: '/food/order/:orderId/rating',
     element: (
       <ProtectedRoute>
@@ -102,15 +114,14 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/food/establishments',
-    element: <FoodMorePage title="Establishments" />,
-  },
-  {
-    path: '/food/fastest-delivery',
+    path: '/food/orders',
     element: (
-      <FoodMorePage title="The fastest delivery" />
+      <ProtectedRoute>
+        <OrdersHistoryPage />
+      </ProtectedRoute>
     ),
   },
+
   {
     path: '/profile',
     element: (

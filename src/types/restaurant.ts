@@ -36,7 +36,7 @@ export interface RestaurantResponse {
   statusDisplay: string
   totalRatings: number
   isActive: boolean
-  imageUrl: string
+  imageUrl: string | null
   address: RestaurantAddress
   operatingModes: RestaurantOperatingMode[]
   createdAt: string
@@ -48,7 +48,7 @@ export interface DishCategoryResponse {
   name: string
   sort: number
   isActive: boolean
-  imageUrl: string
+  imageUrl: string | null
   restaurantId: number
   restaurantName: string
 }
@@ -77,7 +77,7 @@ export interface DishResponse {
   isActive: boolean
   isDeleted: boolean
   sort: number
-  imageUrl: string
+  imageUrl: string | null
   restaurantId: number
   restaurantName: string
   dishCategoryId: number

@@ -5,45 +5,22 @@ import type {
   PaginatedResponse,
 } from '../types/restaurant'
 
-interface GetRestaurantDishesParams {
-  page?: number
-  size?: number
-  sort?: string[]
-}
-
-export async function getRestaurantDishes(
-  restaurantId: number,
-  params: GetRestaurantDishesParams = {},
-): Promise<PaginatedResponse<DishResponse>> {
-  const {
-    page = 0,
-    size = 100,
-    sort = ['sort,asc'],
-  } = params
-
+export async function searchDishes(
+  title: string,
+  page = 0,
+  size = 50,
+): Promise<
+  PaginatedResponse<DishResponse>
+> {
   const { data } = await api.get<
     PaginatedResponse<DishResponse>
-  >(
-    `/dishes/restaurant/${restaurantId}`,
-    {
-      params: {
-        page,
-        size,
-        sort,
-      },
+  >('/dishes/search', {
+    params: {
+      title,
+      page,
+      size,
     },
-  )
-
-  return data
-}
-
-export async function getRestaurantDishesByCategory(
-  restaurantId: number,
-  categoryId: number,
-): Promise<DishResponse[]> {
-  const { data } = await api.get<DishResponse[]>(
-    `/dishes/restaurant/${restaurantId}/category/${categoryId}`,
-  )
+  })
 
   return data
 }

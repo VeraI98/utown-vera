@@ -50,7 +50,7 @@ function RestaurantProductCard({
       {hasImage ? (
         <img
           className="restaurant-product-card__image"
-          src={product.image}
+          src={product.image ?? undefined}
           alt={product.name}
           onError={() => setImageError(true)}
         />

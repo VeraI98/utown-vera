@@ -1,69 +1,380 @@
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
+import {
+  useNavigate,
+} from 'react-router-dom'
 
 import backButtonIcon from '../../assets/search/Back button.svg'
 import bellIcon from '../../assets/search/bell.svg'
 import cuisineAreaImage from '../../assets/search/Cuisine in the area.svg'
 import filterIcon from '../../assets/search/filter.svg'
 import foodLogo from '../../assets/search/food.svg'
-import longRestaurantImage from '../../assets/search/Long name of the restaurant....svg'
 import mapIcon from '../../assets/search/map.svg'
-import redWhiteImage from '../../assets/search/red white.svg'
 import searchIcon from '../../assets/search/search.svg'
 import utLogo from '../../assets/search/ut.svg'
 
+import {
+  searchDishes,
+} from '../../services/dishService'
+
+import {
+  searchRestaurants,
+} from '../../services/restaurantService'
+
+import type {
+  DishResponse,
+  RestaurantResponse,
+} from '../../types/restaurant'
+
 import './FoodSearch.css'
 
-const searchResults = [
-  {
-    id: 1,
-    title: 'Cuisine in the area',
-    description: 'Pizza, pasta and fries',
-    delivery: 'Delivery: 7,000 won · 45–55 mins',
-    image: cuisineAreaImage,
-  },
-  {
-    id: 2,
-    title: 'Long name of the restaurant...',
-    description: 'Burgers, like home',
-    delivery: 'Delivery: 7,000 won · 2 km · 45–55 mins',
-    image: longRestaurantImage,
-  },
-  {
-    id: 3,
-    title: 'Red White',
-    description: 'Doner, burger, chicken, salads',
-    delivery: 'Delivery: 7,000 won · 2 km · 45–55 mins',
-    image: redWhiteImage,
-  },
-]
+type FilterValue =
+  | 'all'
+  | 'restaurants'
+  | 'dishes'
 
-type FilterValue = 'all' | 'restaurants' | 'cafes'
-type SortValue = 'recommended' | 'distance' | 'rating'
+type SortValue =
+  | 'recommended'
+  | 'rating'
+
+function getRestaurantImage(
+  restaurant: RestaurantResponse,
+): string {
+  if (
+    restaurant.imageUrl &&
+    restaurant.imageUrl.trim() !== ''
+  ) {
+    return restaurant.imageUrl
+  }
+
+  return cuisineAreaImage
+}
+
+function getDishImage(
+  dish: DishResponse,
+): string {
+  if (
+    dish.imageUrl &&
+    dish.imageUrl.trim() !== ''
+  ) {
+    return dish.imageUrl
+  }
+
+  return cuisineAreaImage
+}
+
+function getRestaurantCategory(
+  restaurant: RestaurantResponse,
+): string {
+  if (
+    restaurant.category &&
+    restaurant.category.trim() !== ''
+  ) {
+    return restaurant.category
+  }
+
+  return 'Restaurant'
+}
+
+function getDeliveryTime(
+  restaurant: RestaurantResponse,
+): string {
+  if (
+    restaurant.deliveryTime &&
+    restaurant.deliveryTime.trim() !== ''
+  ) {
+    return restaurant.deliveryTime
+  }
+
+  return '—'
+}
+
+function formatPrice(
+  value: number | null | undefined,
+): string {
+  if (
+    value === null ||
+    value === undefined ||
+    Number.isNaN(value)
+  ) {
+    return '0'
+  }
+
+  return new Intl.NumberFormat(
+    'en-US',
+  ).format(value)
+}
 
 function FoodSearch() {
   const navigate = useNavigate()
 
-  const [searchValue, setSearchValue] = useState('')
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [filter, setFilter] = useState<FilterValue>('all')
-  const [sort, setSort] = useState<SortValue>('recommended')
+  const [
+    searchValue,
+    setSearchValue,
+  ] = useState('')
 
-  const normalizedSearch = searchValue.trim().toLowerCase()
+  const [
+    restaurants,
+    setRestaurants,
+  ] = useState<RestaurantResponse[]>([])
 
-  const visibleResults = useMemo(() => {
-    if (normalizedSearch !== 'burger') {
-      return []
+  const [
+    dishes,
+    setDishes,
+  ] = useState<DishResponse[]>([])
+
+  const [
+    isFilterOpen,
+    setIsFilterOpen,
+  ] = useState(false)
+
+  const [
+    filter,
+    setFilter,
+  ] = useState<FilterValue>('all')
+
+  const [
+    sort,
+    setSort,
+  ] = useState<SortValue>('recommended')
+
+  const [
+    isLoading,
+    setIsLoading,
+  ] = useState(false)
+
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState('')
+
+  const normalizedSearch =
+    searchValue.trim()
+
+  useEffect(() => {
+    if (!normalizedSearch) {
+      return
     }
 
-    return searchResults
-  }, [normalizedSearch])
+    let isMounted = true
 
-  const showPrompt = normalizedSearch.length === 0
-  const showResults = normalizedSearch === 'burger'
+    const timeoutId =
+      window.setTimeout(
+        async () => {
+          try {
+            setIsLoading(true)
+            setErrorMessage('')
+
+            const [
+              restaurantsResult,
+              dishesResult,
+            ] = await Promise.allSettled([
+              searchRestaurants(
+                normalizedSearch,
+                0,
+                50,
+              ),
+              searchDishes(
+                normalizedSearch,
+                0,
+                50,
+              ),
+            ])
+
+            if (!isMounted) {
+              return
+            }
+
+            if (
+              restaurantsResult.status ===
+              'fulfilled'
+            ) {
+              const activeRestaurants = (
+                restaurantsResult.value
+                  .content ?? []
+              ).filter(
+                (restaurant) =>
+                  restaurant.isActive !==
+                  false,
+              )
+
+              setRestaurants(
+                activeRestaurants,
+              )
+            } else {
+              console.error(
+                'Restaurant search failed:',
+                restaurantsResult.reason,
+              )
+
+              setRestaurants([])
+            }
+
+            if (
+              dishesResult.status ===
+              'fulfilled'
+            ) {
+              const activeDishes = (
+                dishesResult.value.content ??
+                []
+              ).filter(
+                (dish) =>
+                  dish.isActive !== false &&
+                  dish.isDeleted !== true,
+              )
+
+              setDishes(
+                activeDishes,
+              )
+            } else {
+              console.error(
+                'Dish search failed:',
+                dishesResult.reason,
+              )
+
+              setDishes([])
+            }
+
+            if (
+              restaurantsResult.status ===
+                'rejected' &&
+              dishesResult.status ===
+                'rejected'
+            ) {
+              setErrorMessage(
+                'Failed to search.',
+              )
+            }
+          } catch (error) {
+            console.error(
+              'Food search failed:',
+              error,
+            )
+
+            if (!isMounted) {
+              return
+            }
+
+            setRestaurants([])
+            setDishes([])
+            setErrorMessage(
+              'Failed to search.',
+            )
+          } finally {
+            if (isMounted) {
+              setIsLoading(false)
+            }
+          }
+        },
+        350,
+      )
+
+    return () => {
+      isMounted = false
+
+      window.clearTimeout(
+        timeoutId,
+      )
+    }
+  }, [
+    normalizedSearch,
+  ])
+
+  const visibleRestaurants =
+    useMemo(() => {
+      const results = [
+        ...restaurants,
+      ]
+
+      if (sort === 'rating') {
+        return results.sort(
+          (
+            firstRestaurant,
+            secondRestaurant,
+          ) =>
+            secondRestaurant.ratings -
+            firstRestaurant.ratings,
+        )
+      }
+
+      return results.sort(
+        (
+          firstRestaurant,
+          secondRestaurant,
+        ) =>
+          Number(
+            secondRestaurant.isRecommended,
+          ) -
+          Number(
+            firstRestaurant.isRecommended,
+          ),
+      )
+    }, [
+      restaurants,
+      sort,
+    ])
+
+  const showRestaurants =
+    filter === 'all' ||
+    filter === 'restaurants'
+
+  const showDishes =
+    filter === 'all' ||
+    filter === 'dishes'
+
+  const showPrompt =
+    normalizedSearch.length === 0
+
+  const restaurantCount =
+    showRestaurants
+      ? visibleRestaurants.length
+      : 0
+
+  const dishCount =
+    showDishes
+      ? dishes.length
+      : 0
+
+  const totalVisibleResults =
+    restaurantCount + dishCount
+
   const showEmptyResult =
     normalizedSearch.length > 0 &&
-    normalizedSearch !== 'burger'
+    !isLoading &&
+    !errorMessage &&
+    totalVisibleResults === 0
+
+  const handleSearchChange = (
+    value: string,
+  ) => {
+    setSearchValue(value)
+
+    if (!value.trim()) {
+      setRestaurants([])
+      setDishes([])
+      setErrorMessage('')
+      setIsLoading(false)
+    }
+  }
+
+  const handleRestaurantClick = (
+    restaurantId: number,
+  ) => {
+    navigate(
+      `/food/restaurants/${restaurantId}`,
+    )
+  }
+
+  const handleDishClick = (
+    dish: DishResponse,
+  ) => {
+    navigate(
+      `/food/restaurants/${dish.restaurantId}`,
+    )
+  }
 
   return (
     <main className="mobile-page food-search-page">
@@ -72,7 +383,9 @@ function FoodSearch() {
           <button
             className="food-search-header-button"
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() =>
+              navigate(-1)
+            }
             aria-label="Go back"
           >
             <img
@@ -86,14 +399,25 @@ function FoodSearch() {
             className="food-search-logo"
             aria-label="UT Food"
           >
-            <img src={utLogo} alt="UT" />
-            <img src={foodLogo} alt="Food" />
+            <img
+              src={utLogo}
+              alt="UT"
+            />
+
+            <img
+              src={foodLogo}
+              alt="Food"
+            />
           </div>
 
           <button
             className="food-search-header-button"
             type="button"
-            onClick={() => navigate('/notifications')}
+            onClick={() =>
+              navigate(
+                '/notifications',
+              )
+            }
             aria-label="Notifications"
           >
             <img
@@ -112,7 +436,8 @@ function FoodSearch() {
           />
 
           <span>
-            Home, street Seobuk-gu Byeonhyeong-ro 569
+            Home, street Seobuk-gu
+            Byeonhyeong-ro 569
           </span>
         </div>
 
@@ -129,19 +454,25 @@ function FoodSearch() {
               type="search"
               value={searchValue}
               onChange={(event) =>
-                setSearchValue(event.target.value)
+                handleSearchChange(
+                  event.target.value,
+                )
               }
-              placeholder="Search for cafes, restaurants and dishes"
-              aria-label="Search for cafes, restaurants and dishes"
+              placeholder="Search for restaurants and dishes"
+              aria-label="Search for restaurants and dishes"
             />
           </label>
 
           <button
             className={`food-filter-button ${
-              isFilterOpen ? 'active' : ''
+              isFilterOpen
+                ? 'active'
+                : ''
             }`}
             type="button"
-            onClick={() => setIsFilterOpen(true)}
+            onClick={() =>
+              setIsFilterOpen(true)
+            }
             aria-label="Open filters"
           >
             <img
@@ -162,31 +493,178 @@ function FoodSearch() {
               </p>
             )}
 
-            {showResults && (
-              <div className="food-search-results">
-                {visibleResults.map((result) => (
-                  <button
-                    className="food-search-result-card"
-                    type="button"
-                    key={result.id}
-                  >
-                    <img
-                      className="food-search-result-image"
-                      src={result.image}
-                      alt={result.title}
-                    />
-
-                    <div className="food-search-result-info">
-                      <h2>{result.title}</h2>
-
-                      <p>{result.description}</p>
-
-                      <span>{result.delivery}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
+            {isLoading && (
+              <p className="food-search-empty">
+                Searching...
+              </p>
             )}
+
+            {errorMessage && (
+              <p
+                className="food-search-empty"
+                role="alert"
+              >
+                {errorMessage}
+              </p>
+            )}
+
+            {!isLoading &&
+              showRestaurants &&
+              visibleRestaurants.length >
+                0 && (
+                <section className="food-search-section">
+                  <div className="food-search-section-header">
+                    <h2 className="food-search-section-title">
+                      Restaurants
+                    </h2>
+
+                    <span className="food-search-section-count">
+                      {restaurantCount}
+                    </span>
+                  </div>
+
+                  <div className="food-search-results">
+                    {visibleRestaurants.map(
+                      (restaurant) => (
+                        <button
+                          className="food-search-result-card"
+                          type="button"
+                          key={
+                            restaurant.id
+                          }
+                          onClick={() =>
+                            handleRestaurantClick(
+                              restaurant.id,
+                            )
+                          }
+                          aria-label={`Open ${restaurant.title}`}
+                        >
+                          <img
+                            className="food-search-result-image"
+                            src={getRestaurantImage(
+                              restaurant,
+                            )}
+                            alt={
+                              restaurant.title
+                            }
+                            onError={(
+                              event,
+                            ) => {
+                              event.currentTarget.onerror =
+                                null
+
+                              event.currentTarget.src =
+                                cuisineAreaImage
+                            }}
+                          />
+
+                          <div className="food-search-result-info">
+                            <h2>
+                              {
+                                restaurant.title
+                              }
+                            </h2>
+
+                            <p>
+                              {getRestaurantCategory(
+                                restaurant,
+                              )}
+                            </p>
+
+                            <span>
+                              Min. order:{' '}
+                              {formatPrice(
+                                restaurant.minOrderAmount,
+                              )}{' '}
+                              won ·{' '}
+                              {getDeliveryTime(
+                                restaurant,
+                              )}
+                            </span>
+                          </div>
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </section>
+              )}
+
+            {!isLoading &&
+              showDishes &&
+              dishes.length > 0 && (
+                <section className="food-search-section">
+                  <div className="food-search-section-header">
+                    <h2 className="food-search-section-title">
+                      Dishes
+                    </h2>
+
+                    <span className="food-search-section-count">
+                      {dishCount}
+                    </span>
+                  </div>
+
+                  <div className="food-search-results">
+                    {dishes.map(
+                      (dish) => (
+                        <button
+                          className="food-search-result-card"
+                          type="button"
+                          key={
+                            dish.id
+                          }
+                          onClick={() =>
+                            handleDishClick(
+                              dish,
+                            )
+                          }
+                          aria-label={`Open ${dish.title}`}
+                        >
+                          <img
+                            className="food-search-result-image"
+                            src={getDishImage(
+                              dish,
+                            )}
+                            alt={
+                              dish.title
+                            }
+                            onError={(
+                              event,
+                            ) => {
+                              event.currentTarget.onerror =
+                                null
+
+                              event.currentTarget.src =
+                                cuisineAreaImage
+                            }}
+                          />
+
+                          <div className="food-search-result-info">
+                            <h2>
+                              {dish.title}
+                            </h2>
+
+                            <p>
+                              {
+                                dish.restaurantName
+                              }
+                            </p>
+
+                            <span>
+                              {formatPrice(
+                                dish.price,
+                              )}{' '}
+                              won
+                              {dish.categoryName
+                                ? ` · ${dish.categoryName}`
+                                : ''}
+                            </span>
+                          </div>
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </section>
+              )}
 
             {showEmptyResult && (
               <p className="food-search-empty">
@@ -203,63 +681,83 @@ function FoodSearch() {
 
               <div className="food-filter-options">
                 <button
-                  className={filter === 'all' ? 'active' : ''}
+                  className={
+                    filter === 'all'
+                      ? 'active'
+                      : ''
+                  }
                   type="button"
-                  onClick={() => setFilter('all')}
+                  onClick={() =>
+                    setFilter('all')
+                  }
                 >
                   All results
                 </button>
 
                 <button
                   className={
-                    filter === 'restaurants' ? 'active' : ''
+                    filter ===
+                    'restaurants'
+                      ? 'active'
+                      : ''
                   }
                   type="button"
-                  onClick={() => setFilter('restaurants')}
+                  onClick={() =>
+                    setFilter(
+                      'restaurants',
+                    )
+                  }
                 >
                   Restaurants
                 </button>
 
                 <button
                   className={
-                    filter === 'cafes' ? 'active' : ''
+                    filter === 'dishes'
+                      ? 'active'
+                      : ''
                   }
                   type="button"
-                  onClick={() => setFilter('cafes')}
+                  onClick={() =>
+                    setFilter('dishes')
+                  }
                 >
-                  Cafés
+                  Dishes
                 </button>
               </div>
 
-              <h2>Sort by</h2>
+              <h2>
+                Sort restaurants by
+              </h2>
 
               <div className="food-filter-options">
                 <button
                   className={
-                    sort === 'recommended' ? 'active' : ''
+                    sort ===
+                    'recommended'
+                      ? 'active'
+                      : ''
                   }
                   type="button"
-                  onClick={() => setSort('recommended')}
+                  onClick={() =>
+                    setSort(
+                      'recommended',
+                    )
+                  }
                 >
                   Recommended
                 </button>
 
                 <button
                   className={
-                    sort === 'distance' ? 'active' : ''
+                    sort === 'rating'
+                      ? 'active'
+                      : ''
                   }
                   type="button"
-                  onClick={() => setSort('distance')}
-                >
-                  Distance
-                </button>
-
-                <button
-                  className={
-                    sort === 'rating' ? 'active' : ''
+                  onClick={() =>
+                    setSort('rating')
                   }
-                  type="button"
-                  onClick={() => setSort('rating')}
                 >
                   Rating
                 </button>
@@ -269,7 +767,11 @@ function FoodSearch() {
             <div className="food-filter-footer">
               <button
                 type="button"
-                onClick={() => setIsFilterOpen(false)}
+                onClick={() =>
+                  setIsFilterOpen(
+                    false,
+                  )
+                }
               >
                 Close
               </button>

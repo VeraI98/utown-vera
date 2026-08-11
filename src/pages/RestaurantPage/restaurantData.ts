@@ -8,7 +8,9 @@ import italianJuiceImage from '../../assets/restaurant page/italian juice.svg'
 import kazakhJuiceImage from '../../assets/restaurant page/kazakh-juice.svg'
 import uzbekJuiceImage from '../../assets/restaurant page/uzbek-juice.svg'
 
-import type { DishOption } from '../../types/restaurant'
+import type {
+  DishOption,
+} from '../../types/restaurant'
 
 export type RestaurantCategory =
   | 'pizza'
@@ -21,7 +23,7 @@ export interface RestaurantProduct {
   description: string
   price: number
   category: RestaurantCategory
-  image: string
+  image: string | null
   options?: DishOption[]
 }
 
