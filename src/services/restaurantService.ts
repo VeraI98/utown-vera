@@ -6,6 +6,12 @@ import type {
   RestaurantResponse,
 } from '../types/restaurant'
 
+export type RestaurantStatus =
+  | 'CLOSED'
+  | 'OPEN'
+  | 'TEMPORARILY_CLOSED'
+  | 'BUSY'
+
 export interface RestaurantSearchParams {
   title?: string
   category?: string
@@ -13,11 +19,7 @@ export interface RestaurantSearchParams {
   minMinOrderAmount?: number
   maxMinOrderAmount?: number
   city?: string
-  status?:
-    | 'CLOSED'
-    | 'OPEN'
-    | 'TEMPORARILY_CLOSED'
-    | 'BUSY'
+  status?: RestaurantStatus
   isRecommended?: boolean
   page?: number
   size?: number
@@ -105,12 +107,8 @@ export async function searchRestaurantsAdvanced(
     PaginatedResponse<RestaurantResponse>
   >('/public/restaurants/search/advanced', {
     params: {
-      ...(title
-        ? { title }
-        : {}),
-      ...(category
-        ? { category }
-        : {}),
+      ...(title ? { title } : {}),
+      ...(category ? { category } : {}),
       ...(minRating !== undefined
         ? { minRating }
         : {}),
@@ -120,12 +118,8 @@ export async function searchRestaurantsAdvanced(
       ...(maxMinOrderAmount !== undefined
         ? { maxMinOrderAmount }
         : {}),
-      ...(city
-        ? { city }
-        : {}),
-      ...(status
-        ? { status }
-        : {}),
+      ...(city ? { city } : {}),
+      ...(status ? { status } : {}),
       ...(isRecommended !== undefined
         ? { isRecommended }
         : {}),

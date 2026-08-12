@@ -15,41 +15,52 @@ import foodLogo from '../../assets/waiting order/food.svg'
 import ratingStarsIcon from '../../assets/waiting order/Rating stars.svg'
 import utLogo from '../../assets/waiting order/ut.svg'
 
-import { getOrderById } from '../../services/orderService'
+import {
+  getOrderById,
+} from '../../services/orderService'
+
 import {
   createRating,
   getMyRestaurantRating,
+  updateRating,
   type RatingResponse,
 } from '../../services/ratingService'
 
-import type { OrderResponse } from '../../types/cart'
+import type {
+  OrderResponse,
+} from '../../types/cart'
 
 import './OrderRatingPage.css'
-
-interface StoredUser {
-  id?: number
-}
 
 function getErrorMessage(
   error: unknown,
 ): string {
   if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
+    const responseData =
+      error.response?.data
 
     if (
       responseData &&
-      typeof responseData === 'object' &&
+      typeof responseData ===
+        'object' &&
       'message' in responseData &&
-      typeof responseData.message === 'string'
+      typeof responseData.message ===
+        'string'
     ) {
       return responseData.message
     }
 
-    if (typeof responseData === 'string') {
+    if (
+      typeof responseData ===
+      'string'
+    ) {
       return responseData
     }
 
-    if (error.response?.status === 404) {
+    if (
+      error.response?.status ===
+      404
+    ) {
       return 'Order not found.'
     }
   }
@@ -57,61 +68,72 @@ function getErrorMessage(
   return 'Failed to load or save your rating. Please try again.'
 }
 
-function getCurrentUserId(): number {
-  const storedUser =
-    localStorage.getItem('user')
-
-  if (!storedUser) {
-    return 0
-  }
-
-  try {
-    const user =
-      JSON.parse(storedUser) as StoredUser
-
-    return user.id ?? 0
-  } catch {
-    return 0
-  }
-}
-
 function normalizeStatus(
   status?: string,
 ): string {
-  return status?.trim().toUpperCase() ?? ''
+  return (
+    status
+      ?.trim()
+      .toUpperCase() ?? ''
+  )
 }
 
 function isOrderDelivered(
   order: OrderResponse,
 ): boolean {
   const status =
-    normalizeStatus(order.status)
+    normalizeStatus(
+      order.status,
+    )
 
   const deliveryStatus =
-    normalizeStatus(order.deliveryStatus)
+    normalizeStatus(
+      order.deliveryStatus,
+    )
 
   return (
     status === 'DELIVERED' ||
     status === 'COMPLETED' ||
-    deliveryStatus === 'DELIVERED' ||
-    deliveryStatus === 'COMPLETED'
+    deliveryStatus ===
+      'DELIVERED' ||
+    deliveryStatus ===
+      'COMPLETED'
   )
 }
 
 function OrderRatingPage() {
-  const navigate = useNavigate()
-  const { orderId } = useParams()
+  const navigate =
+    useNavigate()
 
-  const [order, setOrder] =
-    useState<OrderResponse | null>(null)
+  const {
+    orderId,
+  } = useParams()
+
+  const [
+    order,
+    setOrder,
+  ] =
+    useState<OrderResponse | null>(
+      null,
+    )
 
   const [
     existingRating,
     setExistingRating,
-  ] = useState<RatingResponse | null>(null)
+  ] =
+    useState<RatingResponse | null>(
+      null,
+    )
 
-  const [rating, setRating] =
-    useState(0)
+  const [
+    rating,
+    setRating,
+  ] = useState(0)
+
+  const [
+    initialRating,
+    setInitialRating,
+  ] = useState(0)
 
   const [
     hoveredRating,
@@ -133,10 +155,18 @@ function OrderRatingPage() {
     setErrorMessage,
   ] = useState('')
 
-  const numericOrderId = Number(orderId)
+  const [
+    successMessage,
+    setSuccessMessage,
+  ] = useState('')
+
+  const numericOrderId =
+    Number(orderId)
 
   const isValidOrderId =
-    Number.isInteger(numericOrderId) &&
+    Number.isInteger(
+      numericOrderId,
+    ) &&
     numericOrderId > 0
 
   useEffect(() => {
@@ -146,69 +176,99 @@ function OrderRatingPage() {
 
     let isMounted = true
 
-    const loadPage = async () => {
-      try {
-        const currentOrder =
-          await getOrderById(
-            numericOrderId,
+    const loadPage =
+      async () => {
+        try {
+          setIsLoading(true)
+
+          setErrorMessage('')
+          setSuccessMessage('')
+
+          const currentOrder =
+            await getOrderById(
+              numericOrderId,
+            )
+
+          if (!isMounted) {
+            return
+          }
+
+          setOrder(
+            currentOrder,
           )
 
-        if (!isMounted) {
-          return
-        }
+          if (
+            !isOrderDelivered(
+              currentOrder,
+            )
+          ) {
+            setErrorMessage(
+              'You can rate the restaurant only after delivery.',
+            )
 
-        setOrder(currentOrder)
+            return
+          }
 
-        if (!isOrderDelivered(currentOrder)) {
+          if (
+            !currentOrder.restaurantId
+          ) {
+            setErrorMessage(
+              'Restaurant information is missing.',
+            )
+
+            return
+          }
+
+          const currentRating =
+            await getMyRestaurantRating(
+              currentOrder.restaurantId,
+            )
+
+          if (!isMounted) {
+            return
+          }
+
+          if (currentRating) {
+            const currentGrade =
+              Math.round(
+                currentRating.grade,
+              )
+
+            setExistingRating(
+              currentRating,
+            )
+
+            setRating(
+              currentGrade,
+            )
+
+            setInitialRating(
+              currentGrade,
+            )
+          } else {
+            setExistingRating(
+              null,
+            )
+
+            setRating(0)
+            setInitialRating(0)
+          }
+        } catch (error) {
+          if (!isMounted) {
+            return
+          }
+
           setErrorMessage(
-            'You can rate the restaurant only after delivery.',
+            getErrorMessage(
+              error,
+            ),
           )
-
-          return
-        }
-
-        if (!currentOrder.restaurantId) {
-          setErrorMessage(
-            'Restaurant information is missing.',
-          )
-
-          return
-        }
-
-        const currentRating =
-          await getMyRestaurantRating(
-            currentOrder.restaurantId,
-          )
-
-        if (!isMounted) {
-          return
-        }
-
-        if (currentRating) {
-          setExistingRating(
-            currentRating,
-          )
-
-          setRating(
-            Math.round(currentRating.grade),
-          )
-        }
-
-        setErrorMessage('')
-      } catch (error) {
-        if (!isMounted) {
-          return
-        }
-
-        setErrorMessage(
-          getErrorMessage(error),
-        )
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
+        } finally {
+          if (isMounted) {
+            setIsLoading(false)
+          }
         }
       }
-    }
 
     void loadPage()
 
@@ -222,96 +282,151 @@ function OrderRatingPage() {
 
   const delivered =
     order
-      ? isOrderDelivered(order)
+      ? isOrderDelivered(
+          order,
+        )
       : false
 
   const displayedRating =
-    hoveredRating || rating
+    hoveredRating ||
+    rating
 
   const ratingPercent =
     displayedRating * 20
 
   const canChooseRating =
-    delivered &&
-    !existingRating &&
-    !isSubmitting
-
-  const canSubmit =
     Boolean(order) &&
-    Boolean(order?.restaurantId) &&
     delivered &&
-    !existingRating &&
-    rating >= 1 &&
-    rating <= 5 &&
+    Boolean(
+      order?.restaurantId,
+    ) &&
     !isSubmitting &&
     !isLoading
 
-  const handleReady = async () => {
-    if (!order) {
+  const ratingChanged =
+    rating !== initialRating
+
+  const canSubmit =
+    Boolean(order) &&
+    Boolean(
+      order?.restaurantId,
+    ) &&
+    delivered &&
+    rating >= 1 &&
+    rating <= 5 &&
+    !isSubmitting &&
+    !isLoading &&
+    (
+      !existingRating ||
+      ratingChanged
+    )
+
+  const handleRatingChange = (
+    value: number,
+  ) => {
+    if (
+      !canChooseRating
+    ) {
       return
     }
 
-    if (existingRating) {
-      navigate('/food/orders', {
-        replace: true,
-      })
+    setRating(value)
 
-      return
-    }
-
-    if (!delivered) {
-      setErrorMessage(
-        'You can rate the restaurant only after delivery.',
-      )
-
-      return
-    }
-
-    if (!canSubmit) {
-      return
-    }
-
-    const userId =
-      getCurrentUserId()
-
-    if (!userId) {
-      setErrorMessage(
-        'Unable to determine the current user.',
-      )
-
-      return
-    }
-
-    setIsSubmitting(true)
+    setSuccessMessage('')
     setErrorMessage('')
-
-    try {
-      const savedRating =
-        await createRating({
-          id: 0,
-          grade: rating,
-          userId,
-          restaurantId:
-            order.restaurantId,
-        })
-
-      setExistingRating(
-        savedRating,
-      )
-
-      setRating(
-        Math.round(savedRating.grade),
-      )
-
-      setHoveredRating(0)
-    } catch (error) {
-      setErrorMessage(
-        getErrorMessage(error),
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
   }
+
+  const handleReady =
+    async () => {
+      if (
+        !order ||
+        !order.restaurantId
+      ) {
+        return
+      }
+
+      if (!delivered) {
+        setErrorMessage(
+          'You can rate the restaurant only after delivery.',
+        )
+
+        return
+      }
+
+      if (!canSubmit) {
+        return
+      }
+
+      setIsSubmitting(true)
+
+      setErrorMessage('')
+      setSuccessMessage('')
+
+      try {
+        let savedRating:
+          RatingResponse
+
+        if (existingRating) {
+          savedRating =
+            await updateRating(
+              existingRating.id,
+              {
+                id:
+                  existingRating.id,
+
+                grade: rating,
+
+                userId:
+                  existingRating.userId,
+
+                restaurantId:
+                  order.restaurantId,
+              },
+            )
+        } else {
+          savedRating =
+            await createRating({
+              grade: rating,
+
+              restaurantId:
+                order.restaurantId,
+            })
+        }
+
+        const savedGrade =
+          Math.round(
+            savedRating.grade,
+          )
+
+        setExistingRating(
+          savedRating,
+        )
+
+        setRating(
+          savedGrade,
+        )
+
+        setInitialRating(
+          savedGrade,
+        )
+
+        setHoveredRating(0)
+
+        setSuccessMessage(
+          existingRating
+            ? 'Rating updated!'
+            : 'Rating saved!',
+        )
+      } catch (error) {
+        setErrorMessage(
+          getErrorMessage(
+            error,
+          ),
+        )
+      } finally {
+        setIsSubmitting(false)
+      }
+    }
 
   if (!isValidOrderId) {
     return (
@@ -325,6 +440,7 @@ function OrderRatingPage() {
           </div>
 
           <button
+            className="order-rating-page__return-button"
             type="button"
             onClick={() =>
               navigate('/food')
@@ -355,7 +471,9 @@ function OrderRatingPage() {
             )
           }
           aria-label="Go back"
-          disabled={isSubmitting}
+          disabled={
+            isSubmitting
+          }
         >
           <img
             src={backButtonIcon}
@@ -383,10 +501,14 @@ function OrderRatingPage() {
           className="order-rating-page__header-button"
           type="button"
           onClick={() =>
-            navigate('/notifications')
+            navigate(
+              '/notifications',
+            )
           }
           aria-label="Notifications"
-          disabled={isSubmitting}
+          disabled={
+            isSubmitting
+          }
         >
           <img
             src={bellIcon}
@@ -403,6 +525,16 @@ function OrderRatingPage() {
             role="alert"
           >
             {errorMessage}
+          </div>
+        )}
+
+        {successMessage && (
+          <div
+            className="order-rating-page__success"
+            role="status"
+            aria-live="polite"
+          >
+            {successMessage}
           </div>
         )}
 
@@ -424,19 +556,19 @@ function OrderRatingPage() {
           <>
             <div className="order-rating-page__message">
               <h1>
-                {existingRating
-                  ? 'Thank you!'
-                  : delivered
-                    ? 'Order delivered!'
-                    : 'Order is not delivered yet'}
+                {delivered
+                  ? existingRating
+                    ? 'Your rating'
+                    : 'Order delivered!'
+                  : 'Order is not delivered yet'}
               </h1>
 
               <p>
-                {existingRating
-                  ? 'You have already rated this restaurant'
-                  : delivered
-                    ? 'Please rate the service'
-                    : 'Rating will be available after delivery'}
+                {delivered
+                  ? existingRating
+                    ? 'You can change your rating'
+                    : 'Please rate the service'
+                  : 'Rating will be available after delivery'}
               </p>
             </div>
 
@@ -452,19 +584,22 @@ function OrderRatingPage() {
                   {
                     '--rating-percent':
                       `${ratingPercent}%`,
+
                     '--rating-mask':
                       `url("${ratingStarsIcon}")`,
                   } as CSSProperties
                 }
                 onMouseLeave={() => {
-                  if (canChooseRating) {
-                    setHoveredRating(0)
+                  if (
+                    canChooseRating
+                  ) {
+                    setHoveredRating(
+                      0,
+                    )
                   }
                 }}
                 aria-label={
-                  existingRating
-                    ? `Your rating: ${rating} out of 5`
-                    : `Selected rating: ${rating} out of 5`
+                  `Selected rating: ${rating} out of 5`
                 }
               >
                 <div
@@ -473,18 +608,24 @@ function OrderRatingPage() {
                 />
 
                 <div className="order-rating-page__star-buttons">
-                  {[1, 2, 3, 4, 5].map(
+                  {[
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                  ].map(
                     (value) => (
                       <button
-                        key={value}
+                        key={
+                          value
+                        }
                         type="button"
-                        onClick={() => {
-                          if (
-                            canChooseRating
-                          ) {
-                            setRating(value)
-                          }
-                        }}
+                        onClick={() =>
+                          handleRatingChange(
+                            value,
+                          )
+                        }
                         onMouseEnter={() => {
                           if (
                             canChooseRating
@@ -507,12 +648,15 @@ function OrderRatingPage() {
                           if (
                             canChooseRating
                           ) {
-                            setHoveredRating(0)
+                            setHoveredRating(
+                              0,
+                            )
                           }
                         }}
                         aria-label={`Rate ${value} out of 5`}
                         aria-pressed={
-                          rating === value
+                          rating ===
+                          value
                         }
                         disabled={
                           !canChooseRating
@@ -527,50 +671,78 @@ function OrderRatingPage() {
                 className="order-rating-page__selected-rating"
                 aria-live="polite"
               >
-                {existingRating
-                  ? `Your rating: ${rating} out of 5`
-                  : rating > 0
-                    ? `${rating} out of 5`
-                    : delivered
-                      ? 'Select a rating'
-                      : 'Available after delivery'}
+                {rating > 0
+                  ? `${rating} out of 5`
+                  : delivered
+                    ? 'Select a rating'
+                    : 'Available after delivery'}
               </p>
+
+              {existingRating &&
+                ratingChanged && (
+                  <p className="order-rating-page__changed-rating">
+                    Your current saved
+                    rating is{' '}
+                    {initialRating} out
+                    of 5
+                  </p>
+                )}
             </section>
           </>
         ) : null}
       </section>
 
-      {!isLoading && order && (
-        <div className="order-rating-page__bottom">
-          {existingRating ? (
-            <button
-              type="button"
-              onClick={() =>
-                navigate(
-                  '/food/orders',
-                  {
-                    replace: true,
-                  },
-                )
-              }
-            >
-              Done
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() =>
-                void handleReady()
-              }
-              disabled={!canSubmit}
-            >
-              {isSubmitting
-                ? 'Saving...'
-                : 'Ready'}
-            </button>
-          )}
-        </div>
-      )}
+      {!isLoading &&
+        order && (
+          <div className="order-rating-page__bottom">
+            {delivered ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (
+                    canSubmit
+                  ) {
+                    void handleReady()
+                    return
+                  }
+
+                  if (
+                    existingRating &&
+                    !ratingChanged
+                  ) {
+                    navigate(
+                      '/food/orders',
+                      {
+                        replace:
+                          true,
+                      },
+                    )
+                  }
+                }}
+                disabled={
+                  !existingRating &&
+                  !canSubmit
+                }
+              >
+                {isSubmitting
+                  ? 'Saving...'
+                  : existingRating &&
+                      !ratingChanged
+                    ? 'Done'
+                    : existingRating
+                      ? 'Update rating'
+                      : 'Ready'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled
+              >
+                Rating unavailable
+              </button>
+            )}
+          </div>
+        )}
     </main>
   )
 }

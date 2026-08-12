@@ -22,6 +22,11 @@ import {
 
 import {
   searchRestaurants,
+  searchRestaurantsAdvanced,
+} from '../../services/restaurantService'
+
+import type {
+  RestaurantStatus,
 } from '../../services/restaurantService'
 
 import type {
@@ -39,6 +44,16 @@ type FilterValue =
 type SortValue =
   | 'recommended'
   | 'rating'
+
+type StatusFilter =
+  | 'all'
+  | RestaurantStatus
+
+type RatingFilter =
+  | 0
+  | 3
+  | 4
+  | 4.5
 
 function getRestaurantImage(
   restaurant: RestaurantResponse,
@@ -108,6 +123,29 @@ function formatPrice(
   ).format(value)
 }
 
+function parseOptionalNumber(
+  value: string,
+): number | undefined {
+  const normalizedValue =
+    value.trim()
+
+  if (!normalizedValue) {
+    return undefined
+  }
+
+  const parsedValue =
+    Number(normalizedValue)
+
+  if (
+    Number.isNaN(parsedValue) ||
+    parsedValue < 0
+  ) {
+    return undefined
+  }
+
+  return parsedValue
+}
+
 function FoodSearch() {
   const navigate = useNavigate()
 
@@ -131,15 +169,87 @@ function FoodSearch() {
     setIsFilterOpen,
   ] = useState(false)
 
+  /*
+   * Applied settings
+   * Только эти значения влияют
+   * на результаты и API.
+   */
+
   const [
-    filter,
-    setFilter,
+    appliedFilter,
+    setAppliedFilter,
   ] = useState<FilterValue>('all')
 
   const [
-    sort,
-    setSort,
+    appliedSort,
+    setAppliedSort,
   ] = useState<SortValue>('recommended')
+
+  const [
+    appliedStatusFilter,
+    setAppliedStatusFilter,
+  ] = useState<StatusFilter>('all')
+
+  const [
+    appliedMinRating,
+    setAppliedMinRating,
+  ] = useState<RatingFilter>(0)
+
+  const [
+    appliedCity,
+    setAppliedCity,
+  ] = useState('')
+
+  const [
+    appliedMinOrderAmount,
+    setAppliedMinOrderAmount,
+  ] = useState('')
+
+  const [
+    appliedMaxOrderAmount,
+    setAppliedMaxOrderAmount,
+  ] = useState('')
+
+  /*
+   * Draft settings
+   * Пользователь меняет их
+   * внутри Filter.
+   */
+
+  const [
+    draftFilter,
+    setDraftFilter,
+  ] = useState<FilterValue>('all')
+
+  const [
+    draftSort,
+    setDraftSort,
+  ] = useState<SortValue>('recommended')
+
+  const [
+    draftStatusFilter,
+    setDraftStatusFilter,
+  ] = useState<StatusFilter>('all')
+
+  const [
+    draftMinRating,
+    setDraftMinRating,
+  ] = useState<RatingFilter>(0)
+
+  const [
+    draftCity,
+    setDraftCity,
+  ] = useState('')
+
+  const [
+    draftMinOrderAmount,
+    setDraftMinOrderAmount,
+  ] = useState('')
+
+  const [
+    draftMaxOrderAmount,
+    setDraftMaxOrderAmount,
+  ] = useState('')
 
   const [
     isLoading,
@@ -153,6 +263,19 @@ function FoodSearch() {
 
   const normalizedSearch =
     searchValue.trim()
+
+  const normalizedAppliedCity =
+    appliedCity.trim()
+
+  const parsedAppliedMinOrderAmount =
+    parseOptionalNumber(
+      appliedMinOrderAmount,
+    )
+
+  const parsedAppliedMaxOrderAmount =
+    parseOptionalNumber(
+      appliedMaxOrderAmount,
+    )
 
   useEffect(() => {
     if (!normalizedSearch) {
@@ -168,15 +291,86 @@ function FoodSearch() {
             setIsLoading(true)
             setErrorMessage('')
 
+            const needsAdvancedSearch =
+              appliedSort ===
+                'recommended' ||
+              appliedStatusFilter !==
+                'all' ||
+              appliedMinRating > 0 ||
+              normalizedAppliedCity
+                .length > 0 ||
+              parsedAppliedMinOrderAmount !==
+                undefined ||
+              parsedAppliedMaxOrderAmount !==
+                undefined
+
+            const restaurantRequest =
+              needsAdvancedSearch
+                ? searchRestaurantsAdvanced({
+                    title:
+                      normalizedSearch,
+
+                    ...(appliedSort ===
+                    'recommended'
+                      ? {
+                          isRecommended:
+                            true,
+                        }
+                      : {}),
+
+                    ...(appliedStatusFilter !==
+                    'all'
+                      ? {
+                          status:
+                            appliedStatusFilter,
+                        }
+                      : {}),
+
+                    ...(appliedMinRating > 0
+                      ? {
+                          minRating:
+                            appliedMinRating,
+                        }
+                      : {}),
+
+                    ...(normalizedAppliedCity
+                      ? {
+                          city:
+                            normalizedAppliedCity,
+                        }
+                      : {}),
+
+                    ...(parsedAppliedMinOrderAmount !==
+                    undefined
+                      ? {
+                          minMinOrderAmount:
+                            parsedAppliedMinOrderAmount,
+                        }
+                      : {}),
+
+                    ...(parsedAppliedMaxOrderAmount !==
+                    undefined
+                      ? {
+                          maxMinOrderAmount:
+                            parsedAppliedMaxOrderAmount,
+                        }
+                      : {}),
+
+                    page: 0,
+                    size: 50,
+                  })
+                : searchRestaurants(
+                    normalizedSearch,
+                    0,
+                    50,
+                  )
+
             const [
               restaurantsResult,
               dishesResult,
             ] = await Promise.allSettled([
-              searchRestaurants(
-                normalizedSearch,
-                0,
-                50,
-              ),
+              restaurantRequest,
+
               searchDishes(
                 normalizedSearch,
                 0,
@@ -260,6 +454,7 @@ function FoodSearch() {
 
             setRestaurants([])
             setDishes([])
+
             setErrorMessage(
               'Failed to search.',
             )
@@ -281,6 +476,12 @@ function FoodSearch() {
     }
   }, [
     normalizedSearch,
+    appliedSort,
+    appliedStatusFilter,
+    appliedMinRating,
+    normalizedAppliedCity,
+    parsedAppliedMinOrderAmount,
+    parsedAppliedMaxOrderAmount,
   ])
 
   const visibleRestaurants =
@@ -289,7 +490,9 @@ function FoodSearch() {
         ...restaurants,
       ]
 
-      if (sort === 'rating') {
+      if (
+        appliedSort === 'rating'
+      ) {
         return results.sort(
           (
             firstRestaurant,
@@ -300,30 +503,19 @@ function FoodSearch() {
         )
       }
 
-      return results.sort(
-        (
-          firstRestaurant,
-          secondRestaurant,
-        ) =>
-          Number(
-            secondRestaurant.isRecommended,
-          ) -
-          Number(
-            firstRestaurant.isRecommended,
-          ),
-      )
+      return results
     }, [
       restaurants,
-      sort,
+      appliedSort,
     ])
 
   const showRestaurants =
-    filter === 'all' ||
-    filter === 'restaurants'
+    appliedFilter === 'all' ||
+    appliedFilter === 'restaurants'
 
   const showDishes =
-    filter === 'all' ||
-    filter === 'dishes'
+    appliedFilter === 'all' ||
+    appliedFilter === 'dishes'
 
   const showPrompt =
     normalizedSearch.length === 0
@@ -346,6 +538,17 @@ function FoodSearch() {
     !isLoading &&
     !errorMessage &&
     totalVisibleResults === 0
+
+  const hasAppliedFilters =
+    appliedFilter !== 'all' ||
+    appliedSort !== 'recommended' ||
+    appliedStatusFilter !== 'all' ||
+    appliedMinRating > 0 ||
+    normalizedAppliedCity.length > 0 ||
+    appliedMinOrderAmount.trim()
+      .length > 0 ||
+    appliedMaxOrderAmount.trim()
+      .length > 0
 
   const handleSearchChange = (
     value: string,
@@ -374,6 +577,93 @@ function FoodSearch() {
     navigate(
       `/food/restaurants/${dish.restaurantId}`,
     )
+  }
+
+  const handleOpenFilters = () => {
+    /*
+     * Каждый раз при открытии
+     * копируем применённые настройки
+     * обратно в draft.
+     */
+
+    setDraftFilter(
+      appliedFilter,
+    )
+
+    setDraftSort(
+      appliedSort,
+    )
+
+    setDraftStatusFilter(
+      appliedStatusFilter,
+    )
+
+    setDraftMinRating(
+      appliedMinRating,
+    )
+
+    setDraftCity(
+      appliedCity,
+    )
+
+    setDraftMinOrderAmount(
+      appliedMinOrderAmount,
+    )
+
+    setDraftMaxOrderAmount(
+      appliedMaxOrderAmount,
+    )
+
+    setIsFilterOpen(true)
+  }
+
+  const handleApplyFilters = () => {
+    setAppliedFilter(
+      draftFilter,
+    )
+
+    setAppliedSort(
+      draftSort,
+    )
+
+    setAppliedStatusFilter(
+      draftStatusFilter,
+    )
+
+    setAppliedMinRating(
+      draftMinRating,
+    )
+
+    setAppliedCity(
+      draftCity,
+    )
+
+    setAppliedMinOrderAmount(
+      draftMinOrderAmount,
+    )
+
+    setAppliedMaxOrderAmount(
+      draftMaxOrderAmount,
+    )
+
+    setIsFilterOpen(false)
+  }
+
+  const handleResetFilters = () => {
+    /*
+     * Reset меняет только draft.
+     *
+     * Настоящие результаты поменяются
+     * только после Show results.
+     */
+
+    setDraftFilter('all')
+    setDraftSort('recommended')
+    setDraftStatusFilter('all')
+    setDraftMinRating(0)
+    setDraftCity('')
+    setDraftMinOrderAmount('')
+    setDraftMaxOrderAmount('')
   }
 
   return (
@@ -465,13 +755,14 @@ function FoodSearch() {
 
           <button
             className={`food-filter-button ${
-              isFilterOpen
+              isFilterOpen ||
+              hasAppliedFilters
                 ? 'active'
                 : ''
             }`}
             type="button"
-            onClick={() =>
-              setIsFilterOpen(true)
+            onClick={
+              handleOpenFilters
             }
             aria-label="Open filters"
           >
@@ -537,7 +828,6 @@ function FoodSearch() {
                               restaurant.id,
                             )
                           }
-                          aria-label={`Open ${restaurant.title}`}
                         >
                           <img
                             className="food-search-result-image"
@@ -609,15 +899,12 @@ function FoodSearch() {
                         <button
                           className="food-search-result-card"
                           type="button"
-                          key={
-                            dish.id
-                          }
+                          key={dish.id}
                           onClick={() =>
                             handleDishClick(
                               dish,
                             )
                           }
-                          aria-label={`Open ${dish.title}`}
                         >
                           <img
                             className="food-search-result-image"
@@ -677,18 +964,34 @@ function FoodSearch() {
         {isFilterOpen && (
           <section className="food-filter-panel">
             <div className="food-filter-content">
-              <h1>Filter</h1>
+              <div className="food-filter-title-row">
+                <h1>Filter</h1>
+
+                <button
+                  className="food-filter-reset"
+                  type="button"
+                  onClick={
+                    handleResetFilters
+                  }
+                >
+                  Reset
+                </button>
+              </div>
+
+              <h2>Show</h2>
 
               <div className="food-filter-options">
                 <button
                   className={
-                    filter === 'all'
+                    draftFilter === 'all'
                       ? 'active'
                       : ''
                   }
                   type="button"
                   onClick={() =>
-                    setFilter('all')
+                    setDraftFilter(
+                      'all',
+                    )
                   }
                 >
                   All results
@@ -696,14 +999,14 @@ function FoodSearch() {
 
                 <button
                   className={
-                    filter ===
+                    draftFilter ===
                     'restaurants'
                       ? 'active'
                       : ''
                   }
                   type="button"
                   onClick={() =>
-                    setFilter(
+                    setDraftFilter(
                       'restaurants',
                     )
                   }
@@ -713,13 +1016,16 @@ function FoodSearch() {
 
                 <button
                   className={
-                    filter === 'dishes'
+                    draftFilter ===
+                    'dishes'
                       ? 'active'
                       : ''
                   }
                   type="button"
                   onClick={() =>
-                    setFilter('dishes')
+                    setDraftFilter(
+                      'dishes',
+                    )
                   }
                 >
                   Dishes
@@ -733,14 +1039,14 @@ function FoodSearch() {
               <div className="food-filter-options">
                 <button
                   className={
-                    sort ===
+                    draftSort ===
                     'recommended'
                       ? 'active'
                       : ''
                   }
                   type="button"
                   onClick={() =>
-                    setSort(
+                    setDraftSort(
                       'recommended',
                     )
                   }
@@ -750,30 +1056,241 @@ function FoodSearch() {
 
                 <button
                   className={
-                    sort === 'rating'
+                    draftSort ===
+                    'rating'
                       ? 'active'
                       : ''
                   }
                   type="button"
                   onClick={() =>
-                    setSort('rating')
+                    setDraftSort(
+                      'rating',
+                    )
                   }
                 >
                   Rating
                 </button>
+              </div>
+
+              <h2>Status</h2>
+
+              <div className="food-filter-options">
+                <button
+                  className={
+                    draftStatusFilter ===
+                    'all'
+                      ? 'active'
+                      : ''
+                  }
+                  type="button"
+                  onClick={() =>
+                    setDraftStatusFilter(
+                      'all',
+                    )
+                  }
+                >
+                  All
+                </button>
+
+                <button
+                  className={
+                    draftStatusFilter ===
+                    'OPEN'
+                      ? 'active'
+                      : ''
+                  }
+                  type="button"
+                  onClick={() =>
+                    setDraftStatusFilter(
+                      'OPEN',
+                    )
+                  }
+                >
+                  Open
+                </button>
+
+                <button
+                  className={
+                    draftStatusFilter ===
+                    'BUSY'
+                      ? 'active'
+                      : ''
+                  }
+                  type="button"
+                  onClick={() =>
+                    setDraftStatusFilter(
+                      'BUSY',
+                    )
+                  }
+                >
+                  Busy
+                </button>
+
+                <button
+                  className={
+                    draftStatusFilter ===
+                    'TEMPORARILY_CLOSED'
+                      ? 'active'
+                      : ''
+                  }
+                  type="button"
+                  onClick={() =>
+                    setDraftStatusFilter(
+                      'TEMPORARILY_CLOSED',
+                    )
+                  }
+                >
+                  Temporarily closed
+                </button>
+
+                <button
+                  className={
+                    draftStatusFilter ===
+                    'CLOSED'
+                      ? 'active'
+                      : ''
+                  }
+                  type="button"
+                  onClick={() =>
+                    setDraftStatusFilter(
+                      'CLOSED',
+                    )
+                  }
+                >
+                  Closed
+                </button>
+              </div>
+
+              <h2>Minimum rating</h2>
+
+              <div className="food-filter-options">
+                <button
+                  className={
+                    draftMinRating === 0
+                      ? 'active'
+                      : ''
+                  }
+                  type="button"
+                  onClick={() =>
+                    setDraftMinRating(0)
+                  }
+                >
+                  Any
+                </button>
+
+                <button
+                  className={
+                    draftMinRating === 3
+                      ? 'active'
+                      : ''
+                  }
+                  type="button"
+                  onClick={() =>
+                    setDraftMinRating(3)
+                  }
+                >
+                  3+
+                </button>
+
+                <button
+                  className={
+                    draftMinRating === 4
+                      ? 'active'
+                      : ''
+                  }
+                  type="button"
+                  onClick={() =>
+                    setDraftMinRating(4)
+                  }
+                >
+                  4+
+                </button>
+
+                <button
+                  className={
+                    draftMinRating ===
+                    4.5
+                      ? 'active'
+                      : ''
+                  }
+                  type="button"
+                  onClick={() =>
+                    setDraftMinRating(
+                      4.5,
+                    )
+                  }
+                >
+                  4.5+
+                </button>
+              </div>
+
+              <h2>City</h2>
+
+              <input
+                className="food-filter-input"
+                type="text"
+                value={draftCity}
+                onChange={(event) =>
+                  setDraftCity(
+                    event.target.value,
+                  )
+                }
+                placeholder="Enter city"
+              />
+
+              <h2>Order amount</h2>
+
+              <div className="food-filter-price-row">
+                <label>
+                  <span>From</span>
+
+                  <input
+                    className="food-filter-input"
+                    type="number"
+                    min="0"
+                    value={
+                      draftMinOrderAmount
+                    }
+                    onChange={(event) =>
+                      setDraftMinOrderAmount(
+                        event.target
+                          .value,
+                      )
+                    }
+                    placeholder="0"
+                  />
+                </label>
+
+                <label>
+                  <span>To</span>
+
+                  <input
+                    className="food-filter-input"
+                    type="number"
+                    min="0"
+                    value={
+                      draftMaxOrderAmount
+                    }
+                    onChange={(event) =>
+                      setDraftMaxOrderAmount(
+                        event.target
+                          .value,
+                      )
+                    }
+                    placeholder="50000"
+                  />
+                </label>
               </div>
             </div>
 
             <div className="food-filter-footer">
               <button
                 type="button"
-                onClick={() =>
-                  setIsFilterOpen(
-                    false,
-                  )
+                onClick={
+                  handleApplyFilters
                 }
               >
-                Close
+                Show results
               </button>
             </div>
           </section>

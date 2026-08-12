@@ -32,6 +32,19 @@ import {
 } from '../../services/cartService'
 
 import {
+  addRestaurantToFavorites,
+  getFavoriteRestaurants,
+  removeRestaurantFromFavorites,
+} from '../../services/favoriteRestaurantService'
+
+import {
+  calculateAverageRating,
+  getMyRestaurantRating,
+  getRestaurantRatings,
+  type RatingResponse,
+} from '../../services/ratingService'
+
+import {
   getRestaurantById,
   getRestaurantDishes,
 } from '../../services/restaurantService'
@@ -220,6 +233,29 @@ function RestaurantPage() {
   ] = useState(false)
 
   const [
+    isFavoriteLoading,
+    setIsFavoriteLoading,
+  ] = useState(false)
+
+  const [
+    favoriteError,
+    setFavoriteError,
+  ] = useState('')
+
+  const [
+    ratings,
+    setRatings,
+  ] = useState<RatingResponse[]>([])
+
+  const [
+    myRating,
+    setMyRating,
+  ] =
+    useState<RatingResponse | null>(
+      null,
+    )
+
+  const [
     isMenuOpen,
     setIsMenuOpen,
   ] = useState(false)
@@ -272,7 +308,9 @@ function RestaurantPage() {
           getRestaurantDishes(id),
         ])
 
-        setRestaurant(restaurantData)
+        setRestaurant(
+          restaurantData,
+        )
 
         setDishes(
           dishesData.content.filter(
@@ -296,6 +334,112 @@ function RestaurantPage() {
     }
 
     void loadPage()
+  }, [restaurantId])
+
+  useEffect(() => {
+    const loadFavoriteStatus =
+      async () => {
+        const id = Number(restaurantId)
+
+        if (
+          !restaurantId ||
+          Number.isNaN(id) ||
+          id <= 0
+        ) {
+          return
+        }
+
+        try {
+          const favorites =
+            await getFavoriteRestaurants()
+
+          const restaurantIsFavorite =
+            favorites.some(
+              (favorite) =>
+                favorite.restaurantId ===
+                  id ||
+                favorite.restaurant?.id ===
+                  id,
+            )
+
+          setIsFavorite(
+            restaurantIsFavorite,
+          )
+
+          setFavoriteError('')
+        } catch (error) {
+          console.error(
+            'Failed to load favorite status:',
+            error,
+          )
+
+          setIsFavorite(false)
+        }
+      }
+
+    void loadFavoriteStatus()
+  }, [restaurantId])
+
+  useEffect(() => {
+    const loadRatings =
+      async () => {
+        const id = Number(restaurantId)
+
+        if (
+          !restaurantId ||
+          Number.isNaN(id) ||
+          id <= 0
+        ) {
+          return
+        }
+
+        const [
+          ratingsResult,
+          myRatingResult,
+        ] = await Promise.allSettled([
+          getRestaurantRatings(
+            id,
+            0,
+            100,
+          ),
+          getMyRestaurantRating(id),
+        ])
+
+        if (
+          ratingsResult.status ===
+          'fulfilled'
+        ) {
+          setRatings(
+            ratingsResult.value.content ??
+              [],
+          )
+        } else {
+          console.error(
+            'Failed to load restaurant ratings:',
+            ratingsResult.reason,
+          )
+
+          setRatings([])
+        }
+
+        if (
+          myRatingResult.status ===
+          'fulfilled'
+        ) {
+          setMyRating(
+            myRatingResult.value,
+          )
+        } else {
+          console.error(
+            'Failed to load user rating:',
+            myRatingResult.reason,
+          )
+
+          setMyRating(null)
+        }
+      }
+
+    void loadRatings()
   }, [restaurantId])
 
   useEffect(() => {
@@ -356,14 +500,20 @@ function RestaurantPage() {
               dish.categoryName,
               dish.dishCategoryId,
             ),
+
             title:
               dish.categoryName ||
               'Other',
-            products: [product],
-            image: getCategoryImage(
-              dish.categoryName,
-              dish.imageUrl,
-            ),
+
+            products: [
+              product,
+            ],
+
+            image:
+              getCategoryImage(
+                dish.categoryName,
+                dish.imageUrl,
+              ),
           },
         )
       })
@@ -372,6 +522,25 @@ function RestaurantPage() {
         groups.values(),
       )
     }, [dishes])
+
+  const averageRating =
+    useMemo(() => {
+      if (ratings.length > 0) {
+        return calculateAverageRating(
+          ratings,
+        )
+      }
+
+      return restaurant?.ratings ?? 0
+    }, [
+      ratings,
+      restaurant,
+    ])
+
+  const ratingCount =
+    ratings.length > 0
+      ? ratings.length
+      : restaurant?.totalRatings ?? 0
 
   const handleProductClick = (
     product: RestaurantProduct,
@@ -426,6 +595,59 @@ function RestaurantPage() {
     }
   }
 
+  const handleFavoriteClick =
+    async () => {
+      const id = Number(restaurantId)
+
+      if (
+        !restaurantId ||
+        Number.isNaN(id) ||
+        id <= 0 ||
+        isFavoriteLoading
+      ) {
+        return
+      }
+
+      const previousValue =
+        isFavorite
+
+      setIsFavorite(
+        !previousValue,
+      )
+
+      setIsFavoriteLoading(true)
+      setFavoriteError('')
+
+      try {
+        if (previousValue) {
+          await removeRestaurantFromFavorites(
+            id,
+          )
+        } else {
+          await addRestaurantToFavorites(
+            id,
+          )
+        }
+      } catch (error) {
+        console.error(
+          'Failed to update favorite:',
+          error,
+        )
+
+        setIsFavorite(
+          previousValue,
+        )
+
+        setFavoriteError(
+          previousValue
+            ? 'Failed to remove restaurant from favorites.'
+            : 'Failed to add restaurant to favorites.',
+        )
+      } finally {
+        setIsFavoriteLoading(false)
+      }
+    }
+
   const handleCategoryClick = (
     categoryId: string,
   ) => {
@@ -458,12 +680,7 @@ function RestaurantPage() {
   if (isLoading) {
     return (
       <main className="restaurant-page">
-        <p
-          style={{
-            padding: '40px 16px',
-            textAlign: 'center',
-          }}
-        >
+        <p className="restaurant-page__state-message">
           Loading restaurant...
         </p>
       </main>
@@ -511,11 +728,8 @@ function RestaurantPage() {
         </header>
 
         <p
+          className="restaurant-page__state-message"
           role="alert"
-          style={{
-            padding: '40px 16px',
-            textAlign: 'center',
-          }}
         >
           {pageError ||
             'Restaurant not found.'}
@@ -584,6 +798,9 @@ function RestaurantPage() {
           }
           alt={`${restaurant.title} restaurant`}
           onError={(event) => {
+            event.currentTarget.onerror =
+              null
+
             event.currentTarget.src =
               backgroundImage
           }}
@@ -599,11 +816,14 @@ function RestaurantPage() {
 
             <span>
               <strong>
-                {restaurant.ratings}
+                {averageRating.toFixed(
+                  1,
+                )}
               </strong>
 
               <small>
-                {restaurant.totalRatings}+
+                {ratingCount}{' '}
+                ratings
               </small>
             </span>
           </div>
@@ -621,7 +841,9 @@ function RestaurantPage() {
                   '—'}
               </strong>
 
-              <small>min</small>
+              <small>
+                min
+              </small>
             </span>
           </div>
 
@@ -674,15 +896,17 @@ function RestaurantPage() {
           </div>
 
           <button
-            className="restaurant-page__square-button"
+            className={`restaurant-page__square-button ${
+              isFavoriteLoading
+                ? 'restaurant-page__favorite-loading'
+                : ''
+            }`}
             type="button"
             onClick={() =>
-              setIsFavorite(
-                (
-                  currentValue,
-                ) =>
-                  !currentValue,
-              )
+              void handleFavoriteClick()
+            }
+            disabled={
+              isFavoriteLoading
             }
             aria-label={
               isFavorite
@@ -705,6 +929,15 @@ function RestaurantPage() {
           </button>
         </div>
       </section>
+
+      {favoriteError && (
+        <p
+          className="restaurant-page__favorite-error"
+          role="alert"
+        >
+          {favoriteError}
+        </p>
+      )}
 
       <section className="restaurant-page__information">
         <h1>
@@ -747,6 +980,41 @@ function RestaurantPage() {
         </div>
       </section>
 
+      <section className="restaurant-page__rating-info">
+        <div className="restaurant-page__rating-info-main">
+          <div className="restaurant-page__rating-info-icon">
+            ★
+          </div>
+
+          <div className="restaurant-page__rating-info-text">
+            <strong>
+              {averageRating.toFixed(
+                1,
+              )}
+            </strong>
+
+            <span>
+              {ratingCount}{' '}
+              {ratingCount === 1
+                ? 'rating'
+                : 'ratings'}
+            </span>
+          </div>
+        </div>
+
+        {myRating && (
+          <div className="restaurant-page__my-rating">
+            <span>
+              Your rating
+            </span>
+
+            <strong>
+              {myRating.grade}/5
+            </strong>
+          </div>
+        )}
+      </section>
+
       <button
         className="restaurant-page__search"
         type="button"
@@ -767,7 +1035,9 @@ function RestaurantPage() {
 
       {productGroups.length > 0 && (
         <section className="restaurant-page__categories">
-          <h2>Categories</h2>
+          <h2>
+            Categories
+          </h2>
 
           <div className="restaurant-page__category-list">
             {productGroups.map(
@@ -863,14 +1133,7 @@ function RestaurantPage() {
 
         {productGroups.length ===
           0 && (
-          <p
-            style={{
-              padding:
-                '20px 16px',
-              textAlign:
-                'center',
-            }}
-          >
+          <p className="restaurant-page__state-message">
             No dishes available.
           </p>
         )}
@@ -878,13 +1141,8 @@ function RestaurantPage() {
 
       {cartError && (
         <p
+          className="restaurant-page__cart-error"
           role="alert"
-          style={{
-            margin: '16px',
-            color: '#d32f2f',
-            fontSize: '13px',
-            textAlign: 'center',
-          }}
         >
           {cartError}
         </p>
