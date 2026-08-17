@@ -28,6 +28,7 @@ import utLogo from '../../assets/restaurant page/ut.svg'
 import {
   addItemToCart,
   checkMyCartExists,
+  clearMyCart,
   getMyCart,
 } from '../../services/cartService'
 
@@ -49,15 +50,13 @@ import {
   getRestaurantDishes,
 } from '../../services/restaurantService'
 
-import type {
-  CartResponse,
-} from '../../types/cart'
-
+import type { CartResponse } from '../../types/cart'
 import type {
   DishResponse,
   RestaurantResponse,
 } from '../../types/restaurant'
 
+import CartConflictModal from './CartConflictModal'
 import ProductModal from './ProductModal'
 import RestaurantProductCard from './RestaurantProductCard'
 
@@ -75,13 +74,8 @@ interface ProductGroup {
   image: string
 }
 
-const getMinOrderAmount = (
-  amount: number,
-) => {
-  if (
-    amount > 0 &&
-    amount < 1000
-  ) {
+const getMinOrderAmount = (amount: number) => {
+  if (amount > 0 && amount < 1000) {
     return amount * 1000
   }
 
@@ -90,20 +84,15 @@ const getMinOrderAmount = (
 
 const getCategoryImage = (
   categoryName: string,
-  dishImageUrl?: string | null,
+  dishImageUrl: string | null,
 ) => {
-  const normalizedName =
-    categoryName.toLowerCase()
+  const normalizedName = categoryName.toLowerCase()
 
-  if (
-    normalizedName.includes('pizza')
-  ) {
+  if (normalizedName.includes('pizza')) {
     return categoriesPizzaImage
   }
 
-  if (
-    normalizedName.includes('salad')
-  ) {
+  if (normalizedName.includes('salad')) {
     return categoriesSaladsImage
   }
 
@@ -125,12 +114,9 @@ const getCategoryImage = (
 const getProductCategory = (
   categoryName: string,
 ): RestaurantProduct['category'] => {
-  const normalizedName =
-    categoryName.toLowerCase()
+  const normalizedName = categoryName.toLowerCase()
 
-  if (
-    normalizedName.includes('salad')
-  ) {
+  if (normalizedName.includes('salad')) {
     return 'salads'
   }
 
@@ -165,9 +151,7 @@ const mapDishToProduct = (
   name: dish.title,
   description: dish.description,
   price: dish.price,
-  category: getProductCategory(
-    dish.categoryName,
-  ),
+  category: getProductCategory(dish.categoryName),
   image: dish.imageUrl,
   options: dish.options,
 })
@@ -175,9 +159,7 @@ const mapDishToProduct = (
 const getOperatingHours = (
   restaurant: RestaurantResponse | null,
 ) => {
-  if (
-    !restaurant?.operatingModes?.length
-  ) {
+  if (!restaurant?.operatingModes?.length) {
     return 'Opening hours unavailable'
   }
 
@@ -200,37 +182,20 @@ function RestaurantPage() {
     restaurantId: string
   }>()
 
-  const [
-    restaurant,
-    setRestaurant,
-  ] =
-    useState<RestaurantResponse | null>(
-      null,
-    )
+  const [restaurant, setRestaurant] =
+    useState<RestaurantResponse | null>(null)
 
-  const [
-    dishes,
-    setDishes,
-  ] = useState<DishResponse[]>([])
+  const [dishes, setDishes] =
+    useState<DishResponse[]>([])
 
-  const [
-    cart,
-    setCart,
-  ] =
+  const [cart, setCart] =
     useState<CartResponse | null>(null)
 
-  const [
-    selectedProduct,
-    setSelectedProduct,
-  ] =
-    useState<RestaurantProduct | null>(
-      null,
-    )
+  const [selectedProduct, setSelectedProduct] =
+    useState<RestaurantProduct | null>(null)
 
-  const [
-    isFavorite,
-    setIsFavorite,
-  ] = useState(false)
+  const [isFavorite, setIsFavorite] =
+    useState(false)
 
   const [
     isFavoriteLoading,
@@ -242,43 +207,35 @@ function RestaurantPage() {
     setFavoriteError,
   ] = useState('')
 
-  const [
-    ratings,
-    setRatings,
-  ] = useState<RatingResponse[]>([])
+  const [ratings, setRatings] =
+    useState<RatingResponse[]>([])
+
+  const [myRating, setMyRating] =
+    useState<RatingResponse | null>(null)
+
+  const [isMenuOpen, setIsMenuOpen] =
+    useState(false)
+
+  const [isLoading, setIsLoading] =
+    useState(true)
+
+  const [isAddingToCart, setIsAddingToCart] =
+    useState(false)
+
+  const [pageError, setPageError] =
+    useState('')
+
+  const [cartError, setCartError] =
+    useState('')
 
   const [
-    myRating,
-    setMyRating,
-  ] =
-    useState<RatingResponse | null>(
-      null,
-    )
-
-  const [
-    isMenuOpen,
-    setIsMenuOpen,
-  ] = useState(false)
-
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(true)
-
-  const [
-    isAddingToCart,
-    setIsAddingToCart,
-  ] = useState(false)
-
-  const [
-    pageError,
-    setPageError,
-  ] = useState('')
-
-  const [
-    cartError,
-    setCartError,
-  ] = useState('')
+    pendingCartItem,
+    setPendingCartItem,
+  ] = useState<{
+    product: RestaurantProduct
+    quantity: number
+    elementIds: number[]
+  } | null>(null)
 
   useEffect(() => {
     const loadPage = async () => {
@@ -289,9 +246,7 @@ function RestaurantPage() {
         Number.isNaN(id) ||
         id <= 0
       ) {
-        setPageError(
-          'Invalid restaurant ID.',
-        )
+        setPageError('Invalid restaurant ID.')
         setIsLoading(false)
         return
       }
@@ -308,9 +263,7 @@ function RestaurantPage() {
           getRestaurantDishes(id),
         ])
 
-        setRestaurant(
-          restaurantData,
-        )
+        setRestaurant(restaurantData)
 
         setDishes(
           dishesData.content.filter(
@@ -337,107 +290,93 @@ function RestaurantPage() {
   }, [restaurantId])
 
   useEffect(() => {
-    const loadFavoriteStatus =
-      async () => {
-        const id = Number(restaurantId)
+    const loadFavoriteStatus = async () => {
+      const id = Number(restaurantId)
 
-        if (
-          !restaurantId ||
-          Number.isNaN(id) ||
-          id <= 0
-        ) {
-          return
-        }
-
-        try {
-          const favorites =
-            await getFavoriteRestaurants()
-
-          const restaurantIsFavorite =
-            favorites.some(
-              (favorite) =>
-                favorite.restaurantId ===
-                  id ||
-                favorite.restaurant?.id ===
-                  id,
-            )
-
-          setIsFavorite(
-            restaurantIsFavorite,
-          )
-
-          setFavoriteError('')
-        } catch (error) {
-          console.error(
-            'Failed to load favorite status:',
-            error,
-          )
-
-          setIsFavorite(false)
-        }
+      if (
+        !restaurantId ||
+        Number.isNaN(id) ||
+        id <= 0
+      ) {
+        return
       }
+
+      try {
+        const favorites =
+          await getFavoriteRestaurants()
+
+        const restaurantIsFavorite =
+          favorites.some(
+            (favorite) =>
+              favorite.restaurantId === id ||
+              favorite.restaurant?.id === id,
+          )
+
+        setIsFavorite(restaurantIsFavorite)
+        setFavoriteError('')
+      } catch (error) {
+        console.error(
+          'Failed to load favorite status:',
+          error,
+        )
+
+        setIsFavorite(false)
+      }
+    }
 
     void loadFavoriteStatus()
   }, [restaurantId])
 
   useEffect(() => {
-    const loadRatings =
-      async () => {
-        const id = Number(restaurantId)
+    const loadRatings = async () => {
+      const id = Number(restaurantId)
 
-        if (
-          !restaurantId ||
-          Number.isNaN(id) ||
-          id <= 0
-        ) {
-          return
-        }
-
-        const [
-          ratingsResult,
-          myRatingResult,
-        ] = await Promise.allSettled([
-          getRestaurantRatings(
-            id,
-            0,
-            100,
-          ),
-          getMyRestaurantRating(id),
-        ])
-
-        if (
-          ratingsResult.status ===
-          'fulfilled'
-        ) {
-          setRatings(
-            ratingsResult.value.content ??
-              [],
-          )
-        } else {
-          console.error(
-            'Failed to load restaurant ratings:',
-            ratingsResult.reason,
-          )
-
-          setRatings([])
-        }
-
-        if (
-          myRatingResult.status ===
-          'fulfilled'
-        ) {
-          setMyRating(
-            myRatingResult.value,
-          )
-        } else {
-          console.error(
-            'Failed to load user rating:',
-            myRatingResult.reason,
-          )
-
-          setMyRating(null)
-        }
+      if (
+        !restaurantId ||
+        Number.isNaN(id) ||
+        id <= 0
+      ) {
+        return
       }
+
+      const [
+        ratingsResult,
+        myRatingResult,
+      ] = await Promise.allSettled([
+        getRestaurantRatings(id, 0, 100),
+        getMyRestaurantRating(id),
+      ])
+
+      if (
+        ratingsResult.status ===
+        'fulfilled'
+      ) {
+        setRatings(
+          ratingsResult.value.content ?? [],
+        )
+      } else {
+        console.error(
+          'Failed to load restaurant ratings:',
+          ratingsResult.reason,
+        )
+
+        setRatings([])
+      }
+
+      if (
+        myRatingResult.status ===
+        'fulfilled'
+      ) {
+        setMyRating(myRatingResult.value)
+      } else {
+        console.error(
+          'Failed to load user rating:',
+          myRatingResult.reason,
+        )
+
+        setMyRating(null)
+      }
+    }
 
     void loadRatings()
   }, [restaurantId])
@@ -479,17 +418,13 @@ function RestaurantPage() {
 
       dishes.forEach((dish) => {
         const existingGroup =
-          groups.get(
-            dish.dishCategoryId,
-          )
+          groups.get(dish.dishCategoryId)
 
         const product =
           mapDishToProduct(dish)
 
         if (existingGroup) {
-          existingGroup.products.push(
-            product,
-          )
+          existingGroup.products.push(product)
           return
         }
 
@@ -500,42 +435,28 @@ function RestaurantPage() {
               dish.categoryName,
               dish.dishCategoryId,
             ),
-
             title:
               dish.categoryName ||
               'Other',
-
-            products: [
-              product,
-            ],
-
-            image:
-              getCategoryImage(
-                dish.categoryName,
-                dish.imageUrl,
-              ),
+            products: [product],
+            image: getCategoryImage(
+              dish.categoryName,
+              dish.imageUrl,
+            ),
           },
         )
       })
 
-      return Array.from(
-        groups.values(),
-      )
+      return Array.from(groups.values())
     }, [dishes])
 
-  const averageRating =
-    useMemo(() => {
-      if (ratings.length > 0) {
-        return calculateAverageRating(
-          ratings,
-        )
-      }
+  const averageRating = useMemo(() => {
+    if (ratings.length > 0) {
+      return calculateAverageRating(ratings)
+    }
 
-      return restaurant?.ratings ?? 0
-    }, [
-      ratings,
-      restaurant,
-    ])
+    return restaurant?.ratings ?? 0
+  }, [ratings, restaurant])
 
   const ratingCount =
     ratings.length > 0
@@ -549,22 +470,56 @@ function RestaurantPage() {
     setCartError('')
   }
 
-  const handleCloseProductModal =
-    () => {
-      if (isAddingToCart) {
-        return
-      }
-
-      setSelectedProduct(null)
-      setCartError('')
+  const handleCloseProductModal = () => {
+    if (isAddingToCart) {
+      return
     }
+
+    setSelectedProduct(null)
+    setCartError('')
+  }
+
+  const addProductToCart = async (
+    product: RestaurantProduct,
+    quantity: number,
+    elementIds: number[],
+  ) => {
+    const updatedCart = await addItemToCart({
+      dishId: product.id,
+      count: quantity,
+      elements: elementIds,
+    })
+
+    setCart(updatedCart)
+    setSelectedProduct(null)
+  }
 
   const handleAddToOrder = async (
     product: RestaurantProduct,
     quantity: number,
     elementIds: number[],
   ) => {
-    if (isAddingToCart) {
+    if (isAddingToCart || !restaurant) {
+      return
+    }
+
+    const cartRestaurantId =
+      cart?.items[0]?.restaurantId
+
+    const hasDifferentRestaurant =
+      Boolean(cart?.items.length) &&
+      Boolean(cartRestaurantId) &&
+      cartRestaurantId !== restaurant.id
+
+    if (hasDifferentRestaurant) {
+      setPendingCartItem({
+        product,
+        quantity,
+        elementIds,
+      })
+
+      setSelectedProduct(null)
+      setCartError('')
       return
     }
 
@@ -572,15 +527,11 @@ function RestaurantPage() {
       setIsAddingToCart(true)
       setCartError('')
 
-      const updatedCart =
-        await addItemToCart({
-          dishId: product.id,
-          count: quantity,
-          elements: elementIds,
-        })
-
-      setCart(updatedCart)
-      setSelectedProduct(null)
+      await addProductToCart(
+        product,
+        quantity,
+        elementIds,
+      )
     } catch (error) {
       console.error(
         'Failed to add item to cart:',
@@ -595,58 +546,90 @@ function RestaurantPage() {
     }
   }
 
-  const handleFavoriteClick =
-    async () => {
-      const id = Number(restaurantId)
+  const handleCancelCartReplacement = () => {
+    if (isAddingToCart) {
+      return
+    }
 
-      if (
-        !restaurantId ||
-        Number.isNaN(id) ||
-        id <= 0 ||
-        isFavoriteLoading
-      ) {
-        return
-      }
+    setPendingCartItem(null)
+  }
 
-      const previousValue =
-        isFavorite
+  const handleReplaceCart = async () => {
+    if (
+      !pendingCartItem ||
+      isAddingToCart
+    ) {
+      return
+    }
 
-      setIsFavorite(
-        !previousValue,
+    try {
+      setIsAddingToCart(true)
+      setCartError('')
+
+      await clearMyCart()
+
+      await addProductToCart(
+        pendingCartItem.product,
+        pendingCartItem.quantity,
+        pendingCartItem.elementIds,
       )
 
-      setIsFavoriteLoading(true)
-      setFavoriteError('')
+      setPendingCartItem(null)
+    } catch (error) {
+      console.error(
+        'Failed to replace cart:',
+        error,
+      )
 
-      try {
-        if (previousValue) {
-          await removeRestaurantFromFavorites(
-            id,
-          )
-        } else {
-          await addRestaurantToFavorites(
-            id,
-          )
-        }
-      } catch (error) {
-        console.error(
-          'Failed to update favorite:',
-          error,
-        )
-
-        setIsFavorite(
-          previousValue,
-        )
-
-        setFavoriteError(
-          previousValue
-            ? 'Failed to remove restaurant from favorites.'
-            : 'Failed to add restaurant to favorites.',
-        )
-      } finally {
-        setIsFavoriteLoading(false)
-      }
+      setCartError(
+        'Failed to start a new cart. Please try again.',
+      )
+    } finally {
+      setIsAddingToCart(false)
     }
+  }
+
+  const handleFavoriteClick = async () => {
+    const id = Number(restaurantId)
+
+    if (
+      !restaurantId ||
+      Number.isNaN(id) ||
+      id <= 0 ||
+      isFavoriteLoading
+    ) {
+      return
+    }
+
+    const previousValue = isFavorite
+
+    setIsFavorite(!previousValue)
+    setIsFavoriteLoading(true)
+    setFavoriteError('')
+
+    try {
+      if (previousValue) {
+        await removeRestaurantFromFavorites(id)
+      } else {
+        await addRestaurantToFavorites(id)
+      }
+    } catch (error) {
+      console.error(
+        'Failed to update favorite:',
+        error,
+      )
+
+      setIsFavorite(previousValue)
+
+      setFavoriteError(
+        previousValue
+          ? 'Failed to remove restaurant from favorites.'
+          : 'Failed to add restaurant to favorites.',
+      )
+    } finally {
+      setIsFavoriteLoading(false)
+    }
+  }
 
   const handleCategoryClick = (
     categoryId: string,
@@ -665,41 +648,59 @@ function RestaurantPage() {
 
   const isProductOrdered = (
     productId: number,
-  ) =>
-    cart?.items.some(
-      (item) =>
-        item.dishId === productId,
-    ) ?? false
+  ) => {
+    if (!cartBelongsToCurrentRestaurant) {
+      return false
+    }
+
+    return (
+      cart?.items.some(
+        (item) =>
+          item.dishId === productId,
+      ) ?? false
+    )
+  }
+
+  const cartRestaurantId =
+    cart?.items[0]?.restaurantId
+
+  const cartBelongsToCurrentRestaurant =
+    Boolean(cart?.items.length) &&
+    cartRestaurantId === restaurant?.id
 
   const totalQuantity =
-    cart?.totalDish ?? 0
+    cartBelongsToCurrentRestaurant
+      ? cart?.totalDish ?? 0
+      : 0
 
   const orderTotal =
-    cart?.totalSum ?? 0
+    cartBelongsToCurrentRestaurant
+      ? cart?.totalSum ?? 0
+      : 0
 
   if (isLoading) {
     return (
       <main className="restaurant-page">
-        <p className="restaurant-page__state-message">
+        <p
+          style={{
+            padding: '40px 16px',
+            textAlign: 'center',
+          }}
+        >
           Loading restaurant...
         </p>
       </main>
     )
   }
 
-  if (
-    pageError ||
-    !restaurant
-  ) {
+  if (pageError || !restaurant) {
     return (
       <main className="restaurant-page">
         <header className="restaurant-page__header">
           <button
             className="restaurant-page__header-button"
             type="button"
-            onClick={() =>
-              navigate(-1)
-            }
+            onClick={() => navigate(-1)}
             aria-label="Go back"
           >
             <img
@@ -713,11 +714,7 @@ function RestaurantPage() {
             className="restaurant-page__logo"
             aria-label="UT Food"
           >
-            <img
-              src={utLogo}
-              alt="UT"
-            />
-
+            <img src={utLogo} alt="UT" />
             <img
               src={foodLogo}
               alt="Food"
@@ -728,8 +725,11 @@ function RestaurantPage() {
         </header>
 
         <p
-          className="restaurant-page__state-message"
           role="alert"
+          style={{
+            padding: '40px 16px',
+            textAlign: 'center',
+          }}
         >
           {pageError ||
             'Restaurant not found.'}
@@ -744,9 +744,7 @@ function RestaurantPage() {
         <button
           className="restaurant-page__header-button"
           type="button"
-          onClick={() =>
-            navigate(-1)
-          }
+          onClick={() => navigate(-1)}
           aria-label="Go back"
         >
           <img
@@ -760,11 +758,7 @@ function RestaurantPage() {
           className="restaurant-page__logo"
           aria-label="UT Food"
         >
-          <img
-            src={utLogo}
-            alt="UT"
-          />
-
+          <img src={utLogo} alt="UT" />
           <img
             src={foodLogo}
             alt="Food"
@@ -775,9 +769,7 @@ function RestaurantPage() {
           className="restaurant-page__header-button"
           type="button"
           onClick={() =>
-            navigate(
-              '/notifications',
-            )
+            navigate('/notifications')
           }
           aria-label="Notifications"
         >
@@ -798,9 +790,6 @@ function RestaurantPage() {
           }
           alt={`${restaurant.title} restaurant`}
           onError={(event) => {
-            event.currentTarget.onerror =
-              null
-
             event.currentTarget.src =
               backgroundImage
           }}
@@ -816,14 +805,11 @@ function RestaurantPage() {
 
             <span>
               <strong>
-                {averageRating.toFixed(
-                  1,
-                )}
+                {averageRating.toFixed(1)}
               </strong>
 
               <small>
-                {ratingCount}{' '}
-                ratings
+                {ratingCount} ratings
               </small>
             </span>
           </div>
@@ -841,9 +827,7 @@ function RestaurantPage() {
                   '—'}
               </strong>
 
-              <small>
-                min
-              </small>
+              <small>min</small>
             </span>
           </div>
 
@@ -853,16 +837,12 @@ function RestaurantPage() {
               type="button"
               onClick={() =>
                 setIsMenuOpen(
-                  (
-                    currentValue,
-                  ) =>
+                  (currentValue) =>
                     !currentValue,
                 )
               }
               aria-label="Open restaurant menu"
-              aria-expanded={
-                isMenuOpen
-              }
+              aria-expanded={isMenuOpen}
             >
               <img
                 src={ellipsisIcon}
@@ -873,15 +853,11 @@ function RestaurantPage() {
 
             {isMenuOpen && (
               <div className="restaurant-page__popup-menu">
-                <button
-                  type="button"
-                >
+                <button type="button">
                   Call
                 </button>
 
-                <button
-                  type="button"
-                >
+                <button type="button">
                   Share
                 </button>
 
@@ -905,17 +881,13 @@ function RestaurantPage() {
             onClick={() =>
               void handleFavoriteClick()
             }
-            disabled={
-              isFavoriteLoading
-            }
+            disabled={isFavoriteLoading}
             aria-label={
               isFavorite
                 ? 'Remove restaurant from favorites'
                 : 'Add restaurant to favorites'
             }
-            aria-pressed={
-              isFavorite
-            }
+            aria-pressed={isFavorite}
           >
             <img
               src={
@@ -988,9 +960,7 @@ function RestaurantPage() {
 
           <div className="restaurant-page__rating-info-text">
             <strong>
-              {averageRating.toFixed(
-                1,
-              )}
+              {averageRating.toFixed(1)}
             </strong>
 
             <span>
@@ -1004,13 +974,8 @@ function RestaurantPage() {
 
         {myRating && (
           <div className="restaurant-page__my-rating">
-            <span>
-              Your rating
-            </span>
-
-            <strong>
-              {myRating.grade}/5
-            </strong>
+            <span>Your rating</span>
+            <strong>{myRating.grade}/5</strong>
           </div>
         )}
       </section>
@@ -1035,9 +1000,7 @@ function RestaurantPage() {
 
       {productGroups.length > 0 && (
         <section className="restaurant-page__categories">
-          <h2>
-            Categories
-          </h2>
+          <h2>Categories</h2>
 
           <div className="restaurant-page__category-list">
             {productGroups.map(
@@ -1055,12 +1018,8 @@ function RestaurantPage() {
                   {group.image ? (
                     <img
                       src={group.image}
-                      alt={
-                        group.title
-                      }
-                      onError={(
-                        event,
-                      ) => {
+                      alt={group.title}
+                      onError={(event) => {
                         event.currentTarget.style.display =
                           'none'
                       }}
@@ -1079,12 +1038,9 @@ function RestaurantPage() {
                   </strong>
 
                   <span>
-                    {
-                      group.products
-                        .length
-                    }{' '}
-                    {group.products
-                      .length === 1
+                    {group.products.length}{' '}
+                    {group.products.length ===
+                    1
                       ? 'item'
                       : 'items'}
                   </span>
@@ -1111,12 +1067,8 @@ function RestaurantPage() {
                 {group.products.map(
                   (product) => (
                     <RestaurantProductCard
-                      key={
-                        product.id
-                      }
-                      product={
-                        product
-                      }
+                      key={product.id}
+                      product={product}
                       isSelected={isProductOrdered(
                         product.id,
                       )}
@@ -1131,9 +1083,13 @@ function RestaurantPage() {
           ),
         )}
 
-        {productGroups.length ===
-          0 && (
-          <p className="restaurant-page__state-message">
+        {productGroups.length === 0 && (
+          <p
+            style={{
+              padding: '20px 16px',
+              textAlign: 'center',
+            }}
+          >
             No dishes available.
           </p>
         )}
@@ -1141,8 +1097,13 @@ function RestaurantPage() {
 
       {cartError && (
         <p
-          className="restaurant-page__cart-error"
           role="alert"
+          style={{
+            margin: '16px',
+            color: '#d32f2f',
+            fontSize: '13px',
+            textAlign: 'center',
+          }}
         >
           {cartError}
         </p>
@@ -1150,9 +1111,7 @@ function RestaurantPage() {
 
       {selectedProduct && (
         <ProductModal
-          product={
-            selectedProduct
-          }
+          product={selectedProduct}
           onClose={
             handleCloseProductModal
           }
@@ -1162,13 +1121,23 @@ function RestaurantPage() {
         />
       )}
 
+      {pendingCartItem && (
+        <CartConflictModal
+          isLoading={isAddingToCart}
+          onCancel={
+            handleCancelCartReplacement
+          }
+          onReplace={() =>
+            void handleReplaceCart()
+          }
+        />
+      )}
+
       {totalQuantity > 0 && (
         <button
           className="restaurant-page__order-button"
           type="button"
-          onClick={
-            handleOpenOrder
-          }
+          onClick={handleOpenOrder}
           aria-label={`View order with ${totalQuantity} items`}
         >
           <span className="restaurant-page__order-count">
@@ -1180,9 +1149,7 @@ function RestaurantPage() {
           </span>
 
           <span className="restaurant-page__order-price">
-            {formatPrice(
-              orderTotal,
-            )}
+            {formatPrice(orderTotal)}
           </span>
         </button>
       )}

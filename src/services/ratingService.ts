@@ -1,5 +1,3 @@
-import axios from 'axios'
-
 import { api } from './api'
 
 import type {
@@ -39,32 +37,47 @@ export async function createRating(
   return data
 }
 
+export async function getMyRestaurantRatings(
+  page = 0,
+  size = 100,
+): Promise<
+  PaginatedResponse<RatingResponse>
+> {
+  const { data } =
+    await api.get<
+      PaginatedResponse<RatingResponse>
+    >('/ratings/my-ratings', {
+      params: {
+        page,
+        size,
+      },
+    })
+
+  return data
+}
+
 export async function getMyRestaurantRating(
   restaurantId: number,
 ): Promise<RatingResponse | null> {
-  try {
-    const { data } =
-      await api.get<RatingResponse>(
-        `/ratings/my-rating/restaurant/${restaurantId}`,
-      )
+  const ratings =
+    await getMyRestaurantRatings(
+      0,
+      100,
+    )
 
-    return data
-  } catch (error) {
-    if (
-      axios.isAxiosError(error) &&
-      error.response?.status === 404
-    ) {
-      return null
-    }
-
-    throw error
-  }
+  return (
+    ratings.content.find(
+      (rating) =>
+        rating.restaurantId ===
+        restaurantId,
+    ) ?? null
+  )
 }
 
 export async function getRestaurantRatings(
   restaurantId: number,
   page = 0,
-  size = 50,
+  size = 100,
 ): Promise<
   PaginatedResponse<RatingResponse>
 > {
@@ -79,6 +92,17 @@ export async function getRestaurantRatings(
           size,
         },
       },
+    )
+
+  return data
+}
+
+export async function getRatingById(
+  ratingId: number,
+): Promise<RatingResponse> {
+  const { data } =
+    await api.get<RatingResponse>(
+      `/ratings/${ratingId}`,
     )
 
   return data
@@ -112,11 +136,12 @@ export function calculateAverageRating(
     return 0
   }
 
-  const total = ratings.reduce(
-    (sum, rating) =>
-      sum + rating.grade,
-    0,
-  )
+  const total =
+    ratings.reduce(
+      (sum, rating) =>
+        sum + rating.grade,
+      0,
+    )
 
   return total / ratings.length
 }

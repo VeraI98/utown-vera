@@ -319,6 +319,25 @@
   color: #3478f6;
 }
 
+.orders-history-page__rate-button:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+
+.orders-history-page__rate-button--rated {
+  border-color: #b9dfc3 !important;
+
+  background: #eef8f1;
+  color: #2f7d46;
+
+  opacity: 1;
+}
+
+.orders-history-page__rate-button--rated:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
 /* Error */
 
 .orders-history-page__error {

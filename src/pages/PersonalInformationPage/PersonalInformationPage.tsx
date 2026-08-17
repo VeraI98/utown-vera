@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useState,
   type FormEvent,
 } from 'react'
@@ -9,7 +10,11 @@ import {
 } from 'react-router-dom'
 
 import { useAuth } from '../../hooks/useAuth'
+
+import { getMyAddresses } from '../../services/addressService'
 import { updateProfile } from '../../services/authService'
+
+import type { AddressResponse } from '../../types/address'
 
 import arrowAddressIcon from '../../assets/icon account/arrow-address.svg'
 import backButtonBlackIcon from '../../assets/icon account/Back Button black.svg'
@@ -33,16 +38,74 @@ function PersonalInformationPage() {
     user?.fullName || '',
   )
 
-  const [phoneNumber, setPhoneNumber] =
-    useState(user?.username || '')
+  const phoneNumber =
+    user?.username || ''
 
-  const [address, setAddress] = useState(
-    String(user?.defaultAddress ?? ''),
+  const [
+    addresses,
+    setAddresses,
+  ] = useState<AddressResponse[]>([])
+
+  const [
+    selectedAddressId,
+    setSelectedAddressId,
+  ] = useState<number | null>(
+    user?.defaultAddress ?? null,
   )
 
-  const [error, setError] = useState('')
-  const [isSubmitting, setIsSubmitting] =
-    useState(false)
+  const [
+    isLoadingAddresses,
+    setIsLoadingAddresses,
+  ] = useState(true)
+
+  const [error, setError] =
+    useState('')
+
+  const [
+    isSubmitting,
+    setIsSubmitting,
+  ] = useState(false)
+
+  useEffect(() => {
+    const loadAddresses = async () => {
+      try {
+        setIsLoadingAddresses(true)
+
+        const response =
+          await getMyAddresses()
+
+        setAddresses(response)
+
+        if (response.length > 0) {
+          setSelectedAddressId(
+            user?.defaultAddress ??
+              response[0].id,
+          )
+        } else {
+          setSelectedAddressId(null)
+        }
+      } catch (error) {
+        console.error(
+          'Failed to load addresses:',
+          error,
+        )
+
+        setAddresses([])
+        setSelectedAddressId(null)
+      } finally {
+        setIsLoadingAddresses(false)
+      }
+    }
+
+    void loadAddresses()
+  }, [user?.defaultAddress])
+
+  const selectedAddress =
+    addresses.find(
+      (address) =>
+        address.id ===
+        selectedAddressId,
+    ) ?? null
 
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>,
@@ -55,25 +118,25 @@ function PersonalInformationPage() {
       return
     }
 
-    if (!phoneNumber.trim()) {
-      setError('Enter your phone number.')
-      return
-    }
-
     try {
       setIsSubmitting(true)
 
       const updatedUser =
         await updateProfile({
           fullName: name.trim(),
-          username: phoneNumber.trim(),
-          defaultAddress: address.trim(),
+          defaultAddress:
+            selectedAddressId,
         })
 
       updateUser(updatedUser)
 
       navigate('/account')
-    } catch {
+    } catch (error) {
+      console.error(
+        'Failed to update personal information:',
+        error,
+      )
+
       setError(
         'Failed to update personal information.',
       )
@@ -131,6 +194,7 @@ function PersonalInformationPage() {
                   setName(
                     event.target.value,
                   )
+
                   setError('')
                 }}
                 placeholder="Name"
@@ -149,13 +213,8 @@ function PersonalInformationPage() {
                 id="account-phone"
                 type="tel"
                 value={phoneNumber}
-                onChange={(event) => {
-                  setPhoneNumber(
-                    event.target.value,
-                  )
-                  setError('')
-                }}
-                placeholder="Phone Number"
+                readOnly
+                aria-readonly="true"
               />
             </label>
 
@@ -168,18 +227,61 @@ function PersonalInformationPage() {
               </span>
 
               <div className="account-address-field">
-                <input
+                <select
                   id="account-address"
-                  type="text"
-                  value={address}
+                  value={
+                    selectedAddressId ??
+                    ''
+                  }
                   onChange={(event) => {
-                    setAddress(
-                      event.target.value,
+                    const value =
+                      Number(
+                        event.target.value,
+                      )
+
+                    setSelectedAddressId(
+                      Number.isNaN(value)
+                        ? null
+                        : value,
                     )
+
                     setError('')
                   }}
-                  placeholder="Address"
-                />
+                  disabled={
+                    isLoadingAddresses
+                  }
+                >
+                  {isLoadingAddresses && (
+                    <option value="">
+                      Loading addresses...
+                    </option>
+                  )}
+
+                  {!isLoadingAddresses &&
+                    addresses.length ===
+                      0 && (
+                      <option value="">
+                        No addresses
+                      </option>
+                    )}
+
+                  {addresses.map(
+                    (address) => (
+                      <option
+                        key={
+                          address.id
+                        }
+                        value={
+                          address.id
+                        }
+                      >
+                        {
+                          address.fullAddress
+                        }
+                      </option>
+                    ),
+                  )}
+                </select>
 
                 <img
                   src={arrowAddressIcon}
@@ -188,6 +290,26 @@ function PersonalInformationPage() {
                 />
               </div>
             </label>
+
+            {selectedAddress && (
+              <p className="account-form-address-preview">
+                {
+                  selectedAddress.fullAddress
+                }
+              </p>
+            )}
+
+            <button
+              className="account-address-manage-button"
+              type="button"
+              onClick={() =>
+                navigate(
+                  '/food/order/address',
+                )
+              }
+            >
+              Manage addresses
+            </button>
 
             {error && (
               <p
@@ -201,7 +323,10 @@ function PersonalInformationPage() {
             <button
               className="account-save-button"
               type="submit"
-              disabled={isSubmitting}
+              disabled={
+                isSubmitting ||
+                isLoadingAddresses
+              }
             >
               {isSubmitting
                 ? 'Saving...'
@@ -223,6 +348,7 @@ function PersonalInformationPage() {
               alt=""
               aria-hidden="true"
             />
+
             <span>Home</span>
           </Link>
 
@@ -235,7 +361,10 @@ function PersonalInformationPage() {
               alt=""
               aria-hidden="true"
             />
-            <span>Favorites</span>
+
+            <span>
+              Favorites
+            </span>
           </Link>
 
           <Link
@@ -247,6 +376,7 @@ function PersonalInformationPage() {
               alt=""
               aria-hidden="true"
             />
+
             <span>Profile</span>
           </Link>
         </nav>

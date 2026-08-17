@@ -13,6 +13,7 @@ import FoodPage from '../pages/FoodPage/FoodPage'
 import FoodSearch from '../pages/FoodSearch/FoodSearch'
 import HomePage from '../pages/HomePage/HomePage'
 import InformationPage from '../pages/InformationPage/InformationPage'
+import LegalPage from '../pages/LegalPage/LegalPage'
 import LoginPage from '../pages/LoginPage/LoginPage'
 import NotificationsPage from '../pages/NotificationsPage/NotificationsPage'
 import OrderPage from '../pages/OrderPage/OrderPage'
@@ -52,13 +53,11 @@ export const router = createBrowserRouter([
     element: <FoodSearch />,
   },
 
-  // Реальная категория блюд
   {
     path: '/food/category/:categoryId',
     element: <FoodCategoryPage />,
   },
 
-  // Реальный ресторан
   {
     path: '/food/restaurants/:restaurantId',
     element: <RestaurantPage />,
@@ -154,6 +153,7 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+
   {
     path: '/information',
     element: (
@@ -162,6 +162,15 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  {
+    path: '/information/:type',
+    element: (
+      <ProtectedRoute>
+        <LegalPage />
+      </ProtectedRoute>
+    ),
+  },
+
   {
     path: '/contact-support',
     element: (

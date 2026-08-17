@@ -38,13 +38,15 @@ export interface ChangePasswordData {
 export async function changePassword(
   data: ChangePasswordData,
 ): Promise<void> {
-  await api.post('/auth/password/change', data)
+  await api.post(
+    '/auth/password/change',
+    data,
+  )
 }
 
 export interface UpdateProfileData {
   fullName: string
-  username: string
-  defaultAddress: string
+  defaultAddress: number | null
 }
 
 export async function updateProfile(
@@ -65,7 +67,10 @@ export interface DeleteProfileData {
 export async function deleteProfile(
   data: DeleteProfileData,
 ): Promise<void> {
-  await api.delete('/users/profile', {
-    data,
-  })
+  await api.delete(
+    '/users/profile',
+    {
+      data,
+    },
+  )
 }
