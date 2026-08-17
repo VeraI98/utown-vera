@@ -4,7 +4,10 @@ import {
   type FormEvent,
   useState,
 } from 'react'
-import { useNavigate } from 'react-router-dom'
+import {
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 
 import backButtonIcon from '../../assets/order/Back button.svg'
 import foodLogo from '../../assets/order/food.svg'
@@ -67,6 +70,7 @@ function getErrorMessage(error: unknown): string {
 
 function AddressCreatePage() {
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [form, setForm] =
     useState<AddressFormState>(initialFormState)
@@ -93,7 +97,7 @@ function AddressCreatePage() {
   }
 
   const handleSubmit = async (
-    event: FormEvent,
+    event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault()
 
@@ -157,6 +161,7 @@ function AddressCreatePage() {
         {
           replace: true,
           state: {
+            ...(location.state ?? {}),
             createdAddress,
           },
         },
@@ -165,7 +170,7 @@ function AddressCreatePage() {
       setErrorMessage(
         getErrorMessage(error),
       )
-
+    } finally {
       setIsSaving(false)
     }
   }
@@ -226,9 +231,7 @@ function AddressCreatePage() {
 
         <form
           className="address-create-page__form"
-          onSubmit={(event) =>
-            void handleSubmit(event)
-          }
+          onSubmit={handleSubmit}
         >
           <label>
             <span>Full address *</span>
@@ -239,6 +242,7 @@ function AddressCreatePage() {
               onChange={handleChange}
               placeholder="Full delivery address"
               disabled={isSaving}
+              required
             />
           </label>
 
@@ -251,6 +255,7 @@ function AddressCreatePage() {
               onChange={handleChange}
               placeholder="Street"
               disabled={isSaving}
+              required
             />
           </label>
 
@@ -264,6 +269,7 @@ function AddressCreatePage() {
                 onChange={handleChange}
                 placeholder="City"
                 disabled={isSaving}
+                required
               />
             </label>
 
@@ -276,6 +282,7 @@ function AddressCreatePage() {
                 onChange={handleChange}
                 placeholder="Postcode"
                 disabled={isSaving}
+                required
               />
             </label>
           </div>

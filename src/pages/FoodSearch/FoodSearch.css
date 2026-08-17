@@ -56,8 +56,6 @@
   border: 0;
 
   background: transparent;
-
-  cursor: pointer;
 }
 
 .food-search-header-button img {
@@ -209,8 +207,6 @@
   border-radius: 0 14px 14px 0;
 
   background: #f2f2f2;
-
-  cursor: pointer;
 }
 
 .food-filter-button.active {
@@ -337,8 +333,6 @@
 
   font: inherit;
   text-align: left;
-
-  cursor: pointer;
 }
 
 .food-search-result-card:last-child {
@@ -420,6 +414,31 @@
   padding: 14px 16px 24px;
 }
 
+.food-filter-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 16px;
+}
+
+.food-filter-title-row h1 {
+  margin: 0;
+}
+
+.food-filter-reset {
+  padding: 6px 10px;
+
+  border: 0;
+
+  background: transparent;
+  color: #7569c9;
+
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .food-filter-content h1 {
   margin: 0 0 16px;
 
@@ -457,8 +476,6 @@
   font-size: 12px;
   font-weight: 500;
 
-  cursor: pointer;
-
   transition:
     background 0.2s ease,
     color 0.2s ease,
@@ -470,138 +487,6 @@
 
   background: #8a7ed6;
   color: #ffffff;
-}
-
-/* =========================
-   FILTER FOOTER
-========================= */
-
-.food-filter-footer {
-  position: sticky;
-  bottom: 0;
-
-  padding: 16px;
-
-  border-radius: 18px 18px 0 0;
-
-  background: #ffffff;
-
-  box-shadow: 0 -3px 12px rgb(0 0 0 / 8%);
-}
-
-.food-filter-footer button {
-  width: 100%;
-  height: 48px;
-
-  border: 0;
-  border-radius: 10px;
-
-  background: #3678f5;
-  color: #ffffff;
-
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 480px) {
-  .food-search-page {
-    background: #ffffff;
-  }
-
-  .food-search-screen {
-    max-width: none;
-  }
-}
-
-@media (max-width: 380px) {
-  .food-search-header,
-  .food-search-address,
-  .food-search-bar-wrapper,
-  .food-search-main-content,
-  .food-filter-content,
-  .food-filter-footer {
-    padding-right: 12px;
-    padding-left: 12px;
-  }
-
-  .food-search-address span {
-    font-size: 12px;
-  }
-
-  .food-search-input-wrapper input {
-    font-size: 13px;
-  }
-
-  .food-search-result-image {
-    width: 58px;
-    min-width: 58px;
-    height: 58px;
-  }
-
-  .food-search-section-title {
-    font-size: 17px;
-  }
-}
-
-.food-filter-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  margin-bottom: 16px;
-}
-
-.food-filter-title-row h1 {
-  margin: 0;
-}
-
-.food-filter-reset {
-  padding: 6px 10px;
-
-  border: 0;
-
-  background: transparent;
-  color: #7569c9;
-
-  font: inherit;
-  font-size: 12px;
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.food-filter-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  margin-bottom: 16px;
-}
-
-.food-filter-title-row h1 {
-  margin: 0;
-}
-
-.food-filter-reset {
-  padding: 6px 10px;
-
-  border: 0;
-
-  background: transparent;
-  color: #7569c9;
-
-  font: inherit;
-  font-size: 12px;
-  font-weight: 600;
-
-  cursor: pointer;
 }
 
 .food-filter-input {
@@ -652,4 +537,80 @@
 
   font-size: 11px;
   font-weight: 500;
+}
+
+/* =========================
+   FILTER FOOTER
+========================= */
+
+.food-filter-footer {
+  position: sticky;
+  bottom: 0;
+
+  padding: 16px;
+
+  border-radius: 18px 18px 0 0;
+
+  background: #ffffff;
+
+  box-shadow: 0 -3px 12px rgb(0 0 0 / 8%);
+}
+
+.food-filter-footer button {
+  width: 100%;
+  height: 48px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: #3678f5;
+  color: #ffffff;
+
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 480px) {
+  .food-search-page {
+    background: #ffffff;
+  }
+
+  .food-search-screen {
+    max-width: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .food-search-header,
+  .food-search-address,
+  .food-search-bar-wrapper,
+  .food-search-main-content,
+  .food-filter-content,
+  .food-filter-footer {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .food-search-address span {
+    font-size: 12px;
+  }
+
+  .food-search-input-wrapper input {
+    font-size: 13px;
+  }
+
+  .food-search-result-image {
+    width: 58px;
+    min-width: 58px;
+    height: 58px;
+  }
+
+  .food-search-section-title {
+    font-size: 17px;
+  }
 }

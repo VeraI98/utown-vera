@@ -8,7 +8,9 @@ import {
 } from 'react-router-dom'
 
 import { useAuth } from '../../hooks/useAuth'
+
 import { getMyOrders } from '../../services/orderService'
+import { getActiveRestaurants } from '../../services/restaurantService'
 
 import adOneImage from '../../assets/icons main pages/Ad 1.svg'
 import adTwoImage from '../../assets/icons main pages/Ad 2.svg'
@@ -19,10 +21,11 @@ import homeIcon from '../../assets/icons main pages/Home.svg'
 import jobsIcon from '../../assets/icons main pages/Jobs icon.svg'
 import localCuisineImage from '../../assets/icons main pages/Local cuisine.svg'
 import logo from '../../assets/icons main pages/logo.svg'
-import longRestaurantImage from '../../assets/icons main pages/long restaurant name.svg'
 import mobileConnectionIcon from '../../assets/icons main pages/Mobile connection icon.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
 import servicesIcon from '../../assets/icons main pages/Services icon.svg'
+
+import type { RestaurantResponse } from '../../types/restaurant'
 
 import './HomePage.css'
 
@@ -64,33 +67,6 @@ const ads = [
   },
 ]
 
-const restaurants = [
-  {
-    id: 1,
-    title: 'Local cuisine',
-    subtitle: 'European, Asian',
-    image: localCuisineImage,
-  },
-  {
-    id: 2,
-    title: 'Long restaurant name...',
-    subtitle: 'European, Asian',
-    image: longRestaurantImage,
-  },
-  {
-    id: 3,
-    title: 'Local cuisine',
-    subtitle: 'European, Asian',
-    image: localCuisineImage,
-  },
-  {
-    id: 4,
-    title: 'Long restaurant name...',
-    subtitle: 'European, Asian',
-    image: longRestaurantImage,
-  },
-]
-
 const ACTIVE_ORDER_STATUSES = [
   'PENDING',
   'CONFIRMED',
@@ -99,23 +75,89 @@ const ACTIVE_ORDER_STATUSES = [
   'OUT_FOR_DELIVERY',
 ]
 
+const INVALID_IMAGE_VALUES = [
+  'string',
+  'null',
+  'undefined',
+  'file uploaded successfully',
+]
+
+function isValidImageUrl(
+  imageUrl?: string | null,
+): boolean {
+  if (!imageUrl) {
+    return false
+  }
+
+  const value = imageUrl.trim()
+
+  if (!value) {
+    return false
+  }
+
+  return !INVALID_IMAGE_VALUES.includes(
+    value.toLowerCase(),
+  )
+}
+
+function getRestaurantImage(
+  restaurant: RestaurantResponse,
+): string {
+  if (isValidImageUrl(restaurant.imageUrl)) {
+    return restaurant.imageUrl as string
+  }
+
+  return localCuisineImage
+}
+
+function formatPrice(
+  price: number | null | undefined,
+): string {
+  if (
+    price === null ||
+    price === undefined ||
+    Number.isNaN(price)
+  ) {
+    return '0'
+  }
+
+  return price.toLocaleString(
+    'en-US',
+  )
+}
+
 function HomePage() {
   const navigate = useNavigate()
   const { user } = useAuth()
 
-  const [activeOrdersCount, setActiveOrdersCount] =
-    useState(0)
+  const [
+    activeOrdersCount,
+    setActiveOrdersCount,
+  ] = useState(0)
+
+  const [
+    restaurants,
+    setRestaurants,
+  ] = useState<RestaurantResponse[]>([])
 
   useEffect(() => {
     let isMounted = true
 
     const loadActiveOrders = async () => {
-      if (!user) {
+      const isClient =
+        user?.roles.includes('CLIENT')
+
+      if (!user || !isClient) {
+        if (isMounted) {
+          setActiveOrdersCount(0)
+        }
+
         return
       }
 
       try {
-        const orders = await getMyOrders()
+        const orders =
+          await getMyOrders()
 
         if (!isMounted) {
           return
@@ -155,6 +197,46 @@ function HomePage() {
       isMounted = false
     }
   }, [user])
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadRestaurants = async () => {
+      try {
+        const data =
+          await getActiveRestaurants()
+
+        if (!isMounted) {
+          return
+        }
+
+        setRestaurants(
+          data
+            .filter(
+              (restaurant) =>
+                restaurant.isActive !==
+                false,
+            )
+            .slice(0, 4),
+        )
+      } catch (error) {
+        console.error(
+          'Failed to load home restaurants:',
+          error,
+        )
+
+        if (isMounted) {
+          setRestaurants([])
+        }
+      }
+    }
+
+    void loadRestaurants()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   return (
     <main className="home-page">
@@ -333,41 +415,69 @@ function HomePage() {
               </Link>
             </div>
 
-            <div className="restaurant-list">
-              {restaurants.map(
-                (restaurant) => (
-                  <Link
-                    className="restaurant-card"
-                    to={`/food/restaurants/${restaurant.id}`}
-                    key={restaurant.id}
-                  >
-                    <img
-                      className="restaurant-image"
-                      src={restaurant.image}
-                      alt={restaurant.title}
-                    />
+            {restaurants.length > 0 ? (
+              <div className="restaurant-list">
+                {restaurants.map(
+                  (restaurant) => (
+                    <Link
+                      className="restaurant-card"
+                      to={`/food/restaurants/${restaurant.id}`}
+                      key={restaurant.id}
+                    >
+                      <img
+                        className="restaurant-image"
+                        src={getRestaurantImage(
+                          restaurant,
+                        )}
+                        alt={
+                          restaurant.title
+                        }
+                        onError={(event) => {
+                          event.currentTarget.onerror =
+                            null
 
-                    <div className="restaurant-body">
-                      <h3>
-                        {restaurant.title}
-                      </h3>
+                          event.currentTarget.src =
+                            localCuisineImage
+                        }}
+                      />
 
-                      <p>
-                        {restaurant.subtitle}
-                      </p>
+                      <div className="restaurant-body">
+                        <h3>
+                          {
+                            restaurant.title
+                          }
+                        </h3>
 
-                      <div className="restaurant-meta">
-                        <span>♿</span>
+                        <p>
+                          {restaurant.category ||
+                            'Restaurant'}
+                        </p>
 
-                        <span>
-                          3,000 won · 45-55 min
-                        </span>
+                        <div className="restaurant-meta">
+                          <span>
+                            ♿
+                          </span>
+
+                          <span>
+                            {formatPrice(
+                              restaurant.minOrderAmount,
+                            )}{' '}
+                            won
+                            {restaurant.deliveryTime
+                              ? ` · ${restaurant.deliveryTime}`
+                              : ''}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                ),
-              )}
-            </div>
+                    </Link>
+                  ),
+                )}
+              </div>
+            ) : (
+              <p className="home-restaurants-empty">
+                No restaurants available.
+              </p>
+            )}
           </section>
         </div>
 

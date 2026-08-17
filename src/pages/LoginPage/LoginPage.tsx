@@ -23,7 +23,7 @@ function LoginPage() {
     isAuthenticated,
   } = useAuth()
 
-  const [phoneNumber, setPhoneNumber] =
+  const [username, setUsername] =
     useState('')
 
   const [password, setPassword] =
@@ -46,19 +46,12 @@ function LoginPage() {
 
     setError('')
 
-    const normalizedPhone =
-      phoneNumber.replace(/\D/g, '')
+    const normalizedUsername =
+      username.trim()
 
-    if (!normalizedPhone) {
+    if (!normalizedUsername) {
       setError(
-        'Enter your phone number.',
-      )
-      return
-    }
-
-    if (normalizedPhone.length < 8) {
-      setError(
-        'Enter a valid phone number.',
+        'Enter your username or phone number.',
       )
       return
     }
@@ -74,7 +67,7 @@ function LoginPage() {
 
     try {
       await login({
-        username: normalizedPhone,
+        username: normalizedUsername,
         password,
       })
 
@@ -83,7 +76,7 @@ function LoginPage() {
       })
     } catch {
       setError(
-        'Invalid phone number or password.',
+        'Invalid username or password.',
       )
     } finally {
       setIsSubmitting(false)
@@ -105,20 +98,19 @@ function LoginPage() {
         >
           <div className="form-field">
             <input
-              id="phone-number"
-              name="phoneNumber"
-              type="tel"
-              value={phoneNumber}
+              id="username"
+              name="username"
+              type="text"
+              value={username}
               onChange={(event) => {
-                setPhoneNumber(
+                setUsername(
                   event.target.value,
                 )
 
                 setError('')
               }}
-              placeholder="Phone Number"
-              autoComplete="tel"
-              inputMode="tel"
+              placeholder="Username or Phone Number"
+              autoComplete="username"
               aria-invalid={Boolean(error)}
               required
             />
@@ -140,7 +132,6 @@ function LoginPage() {
               placeholder="Password"
               autoComplete="current-password"
               aria-invalid={Boolean(error)}
-              minLength={6}
               required
             />
           </div>

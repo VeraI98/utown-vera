@@ -5,9 +5,7 @@ import type {
   CreateAddressRequest,
 } from '../types/address'
 
-export async function getMyAddresses(): Promise<
-  AddressResponse[]
-> {
+export async function getMyAddresses(): Promise<AddressResponse[]> {
   const { data } = await api.get<AddressResponse[]>(
     '/addresses/my-addresses',
   )

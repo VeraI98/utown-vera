@@ -18,39 +18,58 @@ import mapIcon from '../../assets/order/map.svg'
 import utLogo from '../../assets/order/ut.svg'
 import warningIcon from '../../assets/order/warning.svg'
 
-import { getMyAddresses } from '../../services/addressService'
+import { useAuth } from '../../hooks/useAuth'
+
+import {
+  getMyAddresses,
+} from '../../services/addressService'
+
 import {
   checkoutMyCart,
   getMyCart,
 } from '../../services/cartService'
-import { getRestaurantById } from '../../services/restaurantService'
 
-import type { AddressResponse } from '../../types/address'
-import type { CartResponse } from '../../types/cart'
+import {
+  getRestaurantById,
+} from '../../services/restaurantService'
 
-import { formatPrice } from '../RestaurantPage/restaurantData'
+import type {
+  AddressResponse,
+} from '../../types/address'
+
+import type {
+  CartResponse,
+} from '../../types/cart'
 
 import './OrderPaymentPage.css'
-
-interface StoredUser {
-  username?: string
-}
 
 interface OrderPaymentPageState {
   createdAddress?: AddressResponse
 }
 
-type AddressWithDefault = AddressResponse & {
-  isDefault?: boolean
-  default?: boolean
+function formatPrice(
+  value: number | null | undefined,
+): string {
+  if (
+    value === null ||
+    value === undefined ||
+    Number.isNaN(value)
+  ) {
+    return '0'
+  }
+
+  return new Intl.NumberFormat(
+    'en-US',
+  ).format(value)
 }
 
-const FALLBACK_MIN_ORDER_AMOUNT = 15000
-
-function normalizeMinOrderAmount(
+function getMinimumOrderAmount(
   amount: number,
 ): number {
-  if (amount > 0 && amount < 1000) {
+  if (
+    amount > 0 &&
+    amount < 1000
+  ) {
     return amount * 1000
   }
 
@@ -61,18 +80,22 @@ function getErrorMessage(
   error: unknown,
 ): string {
   if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
+    const responseData =
+      error.response?.data
 
     if (
       responseData &&
       typeof responseData === 'object' &&
       'message' in responseData &&
-      typeof responseData.message === 'string'
+      typeof responseData.message ===
+        'string'
     ) {
       return responseData.message
     }
 
-    if (typeof responseData === 'string') {
+    if (
+      typeof responseData === 'string'
+    ) {
       return responseData
     }
   }
@@ -80,80 +103,108 @@ function getErrorMessage(
   return 'Failed to place the order. Please try again.'
 }
 
-function getClientPhone(): string {
-  const storedUser =
-    localStorage.getItem('user')
-
-  if (!storedUser) {
+function getClientPhone(
+  username: string | undefined,
+): string {
+  if (!username) {
     return ''
   }
 
-  try {
-    const user =
-      JSON.parse(storedUser) as StoredUser
-
-    const phone = user.username ?? ''
-
-    return phone.replace(/\D/g, '')
-  } catch {
-    return ''
-  }
+  return username.replace(
+    /\D/g,
+    '',
+  )
 }
 
 function findDeliveryAddress(
   addresses: AddressResponse[],
+  defaultAddressId:
+    | number
+    | null
+    | undefined,
 ): AddressResponse | null {
-  if (addresses.length === 0) {
+  if (
+    addresses.length === 0
+  ) {
     return null
   }
 
-  const defaultAddress = addresses.find(
-    (address) => {
-      const addressWithDefault =
-        address as AddressWithDefault
-
-      return (
-        addressWithDefault.isDefault === true ||
-        addressWithDefault.default === true
+  if (
+    defaultAddressId !== null &&
+    defaultAddressId !== undefined
+  ) {
+    const defaultAddress =
+      addresses.find(
+        (address) =>
+          address.id ===
+          defaultAddressId,
       )
-    },
-  )
 
-  return defaultAddress ?? addresses[0]
+    if (defaultAddress) {
+      return defaultAddress
+    }
+  }
+
+  return addresses[0]
 }
 
 function OrderPaymentPage() {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const navigate =
+    useNavigate()
+
+  const location =
+    useLocation()
+
+  const {
+    user,
+  } = useAuth()
 
   const locationState =
-    location.state as OrderPaymentPageState | null
+    location.state as
+      | OrderPaymentPageState
+      | null
 
   const createdAddress =
-    locationState?.createdAddress ?? null
+    locationState?.createdAddress ??
+    null
 
-  const [cart, setCart] =
-    useState<CartResponse | null>(null)
+  const [
+    cart,
+    setCart,
+  ] =
+    useState<CartResponse | null>(
+      null,
+    )
 
   const [
     defaultAddress,
     setDefaultAddress,
-  ] = useState<AddressResponse | null>(
-    createdAddress,
-  )
+  ] =
+    useState<AddressResponse | null>(
+      createdAddress,
+    )
 
   const [
     minimumOrderAmount,
     setMinimumOrderAmount,
-  ] = useState(FALLBACK_MIN_ORDER_AMOUNT)
+  ] = useState(0)
+
+  const [
+    deliveryTimeText,
+    setDeliveryTimeText,
+  ] = useState(
+    'Delivery time unavailable',
+  )
 
   const [
     isLoadingCart,
     setIsLoadingCart,
   ] = useState(true)
 
-  const [isSending, setIsSending] =
-    useState(false)
+  const [
+    isSending,
+    setIsSending,
+  ] = useState(false)
 
   const [
     errorMessage,
@@ -168,125 +219,154 @@ function OrderPaymentPage() {
   useEffect(() => {
     let isMounted = true
 
-    const loadPageData = async () => {
-      try {
-        const currentCart =
-          await getMyCart()
-
-        if (!isMounted) {
-          return
-        }
-
-        setCart(currentCart)
-        setErrorMessage('')
-
-        if (createdAddress) {
-          setDefaultAddress(
-            createdAddress,
-          )
-
-          setAddressError('')
-        } else {
-          try {
-            const addresses =
-              await getMyAddresses()
-
-            if (!isMounted) {
-              return
-            }
-
-            const selectedAddress =
-              findDeliveryAddress(addresses)
-
-            setDefaultAddress(
-              selectedAddress,
-            )
-
-            setAddressError(
-              selectedAddress
-                ? ''
-                : 'No delivery address found.',
-            )
-          } catch (error) {
-            console.error(
-              'Failed to load user addresses:',
-              error,
-            )
-
-            if (isMounted) {
-              setDefaultAddress(null)
-
-              setAddressError(
-                'No delivery address found.',
-              )
-            }
-          }
-        }
-
-        const restaurantId =
-          currentCart.items[0]?.restaurantId
-
-        if (!restaurantId) {
-          setMinimumOrderAmount(
-            FALLBACK_MIN_ORDER_AMOUNT,
-          )
-
-          return
-        }
-
+    const loadPageData =
+      async () => {
         try {
-          const restaurant =
-            await getRestaurantById(
-              restaurantId,
-            )
+          const currentCart =
+            await getMyCart()
 
           if (!isMounted) {
             return
           }
 
-          const normalizedAmount =
-            normalizeMinOrderAmount(
-              restaurant.minOrderAmount,
+          setCart(
+            currentCart,
+          )
+
+          setErrorMessage('')
+
+          if (
+            createdAddress
+          ) {
+            setDefaultAddress(
+              createdAddress,
             )
 
-          setMinimumOrderAmount(
-            normalizedAmount > 0
-              ? normalizedAmount
-              : FALLBACK_MIN_ORDER_AMOUNT,
-          )
-        } catch (error) {
-          console.error(
-            'Failed to load restaurant minimum order:',
-            error,
-          )
+            setAddressError('')
+          } else {
+            try {
+              const addresses =
+                await getMyAddresses()
 
-          if (isMounted) {
+              if (!isMounted) {
+                return
+              }
+
+              const selectedAddress =
+                findDeliveryAddress(
+                  addresses,
+                  user?.defaultAddress,
+                )
+
+              setDefaultAddress(
+                selectedAddress,
+              )
+
+              setAddressError(
+                selectedAddress
+                  ? ''
+                  : 'No delivery address found.',
+              )
+            } catch (error) {
+              console.error(
+                'Failed to load user addresses:',
+                error,
+              )
+
+              if (isMounted) {
+                setDefaultAddress(
+                  null,
+                )
+
+                setAddressError(
+                  'No delivery address found.',
+                )
+              }
+            }
+          }
+
+          const restaurantId =
+            currentCart.items[0]
+              ?.restaurantId
+
+          if (!restaurantId) {
             setMinimumOrderAmount(
-              FALLBACK_MIN_ORDER_AMOUNT,
+              0,
+            )
+
+            setDeliveryTimeText(
+              'Delivery time unavailable',
+            )
+
+            return
+          }
+
+          try {
+            const restaurant =
+              await getRestaurantById(
+                restaurantId,
+              )
+
+            if (!isMounted) {
+              return
+            }
+
+            setMinimumOrderAmount(
+              getMinimumOrderAmount(
+                restaurant.minOrderAmount,
+              ),
+            )
+
+            setDeliveryTimeText(
+              restaurant.deliveryTime
+                ?.trim()
+                ? restaurant.deliveryTime
+                : 'Delivery time unavailable',
+            )
+          } catch (error) {
+            console.error(
+              'Failed to load restaurant data:',
+              error,
+            )
+
+            if (isMounted) {
+              setMinimumOrderAmount(
+                0,
+              )
+
+              setDeliveryTimeText(
+                'Delivery time unavailable',
+              )
+            }
+          }
+        } catch (error) {
+          if (!isMounted) {
+            return
+          }
+
+          setErrorMessage(
+            getErrorMessage(
+              error,
+            ),
+          )
+        } finally {
+          if (isMounted) {
+            setIsLoadingCart(
+              false,
             )
           }
         }
-      } catch (error) {
-        if (!isMounted) {
-          return
-        }
-
-        setErrorMessage(
-          getErrorMessage(error),
-        )
-      } finally {
-        if (isMounted) {
-          setIsLoadingCart(false)
-        }
       }
-    }
 
     void loadPageData()
 
     return () => {
       isMounted = false
     }
-  }, [createdAddress])
+  }, [
+    createdAddress,
+    user?.defaultAddress,
+  ])
 
   const orderAmount =
     cart?.sumOrder ?? 0
@@ -296,7 +376,8 @@ function OrderPaymentPage() {
 
   const totalPrice =
     cart?.totalSum ??
-    orderAmount + deliveryPrice
+    orderAmount +
+      deliveryPrice
 
   const restaurant =
     cart?.items[0]
@@ -308,13 +389,17 @@ function OrderPaymentPage() {
     restaurant?.restaurantName ??
     'Restaurant'
 
-  const missingAmount = Math.max(
-    minimumOrderAmount - orderAmount,
-    0,
-  )
+  const missingAmount =
+    Math.max(
+      minimumOrderAmount -
+        orderAmount,
+      0,
+    )
 
   const hasReachedMinimum =
-    missingAmount === 0
+    minimumOrderAmount <= 0 ||
+    orderAmount >=
+      minimumOrderAmount
 
   const canPay =
     Boolean(cart) &&
@@ -324,98 +409,115 @@ function OrderPaymentPage() {
     !isSending &&
     !isLoadingCart
 
-  const deliveryTimeText = useMemo(
-    () => '45–55 minutes',
-    [],
-  )
+  const clientPhone =
+    useMemo(
+      () =>
+        getClientPhone(
+          user?.username,
+        ),
+      [user?.username],
+    )
 
-  const handlePay = async () => {
-    if (
-      !canPay ||
-      !restaurantId ||
-      !defaultAddress
-    ) {
-      return
+  const handlePay =
+    async () => {
+      if (
+        !canPay ||
+        !restaurantId ||
+        !defaultAddress
+      ) {
+        return
+      }
+
+      setIsSending(true)
+      setErrorMessage('')
+
+      try {
+        const order =
+          await checkoutMyCart({
+            restaurantId,
+
+            fullAddress:
+              defaultAddress.fullAddress,
+
+            area:
+              defaultAddress.area,
+
+            city:
+              defaultAddress.city,
+
+            state:
+              defaultAddress.state,
+
+            postcode:
+              defaultAddress.postcode,
+
+            street:
+              defaultAddress.street,
+
+            latitude:
+              defaultAddress.latitude,
+
+            longitude:
+              defaultAddress.longitude,
+
+            typeAddress:
+              defaultAddress.typeAddress,
+
+            intercomCode:
+              defaultAddress.intercomCode,
+
+            clientPhone,
+
+            deliveryTime:
+              deliveryTimeText,
+
+            payment:
+              'CASH',
+
+            noteForCourier:
+              'Leave at the door',
+
+            details:
+              defaultAddress.details ??
+              '',
+          })
+
+        navigate(
+          `/food/order/${order.id}/status`,
+          {
+            replace: true,
+            state: {
+              order,
+            },
+          },
+        )
+      } catch (error) {
+        setErrorMessage(
+          getErrorMessage(
+            error,
+          ),
+        )
+
+        setIsSending(false)
+      }
     }
 
-    setIsSending(true)
-    setErrorMessage('')
-
-    try {
-      const order =
-        await checkoutMyCart({
-          restaurantId,
-
-          fullAddress:
-            defaultAddress.fullAddress,
-
-          area:
-            defaultAddress.area,
-
-          city:
-            defaultAddress.city,
-
-          state:
-            defaultAddress.state,
-
-          postcode:
-            defaultAddress.postcode,
-
-          street:
-            defaultAddress.street,
-
-          latitude:
-            defaultAddress.latitude,
-
-          longitude:
-            defaultAddress.longitude,
-
-          typeAddress:
-            defaultAddress.typeAddress,
-
-          intercomCode:
-            defaultAddress.intercomCode,
-
-          clientPhone:
-            getClientPhone(),
-
-          deliveryTime:
-            deliveryTimeText,
-
-          payment: 'CASH',
-
-          noteForCourier:
-            'Leave at the door',
-
-          details:
-            defaultAddress.details ?? '',
-        })
+  const handleAddressClick =
+    () => {
+      if (isSending) {
+        return
+      }
 
       navigate(
-        `/food/order/${order.id}/status`,
+        '/food/order/address',
         {
-          replace: true,
           state: {
-            order,
+            ...(locationState ??
+              {}),
           },
         },
       )
-    } catch (error) {
-      setErrorMessage(
-        getErrorMessage(error),
-      )
-
-      setIsSending(false)
     }
-  }
-
-  const handleAddressClick = () => {
-    if (isSending) {
-      return
-    }
-
-    navigate('/food/order/address')
-  }
 
   return (
     <main
@@ -433,10 +535,14 @@ function OrderPaymentPage() {
             navigate(-1)
           }
           aria-label="Go back"
-          disabled={isSending}
+          disabled={
+            isSending
+          }
         >
           <img
-            src={backButtonIcon}
+            src={
+              backButtonIcon
+            }
             alt=""
             aria-hidden="true"
           />
@@ -452,7 +558,9 @@ function OrderPaymentPage() {
           />
 
           <img
-            src={foodLogo}
+            src={
+              foodLogo
+            }
             alt="Food"
           />
         </div>
@@ -461,13 +569,19 @@ function OrderPaymentPage() {
           className="order-payment-page__header-button"
           type="button"
           onClick={() =>
-            navigate('/notifications')
+            navigate(
+              '/notifications',
+            )
           }
           aria-label="Notifications"
-          disabled={isSending}
+          disabled={
+            isSending
+          }
         >
           <img
-            src={bellIcon}
+            src={
+              bellIcon
+            }
             alt=""
             aria-hidden="true"
           />
@@ -505,7 +619,8 @@ function OrderPaymentPage() {
             Loading order...
           </div>
         ) : !cart ||
-          cart.items.length === 0 ? (
+          cart.items.length ===
+            0 ? (
           <div className="order-payment-page__empty">
             <p>
               Your order is empty
@@ -514,7 +629,9 @@ function OrderPaymentPage() {
             <button
               type="button"
               onClick={() =>
-                navigate('/food')
+                navigate(
+                  '/food',
+                )
               }
             >
               Return to restaurants
@@ -530,10 +647,14 @@ function OrderPaymentPage() {
               <button
                 className="order-payment-page__info-card"
                 type="button"
-                disabled={isSending}
+                disabled={
+                  isSending
+                }
               >
                 <img
-                  src={deliveryIcon}
+                  src={
+                    deliveryIcon
+                  }
                   alt=""
                   aria-hidden="true"
                 />
@@ -541,7 +662,10 @@ function OrderPaymentPage() {
                 <div>
                   <strong>
                     Delivery in{' '}
-                    {deliveryTimeText}.
+                    {
+                      deliveryTimeText
+                    }
+                    .
                   </strong>
                 </div>
               </button>
@@ -552,10 +676,14 @@ function OrderPaymentPage() {
                 onClick={
                   handleAddressClick
                 }
-                disabled={isSending}
+                disabled={
+                  isSending
+                }
               >
                 <img
-                  src={mapIcon}
+                  src={
+                    mapIcon
+                  }
                   alt=""
                   aria-hidden="true"
                 />
@@ -578,17 +706,22 @@ function OrderPaymentPage() {
               <button
                 className="order-payment-page__info-card"
                 type="button"
-                disabled={isSending}
+                disabled={
+                  isSending
+                }
               >
                 <img
-                  src={warningIcon}
+                  src={
+                    warningIcon
+                  }
                   alt=""
                   aria-hidden="true"
                 />
 
                 <div>
                   <strong>
-                    Note for the courier
+                    Note for the
+                    courier
                   </strong>
 
                   <span>
@@ -606,10 +739,14 @@ function OrderPaymentPage() {
               <button
                 className="order-payment-page__info-card"
                 type="button"
-                disabled={isSending}
+                disabled={
+                  isSending
+                }
               >
                 <img
-                  src={bankIcon}
+                  src={
+                    bankIcon
+                  }
                   alt=""
                   aria-hidden="true"
                 />
@@ -620,7 +757,8 @@ function OrderPaymentPage() {
                   </strong>
 
                   <span>
-                    Payment to the courier
+                    Payment to the
+                    courier
                   </span>
                 </div>
               </button>
@@ -676,12 +814,12 @@ function OrderPaymentPage() {
                 Minimum order is{' '}
                 {formatPrice(
                   minimumOrderAmount,
-                )}
-                . Add{' '}
+                )}{' '}
+                won. Add{' '}
                 {formatPrice(
                   missingAmount,
                 )}{' '}
-                more.
+                won more.
               </div>
             )}
           </>
@@ -690,12 +828,14 @@ function OrderPaymentPage() {
 
       {!isLoadingCart &&
         cart &&
-        cart.items.length > 0 && (
+        cart.items.length >
+          0 && (
           <div className="order-payment-page__bottom">
             <strong>
               {formatPrice(
                 totalPrice,
-              )}
+              )}{' '}
+              won
             </strong>
 
             {defaultAddress ? (
@@ -704,7 +844,9 @@ function OrderPaymentPage() {
                 onClick={() =>
                   void handlePay()
                 }
-                disabled={!canPay}
+                disabled={
+                  !canPay
+                }
               >
                 {isSending
                   ? 'Sending...'
@@ -712,7 +854,7 @@ function OrderPaymentPage() {
                     ? 'Pay'
                     : `Add ${formatPrice(
                         missingAmount,
-                      )} more`}
+                      )} won more`}
               </button>
             ) : (
               <button
@@ -720,7 +862,9 @@ function OrderPaymentPage() {
                 onClick={
                   handleAddressClick
                 }
-                disabled={isSending}
+                disabled={
+                  isSending
+                }
               >
                 Add delivery address
               </button>

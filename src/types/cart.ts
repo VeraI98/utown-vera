@@ -51,22 +51,23 @@ export interface CheckoutRequest {
   details: string
 }
 
-export interface OrderItemResponse {
-  id: number
-  dishId: number
-  dishTitle: string
-  dishImageUrl: string
-  count: number
-  sum: number
-  restaurantId: number
-  restaurantName: string
-  elements: CartItemElement[]
-}
+export type OrderItemResponse =
+  CartItemResponse
+
+export type OrderStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'PREPARING'
+  | 'READY'
+  | 'OUT_FOR_DELIVERY'
+  | 'DELIVERED'
+  | 'CANCELLED'
+  | 'REFUNDED'
 
 export interface OrderResponse {
   id: number
   number: string
-  status: string
+  status: OrderStatus
   deliveryStatus: string
 
   fullAddress: string

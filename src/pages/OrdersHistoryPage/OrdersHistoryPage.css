@@ -1,14 +1,11 @@
-.orders-history-page,
-.orders-history-page * {
-  box-sizing: border-box;
-}
-
 .orders-history-page {
   width: 100%;
   max-width: 428px;
   min-height: 100vh;
   min-height: 100dvh;
+
   margin: 0 auto;
+
   overflow-x: hidden;
 
   background: #f7f7f7;
@@ -22,48 +19,56 @@
   top: 0;
   z-index: 20;
 
+  display: grid;
+
   width: 100%;
   height: 56px;
-  padding: 0 16px;
 
-  display: grid;
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
+
+  padding: 0 16px;
 
   background: #8a7ed6;
 }
 
 .orders-history-page__header-button {
+  display: flex;
+
   width: 40px;
   height: 40px;
-  padding: 0;
 
-  border: 0;
-  background: transparent;
-
-  display: flex;
   align-items: center;
   justify-content: center;
 
-  cursor: pointer;
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
 }
 
 .orders-history-page__header-button img {
   display: block;
+
   width: 22px;
   height: 22px;
+
   object-fit: contain;
 }
 
 .orders-history-page__logo {
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   gap: 2px;
 }
 
 .orders-history-page__logo img {
   display: block;
+
   width: auto;
   height: 24px;
 }
@@ -72,16 +77,19 @@
 
 .orders-history-page__content {
   width: 100%;
+
   padding: 22px 16px 40px;
 }
 
 .orders-history-page__title-row {
-  margin-bottom: 20px;
-
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 16px;
+
+  margin-bottom: 20px;
 }
 
 .orders-history-page__title-row h1 {
@@ -96,29 +104,32 @@
   padding: 6px 0;
 
   border: 0;
-  background: transparent;
 
+  background: transparent;
   color: #3478f6;
+
   font: inherit;
   font-size: 13px;
   font-weight: 500;
-
-  cursor: pointer;
 }
 
 /* List */
 
 .orders-history-page__list {
   display: flex;
+
   flex-direction: column;
+
   gap: 14px;
 }
 
 .orders-history-page__card {
   width: 100%;
+
   padding: 16px;
 
   border-radius: 16px;
+
   background: #ffffff;
 
   box-shadow: 0 2px 10px rgb(0 0 0 / 6%);
@@ -126,8 +137,10 @@
 
 .orders-history-page__card-top {
   display: flex;
+
   align-items: flex-start;
   justify-content: space-between;
+
   gap: 12px;
 }
 
@@ -139,6 +152,7 @@
   margin: 0 0 5px;
 
   color: #000000;
+
   font-size: 16px;
   font-weight: 600;
   line-height: 1.25;
@@ -148,6 +162,7 @@
   margin: 0;
 
   color: #8b8b8b;
+
   font-size: 12px;
   line-height: 1.25;
 }
@@ -164,6 +179,7 @@
   font-size: 10px;
   font-weight: 600;
   line-height: 1;
+
   white-space: nowrap;
 }
 
@@ -190,60 +206,73 @@
 /* Details */
 
 .orders-history-page__details {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
   margin-top: 16px;
   padding: 12px 0;
 
   border-top: 1px solid #eeeeee;
   border-bottom: 1px solid #eeeeee;
-
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .orders-history-page__details > div {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 12px;
 }
 
 .orders-history-page__details span {
   color: #8b8b8b;
+
   font-size: 12px;
 }
 
 .orders-history-page__details strong {
   color: #222222;
+
   font-size: 12px;
   font-weight: 500;
+
   text-align: right;
 }
 
 /* Items */
 
 .orders-history-page__items {
-  margin-top: 14px;
-
   display: flex;
+
   flex-direction: column;
+
   gap: 10px;
+
+  margin-top: 14px;
 }
 
 .orders-history-page__item {
   display: grid;
+
   grid-template-columns: 48px minmax(0, 1fr);
   align-items: center;
+
   gap: 10px;
 }
 
 .orders-history-page__item img,
 .orders-history-page__item-image-placeholder {
   display: block;
+
   width: 48px;
   height: 48px;
 
   border-radius: 10px;
+
   object-fit: cover;
 }
 
@@ -252,10 +281,12 @@
 }
 
 .orders-history-page__item > div:last-child {
+  display: flex;
+
   min-width: 0;
 
-  display: flex;
   flex-direction: column;
+
   gap: 3px;
 }
 
@@ -263,14 +294,17 @@
   overflow: hidden;
 
   color: #222222;
+
   font-size: 13px;
   font-weight: 500;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .orders-history-page__item span {
   color: #8b8b8b;
+
   font-size: 11px;
 }
 
@@ -278,20 +312,23 @@
   margin: 0;
 
   color: #8b8b8b;
+
   font-size: 11px;
 }
 
 /* Actions */
 
 .orders-history-page__actions {
-  margin-top: 16px;
-
   display: flex;
+
   gap: 8px;
+
+  margin-top: 16px;
 }
 
 .orders-history-page__actions button {
   min-height: 44px;
+
   padding: 0 14px;
 
   border: 0;
@@ -300,8 +337,6 @@
   font: inherit;
   font-size: 13px;
   font-weight: 500;
-
-  cursor: pointer;
 }
 
 .orders-history-page__view-button {
@@ -315,27 +350,9 @@
   flex: 1;
 
   border: 1px solid #3478f6 !important;
+
   background: #ffffff;
   color: #3478f6;
-}
-
-.orders-history-page__rate-button:disabled {
-  cursor: default;
-  opacity: 0.65;
-}
-
-.orders-history-page__rate-button--rated {
-  border-color: #b9dfc3 !important;
-
-  background: #eef8f1;
-  color: #2f7d46;
-
-  opacity: 1;
-}
-
-.orders-history-page__rate-button--rated:disabled {
-  cursor: default;
-  opacity: 1;
 }
 
 /* Error */
@@ -346,9 +363,10 @@
 
   border: 1px solid #f0b5b5;
   border-radius: 10px;
-  background: #fff1f1;
 
+  background: #fff1f1;
   color: #b42318;
+
   font-size: 13px;
 }
 
@@ -358,28 +376,30 @@
 
 .orders-history-page__error button {
   margin-top: 10px;
+
   padding: 7px 12px;
 
   border: 0;
   border-radius: 8px;
-  background: #b42318;
 
+  background: #b42318;
   color: #ffffff;
+
   font: inherit;
   font-size: 12px;
-
-  cursor: pointer;
 }
 
 /* Loading */
 
 .orders-history-page__loading {
+  display: flex;
+
   min-height: 320px;
 
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   gap: 14px;
 
   color: #777777;
@@ -387,6 +407,7 @@
 
 .orders-history-page__loading p {
   margin: 0;
+
   font-size: 14px;
 }
 
@@ -398,15 +419,18 @@
   border-top-color: #3478f6;
   border-radius: 50%;
 
-  animation: orders-history-spin 0.8s linear infinite;
+  animation:
+    orders-history-spin
+    0.8s linear infinite;
 }
 
 /* Empty */
 
 .orders-history-page__empty {
+  display: flex;
+
   min-height: 420px;
 
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -425,23 +449,24 @@
   margin: 0 0 22px;
 
   color: #888888;
+
   font-size: 14px;
 }
 
 .orders-history-page__empty button {
   min-height: 48px;
+
   padding: 0 24px;
 
   border: 0;
   border-radius: 10px;
-  background: #3478f6;
 
+  background: #3478f6;
   color: #ffffff;
+
   font: inherit;
   font-size: 14px;
   font-weight: 500;
-
-  cursor: pointer;
 }
 
 @keyframes orders-history-spin {

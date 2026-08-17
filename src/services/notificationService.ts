@@ -18,9 +18,7 @@ export interface NotificationResponse {
 export async function getMyNotifications(
   page = 0,
   size = 100,
-): Promise<
-  PaginatedResponse<NotificationResponse>
-> {
+): Promise<PaginatedResponse<NotificationResponse>> {
   const { data } = await api.get<
     PaginatedResponse<NotificationResponse>
   >(

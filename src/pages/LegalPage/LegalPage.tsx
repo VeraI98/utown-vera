@@ -1,4 +1,8 @@
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import {
+  Link,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 
 import backButton from '../../assets/icon info/Back Button.svg'
 import logoWhite from '../../assets/icon info/logo white.svg'
@@ -49,6 +53,16 @@ const legalContent: Record<
   },
 }
 
+function isLegalPageType(
+  value: string | undefined,
+): value is LegalPageType {
+  return (
+    value === 'privacy-policy' ||
+    value === 'terms-of-use' ||
+    value === 'disclaimer'
+  )
+}
+
 function LegalPage() {
   const navigate = useNavigate()
 
@@ -56,13 +70,7 @@ function LegalPage() {
     type: string
   }>()
 
-  const legalType =
-    type as LegalPageType
-
-  const content =
-    legalContent[legalType]
-
-  if (!content) {
+  if (!isLegalPageType(type)) {
     return (
       <main className="mobile-page legal-page">
         <section className="legal-screen">
@@ -82,6 +90,9 @@ function LegalPage() {
       </main>
     )
   }
+
+  const content =
+    legalContent[type]
 
   return (
     <main className="mobile-page legal-page">
@@ -153,6 +164,7 @@ function LegalPage() {
               alt=""
               aria-hidden="true"
             />
+
             <span>Home</span>
           </Link>
 
@@ -165,6 +177,7 @@ function LegalPage() {
               alt=""
               aria-hidden="true"
             />
+
             <span>Favorites</span>
           </Link>
 
@@ -177,6 +190,7 @@ function LegalPage() {
               alt=""
               aria-hidden="true"
             />
+
             <span>Profile</span>
           </Link>
         </nav>

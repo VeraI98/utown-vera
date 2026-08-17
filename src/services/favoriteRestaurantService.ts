@@ -72,9 +72,7 @@ export async function isRestaurantFavorite(
 
   return favorites.some(
     (favorite) =>
-      favorite.restaurantId ===
-        restaurantId ||
-      favorite.restaurant?.id ===
-        restaurantId,
+      favorite.restaurantId === restaurantId ||
+      favorite.restaurant?.id === restaurantId,
   )
 }

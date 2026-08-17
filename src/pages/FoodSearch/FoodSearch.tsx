@@ -26,12 +26,9 @@ import {
 } from '../../services/restaurantService'
 
 import type {
-  RestaurantStatus,
-} from '../../services/restaurantService'
-
-import type {
   DishResponse,
   RestaurantResponse,
+  RestaurantStatus,
 } from '../../types/restaurant'
 
 import './FoodSearch.css'
@@ -55,14 +52,36 @@ type RatingFilter =
   | 4
   | 4.5
 
+const INVALID_IMAGE_VALUES = [
+  'string',
+  'null',
+  'undefined',
+  'file uploaded successfully',
+]
+
+function isValidImageUrl(
+  imageUrl?: string | null,
+): boolean {
+  if (!imageUrl) {
+    return false
+  }
+
+  const value = imageUrl.trim()
+
+  if (!value) {
+    return false
+  }
+
+  return !INVALID_IMAGE_VALUES.includes(
+    value.toLowerCase(),
+  )
+}
+
 function getRestaurantImage(
   restaurant: RestaurantResponse,
 ): string {
-  if (
-    restaurant.imageUrl &&
-    restaurant.imageUrl.trim() !== ''
-  ) {
-    return restaurant.imageUrl
+  if (isValidImageUrl(restaurant.imageUrl)) {
+    return restaurant.imageUrl as string
   }
 
   return cuisineAreaImage
@@ -71,11 +90,8 @@ function getRestaurantImage(
 function getDishImage(
   dish: DishResponse,
 ): string {
-  if (
-    dish.imageUrl &&
-    dish.imageUrl.trim() !== ''
-  ) {
-    return dish.imageUrl
+  if (isValidImageUrl(dish.imageUrl)) {
+    return dish.imageUrl as string
   }
 
   return cuisineAreaImage
@@ -169,12 +185,6 @@ function FoodSearch() {
     setIsFilterOpen,
   ] = useState(false)
 
-  /*
-   * Applied settings
-   * Только эти значения влияют
-   * на результаты и API.
-   */
-
   const [
     appliedFilter,
     setAppliedFilter,
@@ -209,12 +219,6 @@ function FoodSearch() {
     appliedMaxOrderAmount,
     setAppliedMaxOrderAmount,
   ] = useState('')
-
-  /*
-   * Draft settings
-   * Пользователь меняет их
-   * внутри Filter.
-   */
 
   const [
     draftFilter,
@@ -292,8 +296,6 @@ function FoodSearch() {
             setErrorMessage('')
 
             const needsAdvancedSearch =
-              appliedSort ===
-                'recommended' ||
               appliedStatusFilter !==
                 'all' ||
               appliedMinRating > 0 ||
@@ -309,14 +311,6 @@ function FoodSearch() {
                 ? searchRestaurantsAdvanced({
                     title:
                       normalizedSearch,
-
-                    ...(appliedSort ===
-                    'recommended'
-                      ? {
-                          isRecommended:
-                            true,
-                        }
-                      : {}),
 
                     ...(appliedStatusFilter !==
                     'all'
@@ -476,7 +470,6 @@ function FoodSearch() {
     }
   }, [
     normalizedSearch,
-    appliedSort,
     appliedStatusFilter,
     appliedMinRating,
     normalizedAppliedCity,
@@ -500,6 +493,23 @@ function FoodSearch() {
           ) =>
             secondRestaurant.ratings -
             firstRestaurant.ratings,
+        )
+      }
+
+      if (
+        appliedSort === 'recommended'
+      ) {
+        return results.sort(
+          (
+            firstRestaurant,
+            secondRestaurant,
+          ) =>
+            Number(
+              secondRestaurant.isRecommended,
+            ) -
+            Number(
+              firstRestaurant.isRecommended,
+            ),
         )
       }
 
@@ -580,12 +590,6 @@ function FoodSearch() {
   }
 
   const handleOpenFilters = () => {
-    /*
-     * Каждый раз при открытии
-     * копируем применённые настройки
-     * обратно в draft.
-     */
-
     setDraftFilter(
       appliedFilter,
     )
@@ -650,13 +654,6 @@ function FoodSearch() {
   }
 
   const handleResetFilters = () => {
-    /*
-     * Reset меняет только draft.
-     *
-     * Настоящие результаты поменяются
-     * только после Show results.
-     */
-
     setDraftFilter('all')
     setDraftSort('recommended')
     setDraftStatusFilter('all')
@@ -718,7 +715,10 @@ function FoodSearch() {
           </button>
         </header>
 
-        <div className="food-search-address">
+        <div
+          className="food-search-address"
+          aria-label="Delivery area"
+        >
           <img
             src={mapIcon}
             alt=""
@@ -726,8 +726,7 @@ function FoodSearch() {
           />
 
           <span>
-            Home, street Seobuk-gu
-            Byeonhyeong-ro 569
+            Delivery area
           </span>
         </div>
 
@@ -1253,8 +1252,7 @@ function FoodSearch() {
                     }
                     onChange={(event) =>
                       setDraftMinOrderAmount(
-                        event.target
-                          .value,
+                        event.target.value,
                       )
                     }
                     placeholder="0"
@@ -1273,8 +1271,7 @@ function FoodSearch() {
                     }
                     onChange={(event) =>
                       setDraftMaxOrderAmount(
-                        event.target
-                          .value,
+                        event.target.value,
                       )
                     }
                     placeholder="50000"

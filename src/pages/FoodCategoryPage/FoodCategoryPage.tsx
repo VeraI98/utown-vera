@@ -7,19 +7,12 @@ import bellIcon from '../../assets/food-menu/bell.svg'
 import foodLogo from '../../assets/food-menu/food.svg'
 import utLogo from '../../assets/food-menu/ut.svg'
 
-import { api } from '../../services/api'
+import { getCategoryById } from '../../services/categoryService'
+import { getDishesByCategory } from '../../services/dishService'
 
-import type {
-  DishResponse,
-  PaginatedResponse,
-} from '../../types/restaurant'
+import type { DishResponse } from '../../types/restaurant'
 
 import './FoodCategoryPage.css'
-
-interface CategoryResponse {
-  id: number
-  name: string
-}
 
 interface DishImageProps {
   src?: string | null
@@ -147,20 +140,14 @@ function FoodCategoryPage() {
           categoryResult,
           dishesResult,
         ] = await Promise.allSettled([
-          api.get<CategoryResponse>(
-            `/categories/${numericCategoryId}`,
+          getCategoryById(
+            numericCategoryId,
           ),
 
-          api.get<
-            PaginatedResponse<DishResponse>
-          >(
-            `/dishes/category/${numericCategoryId}`,
-            {
-              params: {
-                page: 0,
-                size: 100,
-              },
-            },
+          getDishesByCategory(
+            numericCategoryId,
+            0,
+            100,
           ),
         ])
 
@@ -173,7 +160,7 @@ function FoodCategoryPage() {
           'fulfilled'
         ) {
           setCategoryName(
-            categoryResult.value.data.name ||
+            categoryResult.value.name ||
               'Category',
           )
         }
@@ -186,7 +173,7 @@ function FoodCategoryPage() {
         }
 
         const activeDishes = (
-          dishesResult.value.data.content ?? []
+          dishesResult.value.content ?? []
         ).filter(
           (dish) =>
             dish.isActive !== false &&
@@ -369,16 +356,12 @@ function FoodCategoryPage() {
 
                     {dish.description && (
                       <p className="food-category-dish-description">
-                        {
-                          dish.description
-                        }
+                        {dish.description}
                       </p>
                     )}
 
                     <p className="food-category-dish-restaurant">
-                      {
-                        dish.restaurantName
-                      }
+                      {dish.restaurantName}
                     </p>
                   </div>
                 </button>

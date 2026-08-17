@@ -17,19 +17,52 @@ import {
   getMyOrders,
 } from '../../services/orderService'
 
-import {
-  getMyRestaurantRating,
-} from '../../services/ratingService'
-
 import type {
   OrderResponse,
 } from '../../types/cart'
 
-import {
-  formatPrice,
-} from '../RestaurantPage/restaurantData'
-
 import './OrdersHistoryPage.css'
+
+const INVALID_IMAGE_VALUES = [
+  'string',
+  'null',
+  'undefined',
+  'file uploaded successfully',
+]
+
+function isValidImageUrl(
+  imageUrl?: string | null,
+): boolean {
+  if (!imageUrl) {
+    return false
+  }
+
+  const value = imageUrl.trim()
+
+  if (!value) {
+    return false
+  }
+
+  return !INVALID_IMAGE_VALUES.includes(
+    value.toLowerCase(),
+  )
+}
+
+function formatPrice(
+  value: number | null | undefined,
+): string {
+  if (
+    value === null ||
+    value === undefined ||
+    Number.isNaN(value)
+  ) {
+    return '0'
+  }
+
+  return new Intl.NumberFormat(
+    'en-US',
+  ).format(value)
+}
 
 function getErrorMessage(
   error: unknown,
@@ -40,8 +73,7 @@ function getErrorMessage(
 
     if (
       responseData &&
-      typeof responseData ===
-        'object' &&
+      typeof responseData === 'object' &&
       'message' in responseData &&
       typeof responseData.message ===
         'string'
@@ -50,8 +82,7 @@ function getErrorMessage(
     }
 
     if (
-      typeof responseData ===
-      'string'
+      typeof responseData === 'string'
     ) {
       return responseData
     }
@@ -144,11 +175,22 @@ function isDeliveredOrder(
 
   return (
     status === 'DELIVERED' ||
-    status === 'COMPLETED' ||
-    deliveryStatus ===
-      'DELIVERED' ||
-    deliveryStatus ===
-      'COMPLETED'
+    deliveryStatus === 'DELIVERED'
+  )
+}
+
+function sortOrders(
+  currentOrders: OrderResponse[],
+): OrderResponse[] {
+  return [
+    ...currentOrders,
+  ].sort(
+    (
+      firstOrder,
+      secondOrder,
+    ) =>
+      secondOrder.id -
+      firstOrder.id,
   )
 }
 
@@ -164,20 +206,6 @@ function OrdersHistoryPage() {
   >([])
 
   const [
-    ratedRestaurantIds,
-    setRatedRestaurantIds,
-  ] = useState<Set<number>>(
-    () => new Set(),
-  )
-
-  const [
-    ratingChecksLoading,
-    setRatingChecksLoading,
-  ] = useState<
-    Set<number>
-  >(() => new Set())
-
-  const [
     isLoading,
     setIsLoading,
   ] = useState(true)
@@ -187,151 +215,23 @@ function OrdersHistoryPage() {
     setErrorMessage,
   ] = useState('')
 
-  const loadRatingStatuses =
-    useCallback(
-      async (
-        currentOrders: OrderResponse[],
-      ) => {
-        const restaurantIds =
-          Array.from(
-            new Set(
-              currentOrders
-                .filter(
-                  (order) =>
-                    isDeliveredOrder(
-                      order,
-                    ),
-                )
-                .map(
-                  (order) =>
-                    order.restaurantId,
-                )
-                .filter(
-                  (
-                    restaurantId,
-                  ): restaurantId is number =>
-                    typeof restaurantId ===
-                      'number' &&
-                    restaurantId > 0,
-                ),
-            ),
-          )
-
-        if (
-          restaurantIds.length === 0
-        ) {
-          setRatedRestaurantIds(
-            new Set(),
-          )
-
-          setRatingChecksLoading(
-            new Set(),
-          )
-
-          return
-        }
-
-        setRatingChecksLoading(
-          new Set(restaurantIds),
-        )
-
-        const results =
-          await Promise.allSettled(
-            restaurantIds.map(
-              async (
-                restaurantId,
-              ) => {
-                const rating =
-                  await getMyRestaurantRating(
-                    restaurantId,
-                  )
-
-                return {
-                  restaurantId,
-                  hasRating:
-                    Boolean(rating),
-                }
-              },
-            ),
-          )
-
-        const nextRatedIds =
-          new Set<number>()
-
-        results.forEach(
-          (
-            result,
-            index,
-          ) => {
-            const restaurantId =
-              restaurantIds[index]
-
-            if (
-              result.status ===
-                'fulfilled' &&
-              result.value.hasRating
-            ) {
-              nextRatedIds.add(
-                restaurantId,
-              )
-            }
-
-            if (
-              result.status ===
-              'rejected'
-            ) {
-              console.error(
-                `Failed to check rating for restaurant ${restaurantId}:`,
-                result.reason,
-              )
-            }
-          },
-        )
-
-        setRatedRestaurantIds(
-          nextRatedIds,
-        )
-
-        setRatingChecksLoading(
-          new Set(),
-        )
-      },
-      [],
-    )
-
   const loadOrders =
     useCallback(
-      async (
-        showLoading = false,
-      ) => {
+      async () => {
         try {
-          if (showLoading) {
-            setIsLoading(true)
-          }
-
-          setErrorMessage('')
-
           const currentOrders =
             await getMyOrders()
 
-          const sortedOrders = [
-            ...currentOrders,
-          ].sort(
-            (
-              firstOrder,
-              secondOrder,
-            ) =>
-              secondOrder.id -
-              firstOrder.id,
-          )
+          const sortedOrders =
+            sortOrders(
+              currentOrders,
+            )
 
           setOrders(
             sortedOrders,
           )
 
-          await loadRatingStatuses(
-            sortedOrders,
-          )
+          setErrorMessage('')
         } catch (error) {
           setErrorMessage(
             getErrorMessage(
@@ -342,67 +242,58 @@ function OrdersHistoryPage() {
           setIsLoading(false)
         }
       },
-      [loadRatingStatuses],
+      [],
     )
 
   useEffect(() => {
     let isMounted = true
 
-    const loadInitialOrders =
-      async () => {
-        try {
-          const currentOrders =
-            await getMyOrders()
-
+    getMyOrders()
+      .then(
+        (
+          currentOrders,
+        ) => {
           if (!isMounted) {
             return
           }
 
-          const sortedOrders = [
-            ...currentOrders,
-          ].sort(
-            (
-              firstOrder,
-              secondOrder,
-            ) =>
-              secondOrder.id -
-              firstOrder.id,
-          )
-
           setOrders(
-            sortedOrders,
+            sortOrders(
+              currentOrders,
+            ),
           )
 
           setErrorMessage('')
-
-          await loadRatingStatuses(
-            sortedOrders,
-          )
-        } catch (error) {
-          if (!isMounted) {
-            return
-          }
-
-          setErrorMessage(
-            getErrorMessage(
-              error,
-            ),
-          )
-        } finally {
-          if (isMounted) {
-            setIsLoading(false)
-          }
+        },
+      )
+      .catch((error) => {
+        if (!isMounted) {
+          return
         }
-      }
 
-    void loadInitialOrders()
+        setErrorMessage(
+          getErrorMessage(
+            error,
+          ),
+        )
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      })
 
     return () => {
       isMounted = false
     }
-  }, [
-    loadRatingStatuses,
-  ])
+  }, [])
+
+  const handleRefresh = () => {
+    setIsLoading(true)
+    setErrorMessage('')
+
+    void loadOrders()
+  }
 
   const handleOpenOrder = (
     order: OrderResponse,
@@ -420,6 +311,12 @@ function OrdersHistoryPage() {
   const handleRateOrder = (
     order: OrderResponse,
   ) => {
+    if (
+      !isDeliveredOrder(order)
+    ) {
+      return
+    }
+
     navigate(
       `/food/order/${order.id}/rating`,
       {
@@ -437,9 +334,7 @@ function OrdersHistoryPage() {
           className="orders-history-page__header-button"
           type="button"
           onClick={() =>
-            navigate('/', {
-              replace: true,
-            })
+            navigate(-1)
           }
           aria-label="Go back"
         >
@@ -493,10 +388,8 @@ function OrdersHistoryPage() {
             orders.length > 0 && (
               <button
                 type="button"
-                onClick={() =>
-                  void loadOrders(
-                    true,
-                  )
+                onClick={
+                  handleRefresh
                 }
               >
                 Refresh
@@ -515,10 +408,8 @@ function OrdersHistoryPage() {
 
             <button
               type="button"
-              onClick={() =>
-                void loadOrders(
-                  true,
-                )
+              onClick={
+                handleRefresh
               }
             >
               Try again
@@ -568,23 +459,6 @@ function OrdersHistoryPage() {
                 const isDelivered =
                   isDeliveredOrder(
                     order,
-                  )
-
-                const restaurantId =
-                  order.restaurantId
-
-                const isRatingCheckLoading =
-                  typeof restaurantId ===
-                    'number' &&
-                  ratingChecksLoading.has(
-                    restaurantId,
-                  )
-
-                const isRated =
-                  typeof restaurantId ===
-                    'number' &&
-                  ratedRestaurantIds.has(
-                    restaurantId,
                   )
 
                 return (
@@ -662,8 +536,7 @@ function OrdersHistoryPage() {
                     </div>
 
                     {order.items &&
-                      order.items
-                        .length >
+                      order.items.length >
                         0 && (
                         <div className="orders-history-page__items">
                           {order.items
@@ -674,46 +547,56 @@ function OrdersHistoryPage() {
                             .map(
                               (
                                 item,
-                              ) => (
-                                <div
-                                  className="orders-history-page__item"
-                                  key={
-                                    item.id
-                                  }
-                                >
-                                  {item.dishImageUrl ? (
-                                    <img
-                                      src={
-                                        item.dishImageUrl
-                                      }
-                                      alt={
-                                        item.dishTitle ||
-                                        'Dish'
-                                      }
-                                    />
-                                  ) : (
-                                    <div className="orders-history-page__item-image-placeholder" />
-                                  )}
+                              ) => {
+                                const hasImage =
+                                  isValidImageUrl(
+                                    item.dishImageUrl,
+                                  )
 
-                                  <div>
-                                    <strong>
-                                      {item.dishTitle ||
-                                        'Dish'}
-                                    </strong>
+                                return (
+                                  <div
+                                    className="orders-history-page__item"
+                                    key={
+                                      item.id
+                                    }
+                                  >
+                                    {hasImage ? (
+                                      <img
+                                        src={
+                                          item.dishImageUrl
+                                        }
+                                        alt={
+                                          item.dishTitle ||
+                                          'Dish'
+                                        }
+                                      />
+                                    ) : (
+                                      <div
+                                        className="orders-history-page__item-image-placeholder"
+                                        aria-hidden="true"
+                                      />
+                                    )}
 
-                                    <span>
-                                      {
-                                        item.count
-                                      }{' '}
-                                      ×{' '}
-                                      {formatPrice(
-                                        item.sum ??
-                                          0,
-                                      )}
-                                    </span>
+                                    <div>
+                                      <strong>
+                                        {item.dishTitle ||
+                                          'Dish'}
+                                      </strong>
+
+                                      <span>
+                                        {
+                                          item.count
+                                        }{' '}
+                                        ×{' '}
+                                        {formatPrice(
+                                          item.sum ??
+                                            0,
+                                        )}
+                                      </span>
+                                    </div>
                                   </div>
-                                </div>
-                              ),
+                                )
+                              },
                             )}
 
                           {order.items
@@ -725,8 +608,7 @@ function OrdersHistoryPage() {
                                 .items
                                 .length -
                                 2}{' '}
-                              more
-                              items
+                              more items
                             </p>
                           )}
                         </div>
@@ -748,37 +630,17 @@ function OrdersHistoryPage() {
                       </button>
 
                       {isDelivered && (
-                        <>
-                          {isRatingCheckLoading ? (
-                            <button
-                              type="button"
-                              className="orders-history-page__rate-button"
-                              disabled
-                            >
-                              Checking...
-                            </button>
-                          ) : isRated ? (
-                            <button
-                              type="button"
-                              className="orders-history-page__rate-button orders-history-page__rate-button--rated"
-                              disabled
-                            >
-                              ✓ Rated
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              className="orders-history-page__rate-button"
-                              onClick={() =>
-                                handleRateOrder(
-                                  order,
-                                )
-                              }
-                            >
-                              Rate order
-                            </button>
-                          )}
-                        </>
+                        <button
+                          type="button"
+                          className="orders-history-page__rate-button"
+                          onClick={() =>
+                            handleRateOrder(
+                              order,
+                            )
+                          }
+                        >
+                          Rate order
+                        </button>
                       )}
                     </div>
                   </article>

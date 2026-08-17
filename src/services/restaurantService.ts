@@ -4,13 +4,8 @@ import type {
   DishResponse,
   PaginatedResponse,
   RestaurantResponse,
+  RestaurantStatus,
 } from '../types/restaurant'
-
-export type RestaurantStatus =
-  | 'CLOSED'
-  | 'OPEN'
-  | 'TEMPORARILY_CLOSED'
-  | 'BUSY'
 
 export interface RestaurantSearchParams {
   title?: string
@@ -50,9 +45,7 @@ export async function getActiveRestaurants(): Promise<
 export async function getRestaurants(
   page = 0,
   size = 20,
-): Promise<
-  PaginatedResponse<RestaurantResponse>
-> {
+): Promise<PaginatedResponse<RestaurantResponse>> {
   const { data } = await api.get<
     PaginatedResponse<RestaurantResponse>
   >('/public/restaurants', {
@@ -69,9 +62,7 @@ export async function searchRestaurants(
   title: string,
   page = 0,
   size = 50,
-): Promise<
-  PaginatedResponse<RestaurantResponse>
-> {
+): Promise<PaginatedResponse<RestaurantResponse>> {
   const { data } = await api.get<
     PaginatedResponse<RestaurantResponse>
   >('/public/restaurants/search', {
@@ -87,9 +78,7 @@ export async function searchRestaurants(
 
 export async function searchRestaurantsAdvanced(
   params: RestaurantSearchParams,
-): Promise<
-  PaginatedResponse<RestaurantResponse>
-> {
+): Promise<PaginatedResponse<RestaurantResponse>> {
   const {
     title,
     category,
@@ -135,9 +124,7 @@ export async function getRestaurantDishes(
   restaurantId: number,
   page = 0,
   size = 100,
-): Promise<
-  PaginatedResponse<DishResponse>
-> {
+): Promise<PaginatedResponse<DishResponse>> {
   const { data } = await api.get<
     PaginatedResponse<DishResponse>
   >(

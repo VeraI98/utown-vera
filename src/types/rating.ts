@@ -5,20 +5,7 @@ export interface RestaurantRatingResponse {
   restaurantId: number
 }
 
-export interface CreateRestaurantRatingRequest {
-  grade: number
-  restaurantId: number
-
-  /*
-   * Swagger показывает также id и userId,
-   * но для создания сервер обычно может
-   * определить их самостоятельно.
-   */
-  id?: number
-  userId?: number
-}
-
-export interface UpdateRestaurantRatingRequest {
+export interface RestaurantRatingRequest {
   grade: number
   restaurantId: number
   id?: number

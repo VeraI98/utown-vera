@@ -41,8 +41,7 @@ function getErrorMessage(
 
     if (
       responseData &&
-      typeof responseData ===
-        'object' &&
+      typeof responseData === 'object' &&
       'message' in responseData &&
       typeof responseData.message ===
         'string'
@@ -51,15 +50,13 @@ function getErrorMessage(
     }
 
     if (
-      typeof responseData ===
-      'string'
+      typeof responseData === 'string'
     ) {
       return responseData
     }
 
     if (
-      error.response?.status ===
-      404
+      error.response?.status === 404
     ) {
       return 'Order not found.'
     }
@@ -93,11 +90,7 @@ function isOrderDelivered(
 
   return (
     status === 'DELIVERED' ||
-    status === 'COMPLETED' ||
-    deliveryStatus ===
-      'DELIVERED' ||
-    deliveryStatus ===
-      'COMPLETED'
+    deliveryStatus === 'DELIVERED'
   )
 }
 
@@ -176,19 +169,11 @@ function OrderRatingPage() {
 
     let isMounted = true
 
-    const loadPage =
-      async () => {
-        try {
-          setIsLoading(true)
-
-          setErrorMessage('')
-          setSuccessMessage('')
-
-          const currentOrder =
-            await getOrderById(
-              numericOrderId,
-            )
-
+    getOrderById(
+      numericOrderId,
+    )
+      .then(
+        async (currentOrder) => {
           if (!isMounted) {
             return
           }
@@ -196,6 +181,9 @@ function OrderRatingPage() {
           setOrder(
             currentOrder,
           )
+
+          setErrorMessage('')
+          setSuccessMessage('')
 
           if (
             !isOrderDelivered(
@@ -253,24 +241,24 @@ function OrderRatingPage() {
             setRating(0)
             setInitialRating(0)
           }
-        } catch (error) {
-          if (!isMounted) {
-            return
-          }
-
-          setErrorMessage(
-            getErrorMessage(
-              error,
-            ),
-          )
-        } finally {
-          if (isMounted) {
-            setIsLoading(false)
-          }
+        },
+      )
+      .catch((error) => {
+        if (!isMounted) {
+          return
         }
-      }
 
-    void loadPage()
+        setErrorMessage(
+          getErrorMessage(
+            error,
+          ),
+        )
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      })
 
     return () => {
       isMounted = false

@@ -8,15 +8,18 @@ import type {
 } from '../types/cart'
 
 export async function getMyCart(): Promise<CartResponse> {
-  const { data } = await api.get<CartResponse>('/my-cart')
+  const { data } =
+    await api.get<CartResponse>(
+      '/my-cart',
+    )
 
   return data
 }
 
 export async function checkMyCartExists(): Promise<boolean> {
-  const { data } = await api.get<boolean | Record<string, boolean>>(
-    '/my-cart/exists',
-  )
+  const { data } = await api.get<
+    boolean | Record<string, boolean>
+  >('/my-cart/exists')
 
   if (typeof data === 'boolean') {
     return data
@@ -28,10 +31,11 @@ export async function checkMyCartExists(): Promise<boolean> {
 export async function addItemToCart(
   request: AddCartItemRequest,
 ): Promise<CartResponse> {
-  const { data } = await api.post<CartResponse>(
-    '/my-cart/items',
-    request,
-  )
+  const { data } =
+    await api.post<CartResponse>(
+      '/my-cart/items',
+      request,
+    )
 
   return data
 }
@@ -40,15 +44,16 @@ export async function updateCartItemQuantity(
   dishId: number,
   quantity: number,
 ): Promise<CartResponse> {
-  const { data } = await api.put<CartResponse>(
-    `/my-cart/items/${dishId}`,
-    null,
-    {
-      params: {
-        quantity,
+  const { data } =
+    await api.put<CartResponse>(
+      `/my-cart/items/${dishId}`,
+      null,
+      {
+        params: {
+          quantity,
+        },
       },
-    },
-  )
+    )
 
   return data
 }
@@ -56,17 +61,19 @@ export async function updateCartItemQuantity(
 export async function removeCartItem(
   dishId: number,
 ): Promise<CartResponse> {
-  const { data } = await api.delete<CartResponse>(
-    `/my-cart/items/${dishId}`,
-  )
+  const { data } =
+    await api.delete<CartResponse>(
+      `/my-cart/items/${dishId}`,
+    )
 
   return data
 }
 
 export async function clearMyCart(): Promise<CartResponse> {
-  const { data } = await api.post<CartResponse>(
-    '/my-cart/clear',
-  )
+  const { data } =
+    await api.post<CartResponse>(
+      '/my-cart/clear',
+    )
 
   return data
 }
@@ -74,10 +81,11 @@ export async function clearMyCart(): Promise<CartResponse> {
 export async function checkoutMyCart(
   request: CheckoutRequest,
 ): Promise<OrderResponse> {
-  const { data } = await api.post<OrderResponse>(
-    '/my-cart/checkout',
-    request,
-  )
+  const { data } =
+    await api.post<OrderResponse>(
+      '/my-cart/checkout',
+      request,
+    )
 
   return data
 }

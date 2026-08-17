@@ -75,8 +75,6 @@
   border: 0;
 
   background: transparent;
-
-  cursor: pointer;
 }
 
 .favorites-notification-button {
@@ -283,13 +281,11 @@
   box-shadow:
     0 1px 5px rgb(0 0 0 / 12%);
 
-  cursor: pointer;
-
   z-index: 2;
 }
 
 .favorites-remove-button:disabled {
-  cursor: default;
+  cursor: not-allowed;
 
   opacity: 0.6;
 }

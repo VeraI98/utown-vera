@@ -1,3 +1,9 @@
+export type RestaurantStatus =
+  | 'CLOSED'
+  | 'OPEN'
+  | 'TEMPORARILY_CLOSED'
+  | 'BUSY'
+
 export interface RestaurantAddress {
   id: number
   area: string
@@ -32,7 +38,7 @@ export interface RestaurantResponse {
   minOrderAmount: number
   phone: string
   ratings: number
-  status: string
+  status: RestaurantStatus
   statusDisplay: string
   totalRatings: number
   isActive: boolean

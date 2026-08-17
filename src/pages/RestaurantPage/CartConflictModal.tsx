@@ -1,3 +1,8 @@
+import {
+  useEffect,
+  type MouseEvent,
+} from 'react'
+
 import './CartConflictModal.css'
 
 interface CartConflictModalProps {
@@ -11,11 +16,56 @@ function CartConflictModal({
   onCancel,
   onReplace,
 }: CartConflictModalProps) {
+  useEffect(() => {
+    const handleKeyDown = (
+      event: KeyboardEvent,
+    ) => {
+      if (
+        event.key === 'Escape' &&
+        !isLoading
+      ) {
+        onCancel()
+      }
+    }
+
+    window.addEventListener(
+      'keydown',
+      handleKeyDown,
+    )
+
+    return () => {
+      window.removeEventListener(
+        'keydown',
+        handleKeyDown,
+      )
+    }
+  }, [
+    isLoading,
+    onCancel,
+  ])
+
+  const handleOverlayClick = (
+    event: MouseEvent<HTMLDivElement>,
+  ) => {
+    if (
+      event.target !==
+      event.currentTarget
+    ) {
+      return
+    }
+
+    if (!isLoading) {
+      onCancel()
+    }
+  }
+
   return (
     <div
       className="cart-conflict-modal__overlay"
       role="presentation"
-      onClick={onCancel}
+      onClick={
+        handleOverlayClick
+      }
     >
       <section
         className="cart-conflict-modal"
@@ -23,15 +73,20 @@ function CartConflictModal({
         aria-modal="true"
         aria-labelledby="cart-conflict-modal-title"
         aria-describedby="cart-conflict-modal-description"
-        onClick={(event) => event.stopPropagation()}
+        aria-busy={
+          isLoading
+        }
       >
         <h2 id="cart-conflict-modal-title">
           Start a new cart?
         </h2>
 
         <p id="cart-conflict-modal-description">
-          Your cart contains items from another restaurant.
-          Starting a new cart will remove those items.
+          Your cart contains
+          items from another
+          restaurant. Starting a
+          new cart will remove
+          those items.
         </p>
 
         <div className="cart-conflict-modal__actions">
@@ -39,7 +94,9 @@ function CartConflictModal({
             className="cart-conflict-modal__button cart-conflict-modal__button--cancel"
             type="button"
             onClick={onCancel}
-            disabled={isLoading}
+            disabled={
+              isLoading
+            }
           >
             Cancel
           </button>
@@ -48,9 +105,13 @@ function CartConflictModal({
             className="cart-conflict-modal__button cart-conflict-modal__button--replace"
             type="button"
             onClick={onReplace}
-            disabled={isLoading}
+            disabled={
+              isLoading
+            }
           >
-            {isLoading ? 'Replacing...' : 'Replace cart'}
+            {isLoading
+              ? 'Replacing...'
+              : 'Replace cart'}
           </button>
         </div>
       </section>

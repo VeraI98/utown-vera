@@ -1,8 +1,3 @@
-.order-payment-page,
-.order-payment-page * {
-  box-sizing: border-box;
-}
-
 .order-payment-page {
   position: relative;
 
@@ -10,7 +5,9 @@
   max-width: 428px;
   min-height: 100vh;
   min-height: 100dvh;
+
   margin: 0 auto;
+
   overflow-x: hidden;
 
   background: #ffffff;
@@ -24,53 +21,60 @@
   top: 0;
   z-index: 20;
 
+  display: grid;
+
   width: 100%;
   height: 56px;
-  padding: 0 16px;
 
-  display: grid;
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
+
+  padding: 0 16px;
 
   background: #8a7ed6;
 }
 
 .order-payment-page__header-button {
+  display: flex;
+
   width: 40px;
   height: 40px;
-  padding: 0;
 
-  border: 0;
-  background: transparent;
-
-  display: flex;
   align-items: center;
   justify-content: center;
 
-  cursor: pointer;
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
 }
 
 .order-payment-page__header-button:disabled {
-  cursor: default;
   opacity: 0.7;
 }
 
 .order-payment-page__header-button img {
   display: block;
+
   width: 22px;
   height: 22px;
+
   object-fit: contain;
 }
 
 .order-payment-page__logo {
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   gap: 2px;
 }
 
 .order-payment-page__logo img {
   display: block;
+
   width: auto;
   height: 24px;
 }
@@ -79,6 +83,7 @@
 
 .order-payment-page__content {
   width: 100%;
+
   padding: 20px 16px 132px;
 }
 
@@ -86,6 +91,7 @@
   margin: 0 0 18px;
 
   color: #000000;
+
   font-size: 24px;
   font-weight: 600;
   line-height: 1.2;
@@ -95,6 +101,7 @@
   margin: 0 0 12px;
 
   color: #000000;
+
   font-size: 16px;
   font-weight: 500;
   line-height: 1.2;
@@ -104,40 +111,46 @@
 
 .order-payment-page__info-list {
   display: flex;
+
   flex-direction: column;
+
   gap: 8px;
 }
 
 .order-payment-page__info-card {
+  display: grid;
+
   width: 100%;
   min-height: 55px;
+
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+
+  gap: 10px;
+
   padding: 6px 12px;
 
   border: 0;
   border-radius: 10px;
+
   background: #f4f4f4;
-
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-
   color: #000000;
-  font: inherit;
-  text-align: left;
 
-  cursor: pointer;
+  font: inherit;
+
+  text-align: left;
 }
 
 .order-payment-page__info-card:disabled {
   opacity: 1;
-  cursor: default;
 }
 
 .order-payment-page__info-card > img {
   display: block;
+
   width: 30px;
   height: 30px;
+
   object-fit: contain;
 
   transform: scale(1.2);
@@ -151,15 +164,17 @@
 }
 
 .order-payment-page__info-card div {
+  display: flex;
+
   min-width: 0;
 
-  display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .order-payment-page__info-card strong {
   color: #000000;
+
   font-size: 13px;
   font-weight: 500;
   line-height: 1.2;
@@ -169,6 +184,7 @@
   margin-top: 2px;
 
   color: #9a9a9a;
+
   font-size: 10px;
   font-weight: 400;
   line-height: 1.2;
@@ -184,6 +200,7 @@
   margin: 0 0 12px;
 
   color: #000000;
+
   font-size: 17px;
   font-weight: 500;
   line-height: 1.2;
@@ -199,30 +216,36 @@
   margin: 0 0 12px;
 
   color: #000000;
+
   font-size: 18px;
   font-weight: 500;
   line-height: 1.2;
 }
 
 .order-payment-page__summary-row {
+  display: flex;
+
   min-height: 28px;
 
-  display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 16px;
 }
 
 .order-payment-page__summary-row span {
   color: #000000;
+
   font-size: 13px;
   font-weight: 400;
 }
 
 .order-payment-page__summary-row strong {
   color: #000000;
+
   font-size: 13px;
   font-weight: 500;
+
   white-space: nowrap;
 }
 
@@ -231,12 +254,14 @@
   padding: 12px 14px;
 
   border-radius: 10px;
-  background: #fff4d6;
 
+  background: #fff4d6;
   color: #765700;
+
   font-size: 13px;
   font-weight: 500;
   line-height: 1.4;
+
   text-align: center;
 }
 
@@ -248,18 +273,22 @@
   bottom: 0;
   z-index: 30;
 
+  display: flex;
+
   width: 100%;
   max-width: 428px;
   min-height: 112px;
+
+  flex-direction: column;
+
+  gap: 10px;
+
   padding: 14px 16px 18px;
 
   border-top: 1px solid #eeeeee;
   border-radius: 18px 18px 0 0;
-  background: #ffffff;
 
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  background: #ffffff;
 
   transform: translateX(50%);
 
@@ -268,6 +297,7 @@
 
 .order-payment-page__bottom > strong {
   color: #000000;
+
   font-size: 16px;
   font-weight: 500;
 }
@@ -275,24 +305,23 @@
 .order-payment-page__bottom button {
   width: 100%;
   min-height: 54px;
+
   padding: 0 18px;
 
   border: 0;
   border-radius: 10px;
-  background: #3478f6;
 
+  background: #3478f6;
   color: #ffffff;
+
   font: inherit;
   font-size: 14px;
   font-weight: 500;
-
-  cursor: pointer;
 
   box-shadow: 0 4px 14px rgb(52 120 246 / 24%);
 }
 
 .order-payment-page__bottom button:disabled {
-  cursor: not-allowed;
   opacity: 0.6;
 }
 
@@ -304,25 +333,30 @@
 
   border: 1px solid #f0b5b5;
   border-radius: 10px;
-  background: #fff1f1;
 
+  background: #fff1f1;
   color: #b42318;
+
   font-size: 13px;
   line-height: 1.4;
 }
 
 .order-payment-page__loading,
 .order-payment-page__empty {
+  display: flex;
+
   min-height: 300px;
 
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   gap: 18px;
 
   color: #777777;
+
   font-size: 14px;
+
   text-align: center;
 }
 
@@ -332,18 +366,18 @@
 
 .order-payment-page__empty button {
   min-height: 48px;
+
   padding: 0 22px;
 
   border: 0;
   border-radius: 10px;
-  background: #3478f6;
 
+  background: #3478f6;
   color: #ffffff;
+
   font: inherit;
   font-size: 14px;
   font-weight: 500;
-
-  cursor: pointer;
 }
 
 /* Sending order overlay */
@@ -355,13 +389,15 @@
   bottom: 0;
   z-index: 100;
 
+  display: flex;
+
   width: 100%;
   max-width: 428px;
 
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   gap: 26px;
 
   background: rgb(0 0 0 / 92%);
@@ -387,9 +423,11 @@
   margin: 0;
 
   color: #ffffff;
+
   font-size: 18px;
   font-weight: 600;
   line-height: 1.2;
+
   text-align: center;
 }
 

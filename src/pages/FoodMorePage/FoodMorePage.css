@@ -4,6 +4,7 @@
   min-height: 100vh;
   min-height: 100dvh;
   justify-content: center;
+
   background: #d9d9d9;
 }
 
@@ -12,17 +13,21 @@
   max-width: 428px;
   min-height: 100vh;
   min-height: 100dvh;
+
   background: #ffffff;
   color: #111111;
 }
 
 .food-more-header {
   position: relative;
+
   display: flex;
   min-height: 68px;
   align-items: center;
   justify-content: space-between;
+
   padding: 10px 16px;
+
   background: #8a7ed6;
 }
 
@@ -32,15 +37,17 @@
   height: 38px;
   align-items: center;
   justify-content: center;
+
   padding: 0;
+
   border: 0;
   background: transparent;
-  cursor: pointer;
 }
 
 .food-more-header-button img {
   width: 22px;
   height: 22px;
+
   object-fit: contain;
 }
 
@@ -48,9 +55,11 @@
   position: absolute;
   top: 50%;
   left: 50%;
+
   display: flex;
   align-items: center;
   gap: 3px;
+
   transform: translate(-50%, -50%);
 }
 
@@ -67,19 +76,26 @@
   min-height: 42px;
   align-items: center;
   gap: 8px;
+
   padding: 8px 16px;
+
   border-bottom: 1px solid #eeeeee;
 }
 
 .food-more-address img {
   width: 20px;
   height: 20px;
+
   object-fit: contain;
 }
 
 .food-more-address span {
   overflow: hidden;
+
+  color: #555555;
+
   font-size: 11px;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -91,6 +107,7 @@
 .food-more-content h1 {
   margin: 0;
   padding: 12px 0;
+
   font-size: 22px;
   line-height: 1.2;
 }
@@ -103,20 +120,47 @@
 
 .food-more-card {
   width: 100%;
+
   overflow: hidden;
   padding: 0;
+
   border: 1px solid #eeeeee;
   border-radius: 10px;
+
   background: #ffffff;
   color: #111111;
+
   text-align: left;
-  cursor: pointer;
 }
 
 .food-more-card-image {
+  display: flex;
   width: 100%;
   height: 190px;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
   background: #eeeeee;
+}
+
+.food-more-card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+}
+
+.food-more-card-image span {
+  color: #b7a7dc;
+
+  font-size: 38px;
+  line-height: 1;
+
+  user-select: none;
 }
 
 .food-more-card-info {
@@ -125,6 +169,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+
   padding: 10px 14px;
 }
 
@@ -135,18 +180,26 @@
 
 .food-more-card-text h2 {
   overflow: hidden;
+
   margin: 0;
+
   font-size: 14px;
   line-height: 1.25;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .food-more-card-text p {
   overflow: hidden;
+
   margin: 4px 0 0;
+
   color: #444444;
+
   font-size: 11px;
+  line-height: 1.3;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -158,10 +211,12 @@
   height: 48px;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+
   border-radius: 5px;
+
   background: #d1caff;
   color: #8a7ed6;
-  flex-direction: column;
 }
 
 .food-more-delivery-time strong {
@@ -171,7 +226,67 @@
 
 .food-more-delivery-time span {
   margin-top: 2px;
+
   font-size: 8px;
+}
+
+/* =========================
+   LOADING / EMPTY
+========================= */
+
+.food-more-state {
+  display: flex;
+  width: 100%;
+  min-height: 220px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+
+  color: #777777;
+
+  text-align: center;
+}
+
+.food-more-state p {
+  margin: 0;
+
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.food-more-spinner {
+  width: 32px;
+  height: 32px;
+
+  border: 4px solid #e5e5e5;
+  border-top-color: #8a7ed6;
+  border-radius: 50%;
+
+  animation: food-more-spin 0.8s linear infinite;
+}
+
+/* =========================
+   ERROR
+========================= */
+
+.food-more-error {
+  margin-top: 8px;
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  background: #fff0f0;
+  color: #b42318;
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+@keyframes food-more-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 480px) {

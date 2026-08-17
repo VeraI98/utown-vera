@@ -11,10 +11,17 @@ import {
 
 import { useAuth } from '../../hooks/useAuth'
 
-import { getMyAddresses } from '../../services/addressService'
-import { updateProfile } from '../../services/authService'
+import {
+  getMyAddresses,
+} from '../../services/addressService'
 
-import type { AddressResponse } from '../../types/address'
+import {
+  updateProfile,
+} from '../../services/authService'
+
+import type {
+  AddressResponse,
+} from '../../types/address'
 
 import arrowAddressIcon from '../../assets/icon account/arrow-address.svg'
 import backButtonBlackIcon from '../../assets/icon account/Back Button black.svg'
@@ -27,14 +34,18 @@ import profileIcon from '../../assets/icons main pages/Profile.svg'
 import './PersonalInformationPage.css'
 
 function PersonalInformationPage() {
-  const navigate = useNavigate()
+  const navigate =
+    useNavigate()
 
   const {
     user,
     updateUser,
   } = useAuth()
 
-  const [name, setName] = useState(
+  const [
+    name,
+    setName,
+  ] = useState(
     user?.fullName || '',
   )
 
@@ -44,13 +55,17 @@ function PersonalInformationPage() {
   const [
     addresses,
     setAddresses,
-  ] = useState<AddressResponse[]>([])
+  ] =
+    useState<AddressResponse[]>(
+      [],
+    )
 
   const [
     selectedAddressId,
     setSelectedAddressId,
   ] = useState<number | null>(
-    user?.defaultAddress ?? null,
+    user?.defaultAddress ??
+      null,
   )
 
   const [
@@ -58,8 +73,15 @@ function PersonalInformationPage() {
     setIsLoadingAddresses,
   ] = useState(true)
 
-  const [error, setError] =
-    useState('')
+  const [
+    addressesError,
+    setAddressesError,
+  ] = useState('')
+
+  const [
+    error,
+    setError,
+  ] = useState('')
 
   const [
     isSubmitting,
@@ -67,38 +89,82 @@ function PersonalInformationPage() {
   ] = useState(false)
 
   useEffect(() => {
-    const loadAddresses = async () => {
-      try {
-        setIsLoadingAddresses(true)
+    let isActive = true
 
-        const response =
-          await getMyAddresses()
+    getMyAddresses()
+      .then((response) => {
+        if (!isActive) {
+          return
+        }
 
         setAddresses(response)
+        setAddressesError('')
 
-        if (response.length > 0) {
+        if (
+          response.length === 0
+        ) {
           setSelectedAddressId(
-            user?.defaultAddress ??
-              response[0].id,
+            null,
           )
-        } else {
-          setSelectedAddressId(null)
+
+          return
         }
-      } catch (error) {
+
+        const defaultAddressExists =
+          response.some(
+            (address) =>
+              address.id ===
+              user?.defaultAddress,
+          )
+
+        if (
+          defaultAddressExists &&
+          user?.defaultAddress != null
+        ) {
+          setSelectedAddressId(
+            user.defaultAddress,
+          )
+
+          return
+        }
+
+        setSelectedAddressId(
+          response[0].id,
+        )
+      })
+      .catch((loadError) => {
+        if (!isActive) {
+          return
+        }
+
         console.error(
           'Failed to load addresses:',
-          error,
+          loadError,
         )
 
         setAddresses([])
-        setSelectedAddressId(null)
-      } finally {
-        setIsLoadingAddresses(false)
-      }
-    }
+        setSelectedAddressId(
+          null,
+        )
 
-    void loadAddresses()
-  }, [user?.defaultAddress])
+        setAddressesError(
+          'Failed to load addresses.',
+        )
+      })
+      .finally(() => {
+        if (isActive) {
+          setIsLoadingAddresses(
+            false,
+          )
+        }
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [
+    user?.defaultAddress,
+  ])
 
   const selectedAddress =
     addresses.find(
@@ -111,10 +177,14 @@ function PersonalInformationPage() {
     event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault()
+
     setError('')
 
     if (!name.trim()) {
-      setError('Enter your name.')
+      setError(
+        'Enter your name.',
+      )
+
       return
     }
 
@@ -123,18 +193,22 @@ function PersonalInformationPage() {
 
       const updatedUser =
         await updateProfile({
-          fullName: name.trim(),
+          fullName:
+            name.trim(),
+
           defaultAddress:
             selectedAddressId,
         })
 
-      updateUser(updatedUser)
+      updateUser(
+        updatedUser,
+      )
 
       navigate('/account')
-    } catch (error) {
+    } catch (submitError) {
       console.error(
         'Failed to update personal information:',
-        error,
+        submitError,
       )
 
       setError(
@@ -153,12 +227,16 @@ function PersonalInformationPage() {
             className="account-form-back-button"
             type="button"
             onClick={() =>
-              navigate('/account')
+              navigate(
+                '/account',
+              )
             }
             aria-label="Go back to account settings"
           >
             <img
-              src={backButtonBlackIcon}
+              src={
+                backButtonBlackIcon
+              }
               alt=""
               aria-hidden="true"
             />
@@ -166,33 +244,43 @@ function PersonalInformationPage() {
 
           <img
             className="account-logo-gradient"
-            src={logoGradient}
+            src={
+              logoGradient
+            }
             alt="UT"
           />
         </header>
 
         <div className="account-form-content">
           <h1 className="account-form-title">
-            Personal Information
+            Personal
+            Information
           </h1>
 
           <form
             className="account-form"
-            onSubmit={handleSubmit}
+            onSubmit={
+              handleSubmit
+            }
           >
             <label
               className="account-form-group"
               htmlFor="account-name"
             >
-              <span>Your Name</span>
+              <span>
+                Your Name
+              </span>
 
               <input
                 id="account-name"
                 type="text"
                 value={name}
-                onChange={(event) => {
+                onChange={(
+                  event,
+                ) => {
                   setName(
-                    event.target.value,
+                    event.target
+                      .value,
                   )
 
                   setError('')
@@ -206,13 +294,16 @@ function PersonalInformationPage() {
               htmlFor="account-phone"
             >
               <span>
-                Your Phone Number
+                Your Phone
+                Number
               </span>
 
               <input
                 id="account-phone"
                 type="tel"
-                value={phoneNumber}
+                value={
+                  phoneNumber
+                }
                 readOnly
                 aria-readonly="true"
               />
@@ -223,7 +314,8 @@ function PersonalInformationPage() {
               htmlFor="account-address"
             >
               <span>
-                Your Address (for delivery)
+                Your Address
+                (for delivery)
               </span>
 
               <div className="account-address-field">
@@ -233,14 +325,19 @@ function PersonalInformationPage() {
                     selectedAddressId ??
                     ''
                   }
-                  onChange={(event) => {
+                  onChange={(
+                    event,
+                  ) => {
                     const value =
                       Number(
-                        event.target.value,
+                        event.target
+                          .value,
                       )
 
                     setSelectedAddressId(
-                      Number.isNaN(value)
+                      Number.isNaN(
+                        value,
+                      )
                         ? null
                         : value,
                     )
@@ -253,7 +350,8 @@ function PersonalInformationPage() {
                 >
                   {isLoadingAddresses && (
                     <option value="">
-                      Loading addresses...
+                      Loading
+                      addresses...
                     </option>
                   )}
 
@@ -261,12 +359,15 @@ function PersonalInformationPage() {
                     addresses.length ===
                       0 && (
                       <option value="">
-                        No addresses
+                        No
+                        addresses
                       </option>
                     )}
 
                   {addresses.map(
-                    (address) => (
+                    (
+                      address,
+                    ) => (
                       <option
                         key={
                           address.id
@@ -284,12 +385,25 @@ function PersonalInformationPage() {
                 </select>
 
                 <img
-                  src={arrowAddressIcon}
+                  src={
+                    arrowAddressIcon
+                  }
                   alt=""
                   aria-hidden="true"
                 />
               </div>
             </label>
+
+            {addressesError && (
+              <p
+                className="account-form-error"
+                role="alert"
+              >
+                {
+                  addressesError
+                }
+              </p>
+            )}
 
             {selectedAddress && (
               <p className="account-form-address-preview">
@@ -349,7 +463,9 @@ function PersonalInformationPage() {
               aria-hidden="true"
             />
 
-            <span>Home</span>
+            <span>
+              Home
+            </span>
           </Link>
 
           <Link
@@ -357,7 +473,9 @@ function PersonalInformationPage() {
             to="/favorites"
           >
             <img
-              src={favoritesIcon}
+              src={
+                favoritesIcon
+              }
               alt=""
               aria-hidden="true"
             />
@@ -372,12 +490,16 @@ function PersonalInformationPage() {
             to="/profile"
           >
             <img
-              src={profileIcon}
+              src={
+                profileIcon
+              }
               alt=""
               aria-hidden="true"
             />
 
-            <span>Profile</span>
+            <span>
+              Profile
+            </span>
           </Link>
         </nav>
       </section>

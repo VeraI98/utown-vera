@@ -39,9 +39,14 @@ export const router = createBrowserRouter([
     path: '/register',
     element: <RegisterPage />,
   },
+
   {
     path: '/favorites',
-    element: <FavoritesPage />,
+    element: (
+      <ProtectedRoute>
+        <FavoritesPage />
+      </ProtectedRoute>
+    ),
   },
 
   {
@@ -52,17 +57,14 @@ export const router = createBrowserRouter([
     path: '/food/search',
     element: <FoodSearch />,
   },
-
   {
     path: '/food/category/:categoryId',
     element: <FoodCategoryPage />,
   },
-
   {
     path: '/food/restaurants/:restaurantId',
     element: <RestaurantPage />,
   },
-
   {
     path: '/food/establishments',
     element: <FoodMorePage title="Establishments" />,

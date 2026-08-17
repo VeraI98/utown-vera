@@ -27,6 +27,7 @@ import profileIcon from '../../assets/icons main pages/Profile.svg'
 import {
   getCategories,
 } from '../../services/categoryService'
+
 import {
   getActiveRestaurants,
 } from '../../services/restaurantService'
@@ -54,6 +55,31 @@ const FALLBACK_CATEGORY_IMAGES = [
   iceCreamImage,
 ]
 
+const INVALID_IMAGE_VALUES = [
+  'string',
+  'null',
+  'undefined',
+  'file uploaded successfully',
+]
+
+function isValidImageUrl(
+  imageUrl?: string | null,
+): boolean {
+  if (!imageUrl) {
+    return false
+  }
+
+  const value = imageUrl.trim()
+
+  if (!value) {
+    return false
+  }
+
+  return !INVALID_IMAGE_VALUES.includes(
+    value.toLowerCase(),
+  )
+}
+
 function getCategoryFallbackImage(
   index: number,
 ): string {
@@ -65,11 +91,8 @@ function getCategoryFallbackImage(
 function getRestaurantImage(
   restaurant: RestaurantResponse,
 ): string {
-  if (
-    restaurant.imageUrl &&
-    restaurant.imageUrl.trim() !== ''
-  ) {
-    return restaurant.imageUrl
+  if (isValidImageUrl(restaurant.imageUrl)) {
+    return restaurant.imageUrl as string
   }
 
   return pizzaImage
@@ -98,7 +121,7 @@ function getRestaurantDeliveryTime(
     return restaurant.deliveryTime
   }
 
-  return '30–45 min'
+  return 'Delivery time unavailable'
 }
 
 function formatPrice(
@@ -376,9 +399,9 @@ function FoodPage() {
         </header>
 
         <div className="food-content">
-          <button
+          <div
             className="food-address"
-            type="button"
+            aria-label="Delivery area"
           >
             <img
               src={mapIcon}
@@ -387,14 +410,9 @@ function FoodPage() {
             />
 
             <span>
-              House, street Seobuk-gu
-              Byeonhyeong-ro 569
+              Delivery area
             </span>
-
-            <span aria-hidden="true">
-              ⌄
-            </span>
-          </button>
+          </div>
 
           <button
             className="food-search"
@@ -446,7 +464,10 @@ function FoodPage() {
           </div>
 
           {errorMessage && (
-            <p className="food-error">
+            <p
+              className="food-error"
+              role="alert"
+            >
               {errorMessage}
             </p>
           )}
@@ -472,9 +493,9 @@ function FoodPage() {
                     index,
                   ) => {
                     const imageSource =
-                      category.imageUrl &&
-                      category.imageUrl.trim() !==
-                        ''
+                      isValidImageUrl(
+                        category.imageUrl,
+                      )
                         ? category.imageUrl
                         : getCategoryFallbackImage(
                             index,
@@ -493,7 +514,12 @@ function FoodPage() {
                         aria-label={`Open ${category.name}`}
                       >
                         <img
-                          src={imageSource}
+                          src={
+                            imageSource ??
+                            getCategoryFallbackImage(
+                              index,
+                            )
+                          }
                           alt={category.name}
                           onError={(
                             event,

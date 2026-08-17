@@ -13,16 +13,5 @@ export interface AddressResponse {
   intercomCode: string
 }
 
-export interface CreateAddressRequest {
-  area: string
-  city: string
-  details: string
-  fullAddress: string
-  latitude: number
-  longitude: number
-  postcode: string
-  state: string
-  street: string
-  typeAddress: number
-  intercomCode: string
-}
+export type CreateAddressRequest =
+  Omit<AddressResponse, 'id'>
