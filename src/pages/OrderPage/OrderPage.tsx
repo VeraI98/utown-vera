@@ -86,19 +86,6 @@ function formatPrice(
   ).format(value)
 }
 
-function getMinimumOrderAmount(
-  amount: number,
-): number {
-  if (
-    amount > 0 &&
-    amount < 1000
-  ) {
-    return amount * 1000
-  }
-
-  return amount
-}
-
 function getErrorMessage(
   error: unknown,
 ): string {
@@ -249,9 +236,7 @@ function OrderPage() {
             }
 
             setMinimumOrderAmount(
-              getMinimumOrderAmount(
-                restaurant.minOrderAmount,
-              ),
+              restaurant.minOrderAmount,
             )
           } catch (error) {
             console.error(
@@ -371,9 +356,7 @@ function OrderPage() {
         }
 
         setMinimumOrderAmount(
-          getMinimumOrderAmount(
-            restaurant.minOrderAmount,
-          ),
+          restaurant.minOrderAmount,
         )
       } catch (error) {
         console.error(

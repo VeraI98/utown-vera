@@ -87,13 +87,10 @@ api.interceptors.response.use(
       const { data } =
         await axios.post<RefreshResponse>(
           `${API_URL}/auth/refresh`,
+          null,
           {
-            refreshToken,
-          },
-          {
-            headers: {
-              'Content-Type':
-                'application/json',
+            params: {
+              refreshToken,
             },
           },
         )

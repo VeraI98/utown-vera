@@ -39,9 +39,7 @@ import {
 } from '../../services/favoriteRestaurantService'
 
 import {
-  calculateAverageRating,
   getMyRestaurantRatings,
-  getRestaurantRatings,
   type RatingResponse,
 } from '../../services/ratingService'
 
@@ -100,19 +98,6 @@ function isValidImageUrl(
   return !INVALID_IMAGE_VALUES.includes(
     value.toLowerCase(),
   )
-}
-
-function getMinimumOrderAmount(
-  amount: number,
-): number {
-  if (
-    amount > 0 &&
-    amount < 1000
-  ) {
-    return amount * 1000
-  }
-
-  return amount
 }
 
 function getCategoryImage(
@@ -216,17 +201,35 @@ function getOperatingHours(
     return 'Opening hours unavailable'
   }
 
-  const workingDay =
+  const jsDay =
+    new Date().getDay()
+
+  const todayDayOfWeek =
+    jsDay === 0 ? 7 : jsDay
+
+  const todayMode =
     restaurant.operatingModes.find(
       (mode) =>
-        !mode.dayOff,
+        mode.dayOfWeek ===
+        todayDayOfWeek,
     )
 
-  if (!workingDay) {
+  if (!todayMode) {
+    return 'Opening hours unavailable'
+  }
+
+  if (todayMode.dayOff) {
     return 'Closed'
   }
 
-  return `${workingDay.start}–${workingDay.end}`
+  if (
+    !todayMode.start ||
+    !todayMode.end
+  ) {
+    return 'Opening hours unavailable'
+  }
+
+  return `${todayMode.start}–${todayMode.end}`
 }
 
 function RestaurantPage() {
@@ -285,13 +288,6 @@ function RestaurantPage() {
     setFavoriteError,
   ] = useState('')
 
-  const [
-    ratings,
-    setRatings,
-  ] =
-    useState<RatingResponse[]>(
-      [],
-    )
 
   const [
     myRating,
@@ -478,69 +474,40 @@ function RestaurantPage() {
       }
     }
 
-    Promise.allSettled([
-      getRestaurantRatings(
-        parsedRestaurantId,
-        0,
-        100,
-      ),
-      getMyRestaurantRatings(
-        0,
-        100,
-      ),
-    ]).then(
-      ([
-        ratingsResult,
-        myRatingsResult,
-      ]) => {
+    getMyRestaurantRatings(
+      0,
+      100,
+    )
+      .then((myRatingsData) => {
         if (!isActive) {
           return
         }
 
-        if (
-          ratingsResult.status ===
-          'fulfilled'
-        ) {
-          setRatings(
-            ratingsResult.value
-              .content ?? [],
-          )
-        } else {
-          console.error(
-            'Failed to load restaurant ratings:',
-            ratingsResult.reason,
-          )
+        const currentRestaurantRating =
+          (
+            myRatingsData.content ?? []
+          ).find(
+            (rating) =>
+              rating.restaurantId ===
+              parsedRestaurantId,
+          ) ?? null
 
-          setRatings([])
+        setMyRating(
+          currentRestaurantRating,
+        )
+      })
+      .catch((error) => {
+        if (!isActive) {
+          return
         }
 
-        if (
-          myRatingsResult.status ===
-          'fulfilled'
-        ) {
-          const currentRestaurantRating =
-            (
-              myRatingsResult.value
-                .content ?? []
-            ).find(
-              (rating) =>
-                rating.restaurantId ===
-                parsedRestaurantId,
-            ) ?? null
+        console.error(
+          'Failed to load user ratings:',
+          error,
+        )
 
-          setMyRating(
-            currentRestaurantRating,
-          )
-        } else {
-          console.error(
-            'Failed to load user ratings:',
-            myRatingsResult.reason,
-          )
-
-          setMyRating(null)
-        }
-      },
-    )
+        setMyRating(null)
+      })
 
     return () => {
       isActive = false
@@ -652,29 +619,10 @@ function RestaurantPage() {
     )
 
   const averageRating =
-    useMemo(() => {
-      if (
-        ratings.length > 0
-      ) {
-        return calculateAverageRating(
-          ratings,
-        )
-      }
-
-      return (
-        restaurant?.ratings ??
-        0
-      )
-    }, [
-      ratings,
-      restaurant,
-    ])
+    restaurant?.ratings ?? 0
 
   const ratingCount =
-    ratings.length > 0
-      ? ratings.length
-      : restaurant
-          ?.totalRatings ?? 0
+    restaurant?.totalRatings ?? 0
 
   const cartRestaurantId =
     cart?.items[0]
@@ -1090,9 +1038,7 @@ function RestaurantPage() {
       : backgroundImage
 
   const minimumOrderAmount =
-    getMinimumOrderAmount(
-      restaurant.minOrderAmount,
-    )
+    restaurant.minOrderAmount
 
   return (
     <main className="restaurant-page">

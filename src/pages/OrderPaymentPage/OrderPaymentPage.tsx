@@ -63,19 +63,6 @@ function formatPrice(
   ).format(value)
 }
 
-function getMinimumOrderAmount(
-  amount: number,
-): number {
-  if (
-    amount > 0 &&
-    amount < 1000
-  ) {
-    return amount * 1000
-  }
-
-  return amount
-}
-
 function getErrorMessage(
   error: unknown,
 ): string {
@@ -312,9 +299,7 @@ function OrderPaymentPage() {
             }
 
             setMinimumOrderAmount(
-              getMinimumOrderAmount(
-                restaurant.minOrderAmount,
-              ),
+              restaurant.minOrderAmount,
             )
 
             setDeliveryTimeText(
@@ -508,16 +493,17 @@ function OrderPaymentPage() {
         return
       }
 
-      navigate(
-        '/food/order/address',
-        {
-          state: {
-            ...(locationState ??
-              {}),
-          },
-        },
-      )
-    }
+     navigate(
+     '/food/order/address',
+       {
+        state: {
+        ...(locationState ?? {}),
+        returnTo:
+        '/food/order/payment',
+     },
+   },
+ )   
+}
 
   return (
     <main
