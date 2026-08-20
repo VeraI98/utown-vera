@@ -7,65 +7,98 @@ import type {
   User,
 } from '../types/auth'
 
-export async function login(
-  data: LoginData,
-): Promise<AuthResponse> {
-  const response = await api.post<AuthResponse>(
-    '/auth/login',
-    data,
-  )
-
-  return response.data
-}
-
-export async function register(
-  data: RegisterData,
-): Promise<AuthResponse> {
-  const response = await api.post<AuthResponse>(
-    '/auth/register',
-    data,
-  )
-
-  return response.data
-}
-
 export interface ChangePasswordData {
-  oldPassword: string
+  currentPassword: string
   newPassword: string
   confirmPassword: string
 }
 
-export async function changePassword(
-  data: ChangePasswordData,
-): Promise<void> {
-  await api.post('/auth/password/change', data)
+export interface ForgotPasswordData {
+  username: string
+}
+
+export interface ResetPasswordData {
+  username: string
+  code: string
+  newPassword: string
 }
 
 export interface UpdateProfileData {
   fullName: string
-  username: string
-  defaultAddress: string
-}
-
-export async function updateProfile(
-  data: UpdateProfileData,
-): Promise<User> {
-  const response = await api.put<User>(
-    '/users/profile',
-    data,
-  )
-
-  return response.data
+  defaultAddress: number | null
 }
 
 export interface DeleteProfileData {
   password: string
 }
 
-export async function deleteProfile(
-  data: DeleteProfileData,
+export async function login(
+  request: LoginData,
+): Promise<AuthResponse> {
+  const { data } = await api.post<AuthResponse>(
+    '/auth/login',
+    request,
+  )
+
+  return data
+}
+
+export async function register(
+  request: RegisterData,
+): Promise<AuthResponse> {
+  const { data } = await api.post<AuthResponse>(
+    '/auth/register',
+    request,
+  )
+
+  return data
+}
+
+export async function forgotPassword(
+  request: ForgotPasswordData,
 ): Promise<void> {
-  await api.delete('/users/profile', {
-    data,
-  })
+  await api.post(
+    '/auth/password/forgot',
+    request,
+  )
+}
+
+export async function resetPassword(
+  request: ResetPasswordData,
+): Promise<void> {
+  await api.post(
+    '/auth/password/reset',
+    request,
+  )
+}
+
+export async function changePassword(
+  request: ChangePasswordData,
+): Promise<void> {
+  await api.post(
+    '/auth/password/change',
+    request,
+  )
+}
+
+export async function updateProfile(
+  request: UpdateProfileData,
+): Promise<User> {
+  const { data } = await api.put<User>(
+    '/users/profile',
+    request,
+  )
+
+  return data
+}
+
+export async function deleteProfile(
+  request: DeleteProfileData,
+): Promise<void> {
+  await api.delete(
+    '/users/profile',
+    {
+      data: request,
+    },
+  )
 }

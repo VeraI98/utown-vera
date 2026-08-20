@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useState,
   type FormEvent,
 } from 'react'
@@ -9,7 +10,18 @@ import {
 } from 'react-router-dom'
 
 import { useAuth } from '../../hooks/useAuth'
-import { updateProfile } from '../../services/authService'
+
+import {
+  getMyAddresses,
+} from '../../services/addressService'
+
+import {
+  updateProfile,
+} from '../../services/authService'
+
+import type {
+  AddressResponse,
+} from '../../types/address'
 
 import arrowAddressIcon from '../../assets/icon account/arrow-address.svg'
 import backButtonBlackIcon from '../../assets/icon account/Back Button black.svg'
@@ -22,41 +34,157 @@ import profileIcon from '../../assets/icons main pages/Profile.svg'
 import './PersonalInformationPage.css'
 
 function PersonalInformationPage() {
-  const navigate = useNavigate()
+  const navigate =
+    useNavigate()
 
   const {
     user,
     updateUser,
   } = useAuth()
 
-  const [name, setName] = useState(
+  const [
+    name,
+    setName,
+  ] = useState(
     user?.fullName || '',
   )
 
-  const [phoneNumber, setPhoneNumber] =
-    useState(user?.username || '')
+  const phoneNumber =
+    user?.username || ''
 
-  const [address, setAddress] = useState(
-    String(user?.defaultAddress ?? ''),
+  const [
+    addresses,
+    setAddresses,
+  ] =
+    useState<AddressResponse[]>(
+      [],
+    )
+
+  const [
+    selectedAddressId,
+    setSelectedAddressId,
+  ] = useState<number | null>(
+    user?.defaultAddress ??
+      null,
   )
 
-  const [error, setError] = useState('')
-  const [isSubmitting, setIsSubmitting] =
-    useState(false)
+  const [
+    isLoadingAddresses,
+    setIsLoadingAddresses,
+  ] = useState(true)
+
+  const [
+    addressesError,
+    setAddressesError,
+  ] = useState('')
+
+  const [
+    error,
+    setError,
+  ] = useState('')
+
+  const [
+    isSubmitting,
+    setIsSubmitting,
+  ] = useState(false)
+
+  useEffect(() => {
+    let isActive = true
+
+    getMyAddresses()
+      .then((response) => {
+        if (!isActive) {
+          return
+        }
+
+        setAddresses(response)
+        setAddressesError('')
+
+        if (
+          response.length === 0
+        ) {
+          setSelectedAddressId(
+            null,
+          )
+
+          return
+        }
+
+        const defaultAddressExists =
+          response.some(
+            (address) =>
+              address.id ===
+              user?.defaultAddress,
+          )
+
+        if (
+          defaultAddressExists &&
+          user?.defaultAddress != null
+        ) {
+          setSelectedAddressId(
+            user.defaultAddress,
+          )
+
+          return
+        }
+
+        setSelectedAddressId(
+          response[0].id,
+        )
+      })
+      .catch((loadError) => {
+        if (!isActive) {
+          return
+        }
+
+        console.error(
+          'Failed to load addresses:',
+          loadError,
+        )
+
+        setAddresses([])
+        setSelectedAddressId(
+          null,
+        )
+
+        setAddressesError(
+          'Failed to load addresses.',
+        )
+      })
+      .finally(() => {
+        if (isActive) {
+          setIsLoadingAddresses(
+            false,
+          )
+        }
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [
+    user?.defaultAddress,
+  ])
+
+  const selectedAddress =
+    addresses.find(
+      (address) =>
+        address.id ===
+        selectedAddressId,
+    ) ?? null
 
   const handleSubmit = async (
     event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault()
+
     setError('')
 
     if (!name.trim()) {
-      setError('Enter your name.')
-      return
-    }
+      setError(
+        'Enter your name.',
+      )
 
-    if (!phoneNumber.trim()) {
-      setError('Enter your phone number.')
       return
     }
 
@@ -65,15 +193,24 @@ function PersonalInformationPage() {
 
       const updatedUser =
         await updateProfile({
-          fullName: name.trim(),
-          username: phoneNumber.trim(),
-          defaultAddress: address.trim(),
+          fullName:
+            name.trim(),
+
+          defaultAddress:
+            selectedAddressId,
         })
 
-      updateUser(updatedUser)
+      updateUser(
+        updatedUser,
+      )
 
       navigate('/account')
-    } catch {
+    } catch (submitError) {
+      console.error(
+        'Failed to update personal information:',
+        submitError,
+      )
+
       setError(
         'Failed to update personal information.',
       )
@@ -90,12 +227,16 @@ function PersonalInformationPage() {
             className="account-form-back-button"
             type="button"
             onClick={() =>
-              navigate('/account')
+              navigate(
+                '/account',
+              )
             }
             aria-label="Go back to account settings"
           >
             <img
-              src={backButtonBlackIcon}
+              src={
+                backButtonBlackIcon
+              }
               alt=""
               aria-hidden="true"
             />
@@ -103,34 +244,45 @@ function PersonalInformationPage() {
 
           <img
             className="account-logo-gradient"
-            src={logoGradient}
+            src={
+              logoGradient
+            }
             alt="UT"
           />
         </header>
 
         <div className="account-form-content">
           <h1 className="account-form-title">
-            Personal Information
+            Personal
+            Information
           </h1>
 
           <form
             className="account-form"
-            onSubmit={handleSubmit}
+            onSubmit={
+              handleSubmit
+            }
           >
             <label
               className="account-form-group"
               htmlFor="account-name"
             >
-              <span>Your Name</span>
+              <span>
+                Your Name
+              </span>
 
               <input
                 id="account-name"
                 type="text"
                 value={name}
-                onChange={(event) => {
+                onChange={(
+                  event,
+                ) => {
                   setName(
-                    event.target.value,
+                    event.target
+                      .value,
                   )
+
                   setError('')
                 }}
                 placeholder="Name"
@@ -142,20 +294,18 @@ function PersonalInformationPage() {
               htmlFor="account-phone"
             >
               <span>
-                Your Phone Number
+                Your Phone
+                Number
               </span>
 
               <input
                 id="account-phone"
                 type="tel"
-                value={phoneNumber}
-                onChange={(event) => {
-                  setPhoneNumber(
-                    event.target.value,
-                  )
-                  setError('')
-                }}
-                placeholder="Phone Number"
+                value={
+                  phoneNumber
+                }
+                readOnly
+                aria-readonly="true"
               />
             </label>
 
@@ -164,30 +314,116 @@ function PersonalInformationPage() {
               htmlFor="account-address"
             >
               <span>
-                Your Address (for delivery)
+                Your Address
+                (for delivery)
               </span>
 
               <div className="account-address-field">
-                <input
+                <select
                   id="account-address"
-                  type="text"
-                  value={address}
-                  onChange={(event) => {
-                    setAddress(
-                      event.target.value,
+                  value={
+                    selectedAddressId ??
+                    ''
+                  }
+                  onChange={(
+                    event,
+                  ) => {
+                    const value =
+                      Number(
+                        event.target
+                          .value,
+                      )
+
+                    setSelectedAddressId(
+                      Number.isNaN(
+                        value,
+                      )
+                        ? null
+                        : value,
                     )
+
                     setError('')
                   }}
-                  placeholder="Address"
-                />
+                  disabled={
+                    isLoadingAddresses
+                  }
+                >
+                  {isLoadingAddresses && (
+                    <option value="">
+                      Loading
+                      addresses...
+                    </option>
+                  )}
+
+                  {!isLoadingAddresses &&
+                    addresses.length ===
+                      0 && (
+                      <option value="">
+                        No
+                        addresses
+                      </option>
+                    )}
+
+                  {addresses.map(
+                    (
+                      address,
+                    ) => (
+                      <option
+                        key={
+                          address.id
+                        }
+                        value={
+                          address.id
+                        }
+                      >
+                        {
+                          address.fullAddress
+                        }
+                      </option>
+                    ),
+                  )}
+                </select>
 
                 <img
-                  src={arrowAddressIcon}
+                  src={
+                    arrowAddressIcon
+                  }
                   alt=""
                   aria-hidden="true"
                 />
               </div>
             </label>
+
+            {addressesError && (
+              <p
+                className="account-form-error"
+                role="alert"
+              >
+                {
+                  addressesError
+                }
+              </p>
+            )}
+
+            {selectedAddress && (
+              <p className="account-form-address-preview">
+                {
+                  selectedAddress.fullAddress
+                }
+              </p>
+            )}
+
+            <button
+              className="account-address-manage-button"
+              type="button"
+              onClick={() =>
+                navigate(
+                  '/food/order/address',
+                )
+              }
+            >
+              Manage addresses
+            </button>
 
             {error && (
               <p
@@ -201,7 +437,10 @@ function PersonalInformationPage() {
             <button
               className="account-save-button"
               type="submit"
-              disabled={isSubmitting}
+              disabled={
+                isSubmitting ||
+                isLoadingAddresses
+              }
             >
               {isSubmitting
                 ? 'Saving...'
@@ -223,7 +462,10 @@ function PersonalInformationPage() {
               alt=""
               aria-hidden="true"
             />
-            <span>Home</span>
+
+            <span>
+              Home
+            </span>
           </Link>
 
           <Link
@@ -231,11 +473,16 @@ function PersonalInformationPage() {
             to="/favorites"
           >
             <img
-              src={favoritesIcon}
+              src={
+                favoritesIcon
+              }
               alt=""
               aria-hidden="true"
             />
-            <span>Favorites</span>
+
+            <span>
+              Favorites
+            </span>
           </Link>
 
           <Link
@@ -243,11 +490,16 @@ function PersonalInformationPage() {
             to="/profile"
           >
             <img
-              src={profileIcon}
+              src={
+                profileIcon
+              }
               alt=""
               aria-hidden="true"
             />
-            <span>Profile</span>
+
+            <span>
+              Profile
+            </span>
           </Link>
         </nav>
       </section>

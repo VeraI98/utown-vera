@@ -44,7 +44,7 @@ function AccountPasswordPage() {
       setIsSubmitting(true)
 
       await changePassword({
-        oldPassword: currentPassword,
+        currentPassword,
         newPassword: password,
         confirmPassword: repeatPassword,
       })

@@ -1,35 +1,49 @@
 .profile-page {
   display: flex;
+
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
+
   justify-content: center;
+
   background: #d9d9d9;
 }
 
 .profile-screen {
   position: relative;
+
   width: 100%;
   max-width: 428px;
   min-width: 0;
   min-height: 100vh;
   min-height: 100dvh;
+
   padding-bottom: 90px;
+
   overflow-x: hidden;
+
   background: #323232;
   color: #ffffff;
 }
 
+/* Header */
+
 .profile-header {
   min-height: 64px;
+
   padding: 12px 16px 0;
+
   background: #323232;
 }
 
 .profile-top-bar {
   position: relative;
+
   display: flex;
+
   min-height: 42px;
+
   align-items: center;
   justify-content: center;
 }
@@ -37,28 +51,39 @@
 .profile-logo-image {
   width: 40px;
   height: auto;
+
   object-fit: contain;
 }
 
 .profile-notification-button {
   position: absolute;
   right: -6px;
+
   display: flex;
+
   width: 42px;
   height: 42px;
+
   align-items: center;
   justify-content: center;
+
   padding: 0;
+
   border: 0;
+
   background: transparent;
 }
 
 .profile-notification-button img {
   display: block;
+
   width: 26px;
   height: 26px;
+
   object-fit: contain;
 }
+
+/* Content */
 
 .profile-content {
   padding: 20px 16px 24px;
@@ -66,27 +91,46 @@
 
 .profile-greeting {
   margin: 0 0 22px;
+
   color: #ffffff;
+
   font-size: 16px;
   font-weight: 500;
   line-height: 22px;
 }
 
+/* Quick actions */
+
 .profile-service-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
   gap: 5px;
+
   margin-bottom: 34px;
 }
 
 .profile-service-card {
   display: flex;
+
+  width: 100%;
   min-height: 95px;
+
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
+
+  padding: 0;
+
+  border: 0;
   border-radius: 10px;
+
   color: #ffffff;
+
+  font: inherit;
+
   text-align: center;
   text-decoration: none;
 }
@@ -94,11 +138,13 @@
 .profile-service-card img {
   width: 24px;
   height: 24px;
+
   object-fit: contain;
 }
 
 .profile-service-card span {
   margin-top: 5px;
+
   font-size: 13px;
   font-weight: 500;
   line-height: 1.2;
@@ -120,39 +166,55 @@
   background: #ffa647;
 }
 
+/* Profile menu */
+
 .profile-menu {
   display: flex;
+
   flex-direction: column;
+
   gap: 8px;
 }
 
 .profile-menu-link {
   display: flex;
+
   width: fit-content;
   min-height: 40px;
+
   align-items: center;
+
   gap: 11px;
+
   padding: 8px 10px;
+
   border: 0;
+
   background: transparent;
   color: #ffffff;
+
+  font: inherit;
   font-size: 16px;
   font-weight: 400;
   line-height: 1.2;
+
   text-decoration: none;
 }
 
 .profile-menu-link img {
   width: 22px;
   height: 22px;
+
   flex: 0 0 auto;
+
   object-fit: contain;
 }
 
 .profile-logout-button {
   color: #ff4b3e;
-  cursor: pointer;
 }
+
+/* Bottom navigation */
 
 .profile-bottom-nav {
   background: #ffffff;

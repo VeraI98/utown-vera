@@ -1,0 +1,416 @@
+.food-category-page {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  justify-content: center;
+  overflow-x: hidden;
+
+  background: #d9d9d9;
+}
+
+.food-category-screen {
+  position: relative;
+
+  width: 100%;
+  max-width: 428px;
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  overflow-x: hidden;
+
+  background: #ffffff;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.food-category-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  padding: 10px 16px;
+
+  background: linear-gradient(
+    135deg,
+    #5fd3f8 0%,
+    #3471f5 55%,
+    #e467f1 100%
+  );
+}
+
+.food-category-header-button {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+  border: 0;
+  background: transparent;
+}
+
+.food-category-header-button img {
+  display: block;
+  max-width: 24px;
+  max-height: 24px;
+  object-fit: contain;
+}
+
+.food-category-logo {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.food-category-logo img:first-child {
+  display: block;
+  width: 30px;
+  height: auto;
+}
+
+.food-category-logo img:last-child {
+  display: block;
+  width: 54px;
+  height: auto;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.food-category-content {
+  width: 100%;
+  min-width: 0;
+  padding: 18px 16px 32px;
+  overflow-x: hidden;
+}
+
+.food-category-content > h1 {
+  margin: 0 0 14px;
+
+  color: #111111;
+
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* =========================
+   DISH LIST
+========================= */
+
+.food-category-dishes-list {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* =========================
+   DISH CARD
+========================= */
+
+.food-category-dish {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+
+  width: 100%;
+  min-width: 0;
+  height: 110px;
+
+  padding: 0;
+  overflow: hidden;
+
+  border: 0;
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 2px 10px rgb(0 0 0 / 8%);
+
+  color: #111111;
+  text-align: left;
+
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.food-category-dish-image-wrapper {
+  width: 110px;
+  height: 110px;
+  overflow: hidden;
+
+  background: #f6f6f6;
+}
+
+.food-category-dish-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* =========================
+   PLACEHOLDER
+========================= */
+
+.food-category-dish-placeholder {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+
+  background: #f6f6f6;
+  color: #b7a7dc;
+
+  font-size: 30px;
+  line-height: 1;
+
+  user-select: none;
+}
+
+/* =========================
+   INFO
+========================= */
+
+.food-category-dish-info {
+  display: flex;
+  min-width: 0;
+  height: 110px;
+  flex-direction: column;
+  padding: 12px;
+  overflow: hidden;
+
+  background: #ffffff;
+}
+
+.food-category-dish-top {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.food-category-dish-top h2 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+
+  color: #111111;
+
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.food-category-dish-top strong {
+  flex-shrink: 0;
+
+  color: #111111;
+
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+
+  white-space: nowrap;
+}
+
+/* =========================
+   DESCRIPTION
+========================= */
+
+.food-category-dish-description {
+  display: -webkit-box;
+  width: 100%;
+  margin: 7px 0 0;
+  overflow: hidden;
+
+  color: #777777;
+
+  font-size: 12px;
+  line-height: 1.35;
+
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* =========================
+   RESTAURANT
+========================= */
+
+.food-category-dish-restaurant {
+  width: 100%;
+  margin: auto 0 0;
+  padding-top: 4px;
+  overflow: hidden;
+
+  color: #6d69dc;
+
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================
+   LOADING / EMPTY
+========================= */
+
+.food-category-loading,
+.food-category-empty {
+  display: flex;
+  width: 100%;
+  min-height: 240px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  color: #777777;
+
+  text-align: center;
+}
+
+.food-category-loading p,
+.food-category-empty p {
+  margin: 12px 0 0;
+
+  font-size: 14px;
+}
+
+.food-category-spinner {
+  width: 34px;
+  height: 34px;
+
+  border: 4px solid #e6e6e6;
+  border-top-color: #5b70ef;
+  border-radius: 50%;
+
+  animation:
+    food-category-spin 0.8s linear infinite;
+}
+
+/* =========================
+   ERROR
+========================= */
+
+.food-category-error {
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  background: #fff0f0;
+  color: #c62828;
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.food-category-error-page {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 24px;
+
+  text-align: center;
+}
+
+.food-category-error-page h1 {
+  margin: 0 0 20px;
+}
+
+.food-category-error-page button {
+  min-width: 180px;
+  min-height: 46px;
+  padding: 0 20px;
+
+  border: 0;
+  border-radius: 12px;
+
+  background: #00164e;
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes food-category-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================
+   SMALL PHONE
+========================= */
+
+@media (max-width: 380px) {
+  .food-category-content {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .food-category-dish {
+    grid-template-columns:
+      96px minmax(0, 1fr);
+
+    height: 100px;
+  }
+
+  .food-category-dish-image-wrapper {
+    width: 96px;
+    height: 100px;
+  }
+
+  .food-category-dish-info {
+    height: 100px;
+    padding: 10px;
+  }
+
+  .food-category-dish-top h2 {
+    font-size: 14px;
+  }
+
+  .food-category-dish-top strong {
+    font-size: 11px;
+  }
+}

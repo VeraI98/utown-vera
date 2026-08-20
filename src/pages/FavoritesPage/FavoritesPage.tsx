@@ -1,41 +1,29 @@
-import { Link, useNavigate } from 'react-router-dom'
+import {
+  Link,
+  useNavigate,
+} from 'react-router-dom'
+import {
+  useEffect,
+  useState,
+} from 'react'
 
 import bellIcon from '../../assets/icons main pages/bell-color.svg'
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import localCuisineImage from '../../assets/icons main pages/Local cuisine.svg'
 import logo from '../../assets/icons main pages/logo.svg'
-import longRestaurantImage from '../../assets/icons main pages/long restaurant name.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
 
-import './FavoritesPage.css'
+import {
+  getFavoriteRestaurants,
+  removeRestaurantFromFavorites,
+} from '../../services/favoriteRestaurantService'
 
-const favoriteRestaurants = [
-  {
-    id: 1,
-    title: 'Local Cuisine',
-    subtitle: 'European, Asian',
-    image: localCuisineImage,
-  },
-  {
-    id: 2,
-    title: 'Long name here...',
-    subtitle: 'European, Asian',
-    image: longRestaurantImage,
-  },
-  {
-    id: 3,
-    title: 'Local Cuisine',
-    subtitle: 'European, Asian',
-    image: localCuisineImage,
-  },
-  {
-    id: 4,
-    title: 'Long name here...',
-    subtitle: 'European, Asian',
-    image: longRestaurantImage,
-  },
-]
+import type {
+  FavoriteRestaurantResponse,
+} from '../../services/favoriteRestaurantService'
+
+import './FavoritesPage.css'
 
 function ArrowLeftIcon() {
   return (
@@ -57,8 +45,189 @@ function ArrowLeftIcon() {
   )
 }
 
+function HeartIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M12 21s-7.2-4.35-9.6-8.65C.65 9.2 2.05 5.2 5.8 4.25c2.2-.55 4.15.35 5.2 1.8 1.05-1.45 3-2.35 5.2-1.8 3.75.95 5.15 4.95 3.4 8.1C19.2 16.65 12 21 12 21Z" />
+    </svg>
+  )
+}
+
+function getRestaurantImage(
+  favorite: FavoriteRestaurantResponse,
+): string {
+  const imageUrl =
+    favorite.restaurant?.imageUrl
+
+  if (
+    imageUrl &&
+    imageUrl.trim() &&
+    imageUrl.trim().toLowerCase() !==
+      'string'
+  ) {
+    return imageUrl
+  }
+
+  return localCuisineImage
+}
+
+function getRestaurantSubtitle(
+  favorite: FavoriteRestaurantResponse,
+): string {
+  const category =
+    favorite.restaurant?.category
+
+  if (
+    category &&
+    category.trim()
+  ) {
+    return category
+  }
+
+  return 'Restaurant'
+}
+
+function formatPrice(
+  price: number | null | undefined,
+): string {
+  if (
+    price === null ||
+    price === undefined ||
+    Number.isNaN(price)
+  ) {
+    return '0'
+  }
+
+  return price.toLocaleString(
+    'en-US',
+  )
+}
+
 function FavoritesPage() {
   const navigate = useNavigate()
+
+  const [
+    favorites,
+    setFavorites,
+  ] = useState<
+    FavoriteRestaurantResponse[]
+  >([])
+
+  const [
+    isLoading,
+    setIsLoading,
+  ] = useState(true)
+
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState('')
+
+  const [
+    removingRestaurantId,
+    setRemovingRestaurantId,
+  ] = useState<number | null>(
+    null,
+  )
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadFavorites =
+      async () => {
+        try {
+          const data =
+            await getFavoriteRestaurants()
+
+          if (!isMounted) {
+            return
+          }
+
+          setFavorites(
+            data ?? [],
+          )
+
+          setErrorMessage('')
+        } catch (error) {
+          console.error(
+            'Failed to load favorites:',
+            error,
+          )
+
+          if (!isMounted) {
+            return
+          }
+
+          setFavorites([])
+
+          setErrorMessage(
+            'Failed to load favorites.',
+          )
+        } finally {
+          if (isMounted) {
+            setIsLoading(false)
+          }
+        }
+      }
+
+    void loadFavorites()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const handleRemoveFavorite =
+    async (
+      restaurantId: number,
+    ) => {
+      if (
+        removingRestaurantId !==
+        null
+      ) {
+        return
+      }
+
+      try {
+        setRemovingRestaurantId(
+          restaurantId,
+        )
+
+        await removeRestaurantFromFavorites(
+          restaurantId,
+        )
+
+        setFavorites(
+          (currentFavorites) =>
+            currentFavorites.filter(
+              (favorite) =>
+                favorite.restaurantId !==
+                  restaurantId &&
+                favorite.restaurant?.id !==
+                  restaurantId,
+            ),
+        )
+      } catch (error) {
+        console.error(
+          'Failed to remove favorite:',
+          error,
+        )
+
+        setErrorMessage(
+          'Failed to remove restaurant from favorites.',
+        )
+      } finally {
+        setRemovingRestaurantId(
+          null,
+        )
+      }
+    }
 
   return (
     <main className="mobile-page favorites-page">
@@ -68,7 +237,9 @@ function FavoritesPage() {
             <button
               className="favorites-back-button"
               type="button"
-              onClick={() => navigate(-1)}
+              onClick={() =>
+                navigate(-1)
+              }
               aria-label="Go back"
             >
               <ArrowLeftIcon />
@@ -83,69 +254,244 @@ function FavoritesPage() {
             <button
               className="favorites-notification-button"
               type="button"
-              onClick={() => navigate('/notifications')}
+              onClick={() =>
+                navigate(
+                  '/notifications',
+                )
+              }
               aria-label="Notifications"
             >
-              <img src={bellIcon} alt="" aria-hidden="true" />
+              <img
+                src={bellIcon}
+                alt=""
+                aria-hidden="true"
+              />
             </button>
           </div>
         </header>
 
         <div className="favorites-content">
-          <h1 className="favorites-title">Your Favorites</h1>
+          <h1 className="favorites-title">
+            Your Favorites
+          </h1>
 
           <section className="favorites-food-section">
-            <div className="section-header">
-              <h2>Food Delivery</h2>
+            <div className="favorites-section-header">
+              <h2>
+                Food Delivery
+              </h2>
 
-              <Link className="section-more-link" to="/food">
+              <Link
+                className="favorites-section-more-link"
+                to="/food"
+              >
                 More
               </Link>
             </div>
 
-            <div className="restaurant-list">
-              {favoriteRestaurants.map((restaurant) => (
-                <Link
-                  className="restaurant-card"
-                  to={`/restaurants/${restaurant.id}`}
-                  key={restaurant.id}
+            {isLoading && (
+              <div className="favorites-state">
+                <div
+                  className="favorites-spinner"
+                  aria-hidden="true"
+                />
+
+                <p>
+                  Loading favorites...
+                </p>
+              </div>
+            )}
+
+            {!isLoading &&
+              errorMessage && (
+                <div
+                  className="favorites-error"
+                  role="alert"
                 >
-                  <img
-                    className="restaurant-image"
-                    src={restaurant.image}
-                    alt={restaurant.title}
-                  />
+                  {errorMessage}
+                </div>
+              )}
 
-                  <div className="restaurant-body">
-                    <h3>{restaurant.title}</h3>
+            {!isLoading &&
+              !errorMessage &&
+              favorites.length ===
+                0 && (
+                <div className="favorites-empty">
+                  <p>
+                    You don't have any
+                    favorite restaurants
+                    yet.
+                  </p>
 
-                    <p>{restaurant.subtitle}</p>
+                  <Link
+                    to="/food"
+                    className="favorites-empty-link"
+                  >
+                    Find restaurants
+                  </Link>
+                </div>
+              )}
 
-                    <div className="restaurant-meta">
-                      <span>♿</span>
-                      <span>3,000 won · 45-55 min</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            {!isLoading &&
+              favorites.length >
+                0 && (
+                <div className="favorites-restaurant-list">
+                  {favorites.map(
+                    (favorite) => {
+                      const restaurant =
+                        favorite.restaurant
+
+                      if (!restaurant) {
+                        return null
+                      }
+
+                      const restaurantId =
+                        restaurant.id ??
+                        favorite.restaurantId
+
+                      const isRemoving =
+                        removingRestaurantId ===
+                        restaurantId
+
+                      return (
+                        <article
+                          className="favorites-restaurant-card"
+                          key={
+                            favorite.id
+                          }
+                        >
+                          <Link
+                            className="favorites-restaurant-main"
+                            to={`/food/restaurants/${restaurantId}`}
+                          >
+                            <img
+                              className="favorites-restaurant-image"
+                              src={getRestaurantImage(
+                                favorite,
+                              )}
+                              alt={
+                                restaurant.title
+                              }
+                              onError={(
+                                event,
+                              ) => {
+                                event.currentTarget.onerror =
+                                  null
+
+                                event.currentTarget.src =
+                                  localCuisineImage
+                              }}
+                            />
+
+                            <div className="favorites-restaurant-body">
+                              <h3>
+                                {
+                                  restaurant.title
+                                }
+                              </h3>
+
+                              <p>
+                                {getRestaurantSubtitle(
+                                  favorite,
+                                )}
+                              </p>
+
+                              <div className="favorites-restaurant-meta">
+                                <span>
+                                  Min. order:{' '}
+                                  {formatPrice(
+                                    restaurant.minOrderAmount,
+                                  )}{' '}
+                                  won
+                                </span>
+
+                                {restaurant.deliveryTime && (
+                                  <span>
+                                    ·{' '}
+                                    {
+                                      restaurant.deliveryTime
+                                    }
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </Link>
+
+                          <button
+                            className="favorites-remove-button"
+                            type="button"
+                            onClick={() =>
+                              void handleRemoveFavorite(
+                                restaurantId,
+                              )
+                            }
+                            disabled={
+                              isRemoving
+                            }
+                            aria-label={`Remove ${restaurant.title} from favorites`}
+                          >
+                            {isRemoving ? (
+                              <span className="favorites-remove-spinner" />
+                            ) : (
+                              <HeartIcon />
+                            )}
+                          </button>
+                        </article>
+                      )
+                    },
+                  )}
+                </div>
+              )}
           </section>
         </div>
 
-        <nav className="bottom-nav" aria-label="Main navigation">
-          <Link className="bottom-nav-link" to="/">
-            <img src={homeIcon} alt="" aria-hidden="true" />
-            <span>Home</span>
+        <nav
+          className="bottom-nav"
+          aria-label="Main navigation"
+        >
+          <Link
+            className="bottom-nav-link"
+            to="/"
+          >
+            <img
+              src={homeIcon}
+              alt=""
+              aria-hidden="true"
+            />
+
+            <span>
+              Home
+            </span>
           </Link>
 
-          <Link className="bottom-nav-link active" to="/favorites">
-            <img src={favoritesIcon} alt="" aria-hidden="true" />
-            <span>Favorites</span>
+          <Link
+            className="bottom-nav-link active"
+            to="/favorites"
+          >
+            <img
+              src={favoritesIcon}
+              alt=""
+              aria-hidden="true"
+            />
+
+            <span>
+              Favorites
+            </span>
           </Link>
 
-          <Link className="bottom-nav-link" to="/profile">
-            <img src={profileIcon} alt="" aria-hidden="true" />
-            <span>Profile</span>
+          <Link
+            className="bottom-nav-link"
+            to="/profile"
+          >
+            <img
+              src={profileIcon}
+              alt=""
+              aria-hidden="true"
+            />
+
+            <span>
+              Profile
+            </span>
           </Link>
         </nav>
       </section>

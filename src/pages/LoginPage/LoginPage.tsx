@@ -1,42 +1,65 @@
-import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import {
+  useState,
+  type FormEvent,
+} from 'react'
+
+import {
+  Link,
+  Navigate,
+  useNavigate,
+} from 'react-router-dom'
+
 import { useAuth } from '../../hooks/useAuth'
+
 import logo from '../../assets/ut-business-logo.svg'
 
 import './LoginPage.css'
 
 function LoginPage() {
   const navigate = useNavigate()
-  const { login, isAuthenticated } = useAuth()
 
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const {
+    login,
+    isAuthenticated,
+  } = useAuth()
+
+  const [username, setUsername] =
+    useState('')
+
+  const [password, setPassword] =
+    useState('')
+
+  const [error, setError] =
+    useState('')
+
+  const [isSubmitting, setIsSubmitting] =
+    useState(false)
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />
   }
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: FormEvent,
+  ) => {
     event.preventDefault()
 
     setError('')
 
-    const normalizedPhone = phoneNumber.replace(/\D/g, '')
+    const normalizedUsername =
+      username.trim()
 
-    if (!normalizedPhone) {
-      setError('Enter your phone number.')
-      return
-    }
-
-    if (normalizedPhone.length < 8) {
-      setError('Enter a valid phone number.')
+    if (!normalizedUsername) {
+      setError(
+        'Enter your username or phone number.',
+      )
       return
     }
 
     if (!password) {
-      setError('Enter your password.')
+      setError(
+        'Enter your password.',
+      )
       return
     }
 
@@ -44,41 +67,50 @@ function LoginPage() {
 
     try {
       await login({
-        username: normalizedPhone,
+        username: normalizedUsername,
         password,
       })
 
-      navigate('/', { replace: true })
+      navigate('/', {
+        replace: true,
+      })
     } catch {
-      setError('Invalid phone number or password.')
+      setError(
+        'Invalid username or password.',
+      )
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <main className="mobile-page login-page">
+    <main className="login-page">
       <section className="login-content">
         <img
           className="brand-logo"
           src={logo}
-          alt="UT.Business"
+          alt="UT"
         />
 
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form
+          className="login-form"
+          onSubmit={handleSubmit}
+        >
           <div className="form-field">
             <input
-              id="phone-number"
-              name="phoneNumber"
-              type="tel"
-              value={phoneNumber}
+              id="username"
+              name="username"
+              type="text"
+              value={username}
               onChange={(event) => {
-                setPhoneNumber(event.target.value)
+                setUsername(
+                  event.target.value,
+                )
+
                 setError('')
               }}
-              placeholder="Phone Number"
-              autoComplete="tel"
-              inputMode="tel"
+              placeholder="Username or Phone Number"
+              autoComplete="username"
               aria-invalid={Boolean(error)}
               required
             />
@@ -91,19 +123,24 @@ function LoginPage() {
               type="password"
               value={password}
               onChange={(event) => {
-                setPassword(event.target.value)
+                setPassword(
+                  event.target.value,
+                )
+
                 setError('')
               }}
               placeholder="Password"
               autoComplete="current-password"
               aria-invalid={Boolean(error)}
-              minLength={6}
               required
             />
           </div>
 
           {error && (
-            <p className="input-error" role="alert">
+            <p
+              className="input-error"
+              role="alert"
+            >
               {error}
             </p>
           )}
@@ -113,30 +150,39 @@ function LoginPage() {
             type="submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Logging in...' : 'Log in'}
+            {isSubmitting
+              ? 'Logging in...'
+              : 'Log in'}
           </button>
         </form>
 
-        <Link className="forgot-link" to="/forgot-password">
+        <Link
+          className="forgot-link"
+          to="/forgot-password"
+        >
           Forgot your password? Recover it
         </Link>
 
-        {!error && (
-          <div className="login-footer">
-            <p>To register an establishment,</p>
-            <p>call the number:</p>
-            <p>010 1234 56 78</p>
-          </div>
-        )}
+        <div className="login-footer">
+          <p>
+            To register an establishment,
+          </p>
 
-        {error && (
-          <Link
-            className="registration-error-link"
-            to="/register"
-          >
-            Registration
-          </Link>
-        )}
+          <p>
+            call the number:
+          </p>
+
+          <p>
+            010 1234 56 78
+          </p>
+        </div>
+
+        <Link
+          className="registration-link"
+          to="/register"
+        >
+          Registration
+        </Link>
       </section>
     </main>
   )
