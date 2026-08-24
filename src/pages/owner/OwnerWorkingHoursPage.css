@@ -1,0 +1,104 @@
+.owner-working-hours-page {
+  min-height: 100vh;
+  background: #f3f3f3;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+.owner-working-hours-page__screen {
+  width: 100%;
+  max-width: 428px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: #ffffff;
+}
+
+.owner-working-hours-page__header {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  height: 64px;
+  padding: 0 16px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.owner-working-hours-page__back {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.owner-working-hours-page__back img {
+  width: 24px;
+  height: 24px;
+}
+
+.owner-working-hours-page__logo {
+  display: block;
+  width: auto;
+  height: 18px;
+  margin: 0 auto;
+}
+
+.owner-working-hours-page__header-placeholder {
+  width: 40px;
+}
+
+.owner-working-hours-page__content {
+  padding: 18px 16px 40px;
+}
+
+.owner-working-hours-page__content h1 {
+  margin: 0 0 22px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #111111;
+}
+
+.owner-working-hours-page__days {
+  display: flex;
+  flex-direction: column;
+}
+
+.owner-working-hours-page__day {
+  display: flex;
+  width: 100%;
+  height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  border: 0;
+  background: #ffffff;
+  font-size: 14px;
+  color: #111111;
+  cursor: pointer;
+}
+
+.owner-working-hours-page__edit {
+  font-size: 11px;
+  color: #9a9a9a;
+}
+
+.owner-working-hours-page__message {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #888888;
+}
+
+.owner-working-hours-page__error {
+  margin-top: 20px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f1;
+  font-size: 12px;
+  color: #b42318;
+}
