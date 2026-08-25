@@ -26,6 +26,10 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage'
 import RegisterPage from '../pages/RegisterPage/RegisterPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
+import OwnerDeliveryAreasPage from '../pages/owner/OwnerDeliveryAreasPage/OwnerDeliveryAreasPage'
+import OwnerDeliveryCityPage from '../pages/owner/OwnerDeliveryCityPage/OwnerDeliveryCityPage'
+import OwnerEditRestaurantPage from '../pages/owner/OwnerEditRestaurantPage/OwnerEditRestaurantPage'
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -39,7 +43,6 @@ export const router = createBrowserRouter([
     path: '/register',
     element: <RegisterPage />,
   },
-
   {
     path: '/favorites',
     element: (
@@ -48,7 +51,6 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-
   {
     path: '/food',
     element: <FoodPage />,
@@ -73,7 +75,6 @@ export const router = createBrowserRouter([
     path: '/food/fastest-delivery',
     element: <FoodMorePage title="The fastest delivery" />,
   },
-
   {
     path: '/food/order',
     element: (
@@ -122,7 +123,6 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-
   {
     path: '/profile',
     element: (
@@ -155,7 +155,6 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-
   {
     path: '/information',
     element: (
@@ -172,7 +171,6 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-
   {
     path: '/contact-support',
     element: (
@@ -188,5 +186,19 @@ export const router = createBrowserRouter([
         <NotificationsPage />
       </ProtectedRoute>
     ),
+  },
+
+  // Restaurant owner — Edit Restaurant
+  {
+    path: '/owner/restaurant/edit',
+    element: <OwnerEditRestaurantPage />,
+  },
+  {
+    path: '/owner/restaurant/edit/city',
+    element: <OwnerDeliveryCityPage />,
+  },
+  {
+    path: '/owner/restaurant/edit/areas',
+    element: <OwnerDeliveryAreasPage />,
   },
 ])
