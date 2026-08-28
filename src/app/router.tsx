@@ -25,6 +25,11 @@ import PersonalInformationPage from '../pages/PersonalInformationPage/PersonalIn
 import ProfilePage from '../pages/ProfilePage/ProfilePage'
 import RegisterPage from '../pages/RegisterPage/RegisterPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
+import AdminLayout from '../components/AdminLayout/AdminLayout'
+import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
+import AdminRoute from '../components/AdminRoute'
+
+
 
 export const router = createBrowserRouter([
   {
@@ -188,5 +193,20 @@ export const router = createBrowserRouter([
         <NotificationsPage />
       </ProtectedRoute>
     ),
+  },
+
+  {
+    path: '/admin',
+    element: (
+      <AdminRoute>
+        <AdminLayout />
+      </AdminRoute>
+    ),
+    children: [
+      {
+        path: 'clients',
+        element: <AdminClientsPage />,
+      },
+    ],
   },
 ])
