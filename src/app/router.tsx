@@ -30,6 +30,8 @@ import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
 import OwnerHomePage from '../pages/owner/OwnerHomePage'
 import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
+import OwnerLayout from '../pages/owner/OwnerLayout/OwnerLayout'
+import OwnerNotFoundPage from '../pages/owner/OwnerNotFoundPage/OwnerNotFoundPage'
 
 export const router =
   createBrowserRouter([
@@ -198,13 +200,35 @@ export const router =
       ),
     },
 
-    // Restaurant owner — Main Screen
+    // Restaurant owner
     {
       path: '/owner',
-      element: <OwnerHomePage />,
-    },
-    {
-      path: '/owner/notifications',
-      element: <OwnerNotificationsPage />,
+      element: (
+        <ProtectedRoute
+          allowedRoles={[
+            'RESTAURATEUR',
+          ]}
+        >
+          <OwnerLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          index: true,
+          element: <OwnerHomePage />,
+        },
+        {
+          path: 'notifications',
+          element: (
+            <OwnerNotificationsPage />
+          ),
+        },
+        {
+          path: '*',
+          element: (
+            <OwnerNotFoundPage />
+          ),
+        },
+      ],
     },
   ])

@@ -4,6 +4,12 @@ import type {
   RestaurantResponse,
 } from '../types/restaurant'
 
+export type OwnerRestaurantStatus =
+  | 'OPEN'
+  | 'CLOSED'
+  | 'TEMPORARILY_CLOSED'
+  | 'BUSY'
+
 export async function getOwnerRestaurants(
   userId: number,
 ): Promise<RestaurantResponse[]> {
@@ -20,10 +26,20 @@ export async function getOwnerRestaurants(
   return data
 }
 
-export async function toggleOwnerRestaurantStatus(
+export async function updateOwnerRestaurantStatus(
   restaurantId: number,
-): Promise<void> {
-  await api.patch(
-    `/restaurant-owner/restaurants/${restaurantId}/toggle-status`,
-  )
+  status: OwnerRestaurantStatus,
+): Promise<RestaurantResponse> {
+  const { data } =
+    await api.patch<RestaurantResponse>(
+      `/restaurant-owner/restaurants/${restaurantId}/status`,
+      null,
+      {
+        params: {
+          status,
+        },
+      },
+    )
+
+  return data
 }

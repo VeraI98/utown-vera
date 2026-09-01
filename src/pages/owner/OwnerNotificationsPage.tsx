@@ -4,12 +4,6 @@ import {
   useMemo,
   useState,
 } from 'react'
-import {
-  useNavigate,
-} from 'react-router-dom'
-
-import backIcon from '../../assets/restaurateur/Back Icon.svg'
-import headerLogo from '../../assets/restaurateur/Header Text Container.svg'
 
 import {
   getMyNotifications,
@@ -175,9 +169,6 @@ function NotificationGroup({
 }
 
 function OwnerNotificationsPage() {
-  const navigate =
-    useNavigate()
-
   const [
     notifications,
     setNotifications,
@@ -298,99 +289,66 @@ function OwnerNotificationsPage() {
     )
 
   return (
-    <main className="owner-notifications-page">
-      <section className="owner-notifications-page__screen">
-        <header className="owner-notifications-page__header">
-          <button
-            className="owner-notifications-page__back"
-            type="button"
-            aria-label="Go back"
-            onClick={() =>
-              navigate(
-                '/owner',
-              )
-            }
-          >
-            <img
-              src={backIcon}
-              alt=""
-              aria-hidden="true"
-            />
-          </button>
+    <div className="owner-notifications-page">
+      <div className="owner-notifications-page__content">
+        <h1>
+          Notifications
+        </h1>
 
-          <img
-            className="owner-notifications-page__logo"
-            src={headerLogo}
-            alt="UT Business"
-          />
+        {isLoading && (
+          <p className="owner-notifications-page__loading">
+            Loading notifications...
+          </p>
+        )}
 
-          <div
-            className="owner-notifications-page__header-placeholder"
-            aria-hidden="true"
-          />
-        </header>
-
-        <div className="owner-notifications-page__content">
-          <h1>
-            Notifications
-          </h1>
-
-          {isLoading && (
-            <p className="owner-notifications-page__loading">
-              Loading
-              notifications...
+        {!isLoading &&
+          errorMessage && (
+            <p
+              className="owner-notifications-page__error"
+              role="alert"
+            >
+              {
+                errorMessage
+              }
             </p>
           )}
 
-          {!isLoading &&
-            errorMessage && (
-              <p
-                className="owner-notifications-page__error"
-                role="alert"
-              >
-                {
-                  errorMessage
+        {!isLoading &&
+          !errorMessage &&
+          notifications.length ===
+            0 && (
+            <p className="owner-notifications-page__empty">
+              No notifications.
+            </p>
+          )}
+
+        {!isLoading &&
+          !errorMessage && (
+            <>
+              <NotificationGroup
+                title="Today"
+                notifications={
+                  todayNotifications
                 }
-              </p>
-            )}
+              />
 
-          {!isLoading &&
-            !errorMessage &&
-            notifications.length ===
-              0 && (
-              <p className="owner-notifications-page__empty">
-                No notifications.
-              </p>
-            )}
+              <NotificationGroup
+                title="Yesterday"
+                notifications={
+                  yesterdayNotifications
+                }
+              />
 
-          {!isLoading &&
-            !errorMessage && (
-              <>
-                <NotificationGroup
-                  title="Yesterday"
-                  notifications={
-                    yesterdayNotifications
-                  }
-                />
-
-                <NotificationGroup
-                  title="Today"
-                  notifications={
-                    todayNotifications
-                  }
-                />
-
-                <NotificationGroup
-                  title="Earlier"
-                  notifications={
-                    olderNotifications
-                  }
-                />
-              </>
-            )}
-        </div>
-      </section>
-    </main>
+              <NotificationGroup
+                title="Earlier"
+                notifications={
+                  olderNotifications
+                }
+              />
+            </>
+          )}
+      </div>
+    </div>
   )
 }
 
