@@ -1,0 +1,85 @@
+.client-card-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.client-card-modal {
+  position: relative;
+  width: 860px;
+  max-width: 90vw;
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.client-card-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.client-card-modal__top {
+  display: flex;
+  margin-bottom: 24px;
+}
+
+.client-card-modal__photo {
+  width: 205px;
+  height: 205px;
+  border-radius: 4px 0 0 4px;
+  background: #abb5be;
+  flex-shrink: 0;
+}
+
+.client-card-modal__panel {
+  flex: 1;
+  background: #e9e9e9;
+  border-radius: 0 4px 4px 0;
+  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.client-card-modal__edit-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.client-card-modal__name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #152536;
+  margin-bottom: 24px;
+}
+
+.client-card-modal__details div {
+  margin-bottom: 20px;
+}
+
+.client-card-modal__details dt {
+  font-weight: 700;
+  color: #68717a;
+  font-size: 16px;
+}
+
+.client-card-modal__details dd {
+  margin: 0;
+  font-size: 16px;
+}
