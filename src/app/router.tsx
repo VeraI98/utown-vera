@@ -27,6 +27,7 @@ import RegisterPage from '../pages/RegisterPage/RegisterPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 import AdminLayout from '../components/AdminLayout/AdminLayout'
 import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
+import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
 import AdminRoute from '../components/AdminRoute'
 
 
@@ -206,6 +207,10 @@ export const router = createBrowserRouter([
       {
         path: 'clients',
         element: <AdminClientsPage />,
+      },
+      {
+        path: 'clients/add',
+        element: <AdminClientAddPage />,
       },
     ],
   },

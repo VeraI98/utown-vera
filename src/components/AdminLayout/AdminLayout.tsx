@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import './AdminLayout.css'
 import logo from '../../assets/admin-pages/Logo.png'
@@ -7,18 +7,30 @@ import avatarIcon from '../../assets/admin-pages/Avatar.png'
 import addIcon from '../../assets/admin-pages/master.png'
 import settingsIcon from '../../assets/admin-pages/Icon-GearSix.png'
 
-const ADD_MENU_ITEMS = [
-  'Client',
-  'Rider',
-  'Establishment',
-  'Service',
-  'Job Vacancy',
+interface AddMenuItem {
+  label: string
+  path?: string
+}
+
+const ADD_MENU_ITEMS: AddMenuItem[] = [
+  { label: 'Client', path: '/admin/clients/add' },
+  { label: 'Rider' },
+  { label: 'Establishment' },
+  { label: 'Service' },
+  { label: 'Job Vacancy' },
 ]
 
 function AdminLayout() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false)
   const [isUsersOpen, setIsUsersOpen] = useState(true)
   const [isAppOpen, setIsAppOpen] = useState(true)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
 
   return (
     <div className="admin-layout">
@@ -155,12 +167,18 @@ function AdminLayout() {
 
                   {ADD_MENU_ITEMS.map((item) => (
                     <button
-                      key={item}
+                      key={item.label}
                       type="button"
                       className="admin-layout__add-menu-item"
-                      onClick={() => setIsAddMenuOpen(false)}
+                      onClick={() => {
+                        setIsAddMenuOpen(false)
+
+                        if (item.path) {
+                          navigate(item.path)
+                        }
+                      }}
                     >
-                      {item}
+                      {item.label}
                     </button>
                   ))}
                 </div>
