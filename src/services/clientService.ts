@@ -10,6 +10,16 @@ export interface GetClientsParams {
   city?: string
 }
 
+export async function getClientById(
+  clientId: number,
+): Promise<User> {
+  const { data } = await api.get<User>(
+    `/admin/clients/${clientId}`,
+  )
+
+  return data
+}
+
 export async function getClients(
   params: GetClientsParams = {},
 ): Promise<PaginatedResponse<User>> {

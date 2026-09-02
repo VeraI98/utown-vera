@@ -28,6 +28,7 @@ import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 import AdminLayout from '../components/AdminLayout/AdminLayout'
 import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
 import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
+import AdminClientEditPage from '../pages/AdminClientEditPage/AdminClientEditPage'
 import AdminRoute from '../components/AdminRoute'
 
 
@@ -211,6 +212,10 @@ export const router = createBrowserRouter([
       {
         path: 'clients/add',
         element: <AdminClientAddPage />,
+      },
+      {
+        path: 'clients/:clientId/edit',
+        element: <AdminClientEditPage />,
       },
     ],
   },

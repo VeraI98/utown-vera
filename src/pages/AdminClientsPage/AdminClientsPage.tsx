@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import './AdminClientsPage.css'
 import eyeIcon from '../../assets/admin-pages/Eye Icon.png'
@@ -12,6 +13,8 @@ import type { User } from '../../types/auth'
 const PAGE_SIZE = 10
 
 function AdminClientsPage() {
+  const navigate = useNavigate()
+
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [viewedClient, setViewedClient] = useState<User | null>(null)
 
@@ -258,7 +261,7 @@ function AdminClientsPage() {
               </td>
 
               <td>{client.fullName}</td>
-
+              
               <td>-</td>
 
               <td>-</td>
@@ -352,7 +355,10 @@ function AdminClientsPage() {
           }}
           onClose={() => setViewedClient(null)}
           onEdit={() => {
+            const clientId = viewedClient.id
+
             setViewedClient(null)
+            navigate(`/admin/clients/${clientId}/edit`)
           }}
         />
       )}
