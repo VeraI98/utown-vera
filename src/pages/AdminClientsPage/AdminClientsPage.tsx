@@ -1,72 +1,78 @@
-import { useState } from 'react'
+import {
+  useEffect,
+  useState,
+} from 'react'
 
 import './AdminClientsPage.css'
 import eyeIcon from '../../assets/admin-pages/Eye Icon.png'
 import ClientCardModal from './ClientCardModal'
+import { getClients } from '../../services/clientService'
+import type { User } from '../../types/auth'
 
-interface MockClientRow {
-  id: number
-  name: string
-  number: string
-  city: string
-  address: string
-  orders: number
-}
-
-const MOCK_CLIENTS: MockClientRow[] = [
-  {
-    id: 1,
-    name: 'Client 1',
-    number: '010 1234 56 78',
-    city: 'Seoul',
-    address: '12 Mugeo-ro, Jung-gu, Seoul, Jeong-o Building',
-    orders: 14,
-  },
-  {
-    id: 2,
-    name: 'Client 2',
-    number: '010 1234 56 78',
-    city: 'Seoul',
-    address: '12 Mugeo-ro, Jung-gu, Seoul, Jeong-o Building',
-    orders: 14,
-  },
-  {
-    id: 3,
-    name: 'Client 3',
-    number: '010 1234 56 78',
-    city: 'Seoul',
-    address: '12 Mugeo-ro, Jung-gu, Seoul, Jeong-o Building',
-    orders: 14,
-  },
-  {
-    id: 4,
-    name: 'Client 4',
-    number: '010 1234 56 78',
-    city: 'Seoul',
-    address: '12 Mugeo-ro, Jung-gu, Seoul, Jeong-o Building',
-    orders: 14,
-  },
-  {
-    id: 5,
-    name: 'Client 5',
-    number: '010 1234 56 78',
-    city: 'Seoul',
-    address: '12 Mugeo-ro, Jung-gu, Seoul, Jeong-o Building',
-    orders: 14,
-  },
-  {
-    id: 6,
-    name: 'Client 6',
-    number: '010 1234 56 78',
-    city: 'Seoul',
-    address: '12 Mugeo-ro, Jung-gu, Seoul, Jeong-o Building',
-    orders: 14,
-  },
-]
+const PAGE_SIZE = 10
 
 function AdminClientsPage() {
   const [selectedIds, setSelectedIds] = useState<number[]>([])
-  const [viewedClient, setViewedClient] = useState<MockClientRow | null>(null)
+  const [viewedClient, setViewedClient] = useState<User | null>(null)
+
+  const [clients, setClients] = useState<User[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const [page, setPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadClients = async () => {
+      if (isMounted) {
+        setIsLoading(true)
+      }
+
+      try {
+        const data = await getClients({
+          page,
+          size: PAGE_SIZE,
+          search: search || undefined,
+        })
+
+        if (!isMounted) {
+          return
+        }
+
+        setClients(data.content)
+        setTotalPages(data.totalPages)
+      } catch (error) {
+        console.error(
+          'Failed to load clients:',
+          error,
+        )
+
+        if (isMounted) {
+          setClients([])
+          setTotalPages(0)
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    void loadClients()
+
+    return () => {
+      isMounted = false
+    }
+  }, [page, search])
+
+  const handleSearchSubmit = () => {
+    setPage(0)
+    setSearch(searchInput.trim())
+  }
 
   const toggleSelected = (id: number) => {
     setSelectedIds((current) =>
@@ -77,16 +83,19 @@ function AdminClientsPage() {
   }
 
   const toggleSelectAll = () => {
-    if (selectedIds.length === MOCK_CLIENTS.length) {
+    if (selectedIds.length === clients.length) {
       setSelectedIds([])
     } else {
-      setSelectedIds(MOCK_CLIENTS.map((client) => client.id))
+      setSelectedIds(clients.map((client) => client.id))
     }
   }
 
-  const openClientCard = (client: MockClientRow) => {
+  const openClientCard = (client: User) => {
     setViewedClient(client)
   }
+
+  const canGoPrev = page > 0
+  const canGoNext = page + 1 < totalPages
 
   return (
     <div className="admin-clients-page">
@@ -134,6 +143,15 @@ function AdminClientsPage() {
               className="admin-clients-page__search"
               type="text"
               placeholder="Search"
+              value={searchInput}
+              onChange={(event) =>
+                setSearchInput(event.target.value)
+              }
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  handleSearchSubmit()
+                }
+              }}
             />
           </div>
 
@@ -169,8 +187,8 @@ function AdminClientsPage() {
               <input
                 type="checkbox"
                 checked={
-                  selectedIds.length === MOCK_CLIENTS.length &&
-                  MOCK_CLIENTS.length > 0
+                  selectedIds.length === clients.length &&
+                  clients.length > 0
                 }
                 onChange={toggleSelectAll}
                 aria-label="Select all"
@@ -206,28 +224,50 @@ function AdminClientsPage() {
         </thead>
 
         <tbody>
-          {MOCK_CLIENTS.map((client) => (
+          {isLoading && clients.length === 0 && (
+            <tr>
+              <td
+                colSpan={8}
+                className="admin-clients-page__state-cell"
+              >
+                Loading...
+              </td>
+            </tr>
+          )}
+
+          {!isLoading && clients.length === 0 && (
+            <tr>
+              <td
+                colSpan={8}
+                className="admin-clients-page__state-cell"
+              >
+                No clients found.
+              </td>
+            </tr>
+          )}
+
+          {clients.map((client) => (
             <tr key={client.id}>
               <td>
                 <input
                   type="checkbox"
                   checked={selectedIds.includes(client.id)}
                   onChange={() => toggleSelected(client.id)}
-                  aria-label={`Select ${client.name}`}
+                  aria-label={`Select ${client.fullName}`}
                 />
               </td>
 
-              <td>{client.name}</td>
+              <td>{client.fullName}</td>
 
-              <td>{client.number}</td>
+              <td>-</td>
 
-              <td>{client.city}</td>
+              <td>-</td>
 
               <td className="admin-clients-page__address">
-                {client.address}
+                -
               </td>
 
-              <td>{client.orders}</td>
+              <td>-</td>
 
               <td>
                 <button
@@ -249,7 +289,7 @@ function AdminClientsPage() {
                 <button
                   className="admin-clients-page__eye-button"
                   type="button"
-                  aria-label={`Preview ${client.name}`}
+                  aria-label={`Preview ${client.fullName}`}
                   onClick={() => openClientCard(client)}
                 >
                   <img
@@ -266,21 +306,50 @@ function AdminClientsPage() {
       </table>
 
       <div className="admin-clients-page__pagination">
-        <button type="button">Prev</button>
         <button
           type="button"
-          className="admin-clients-page__pagination-active"
+          disabled={!canGoPrev}
+          onClick={() =>
+            setPage((current) => current - 1)
+          }
         >
-          1
+          Prev
         </button>
-        <button type="button">2</button>
-        <button type="button">3</button>
-        <button type="button">Next</button>
+
+        {Array.from({ length: totalPages }).map(
+          (_, index) => (
+            <button
+              type="button"
+              key={index}
+              className={
+                index === page
+                  ? 'admin-clients-page__pagination-active'
+                  : undefined
+              }
+              onClick={() => setPage(index)}
+            >
+              {index + 1}
+            </button>
+          ),
+        )}
+
+        <button
+          type="button"
+          disabled={!canGoNext}
+          onClick={() =>
+            setPage((current) => current + 1)
+          }
+        >
+          Next
+        </button>
       </div>
 
       {viewedClient && (
         <ClientCardModal
-          client={viewedClient}
+          client={{
+            id: viewedClient.id,
+            name: viewedClient.fullName,
+          }}
           onClose={() => setViewedClient(null)}
           onEdit={() => {
             setViewedClient(null)
