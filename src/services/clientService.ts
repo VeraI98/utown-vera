@@ -10,6 +10,33 @@ export interface GetClientsParams {
   city?: string
 }
 
+export interface ClientPayload {
+  fullName: string
+}
+
+export async function createClient(
+  payload: ClientPayload,
+): Promise<User> {
+  const { data } = await api.post<User>(
+    '/admin/clients',
+    payload,
+  )
+
+  return data
+}
+
+export async function updateClient(
+  clientId: number,
+  payload: ClientPayload,
+): Promise<User> {
+  const { data } = await api.put<User>(
+    `/admin/clients/${clientId}`,
+    payload,
+  )
+
+  return data
+}
+
 export async function getClientById(
   clientId: number,
 ): Promise<User> {

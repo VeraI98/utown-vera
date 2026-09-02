@@ -96,6 +96,12 @@
   border-color: #667085;
 }
 
+.admin-client-add-page__error {
+  margin: 16px 0 0;
+  font-size: 14px;
+  color: #d92d20;
+}
+
 .admin-client-add-page__actions {
   display: flex;
   justify-content: center;

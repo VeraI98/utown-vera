@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { createClient } from '../../services/clientService'
+
 import './AdminClientAddPage.css'
 
 function AdminClientAddPage() {
@@ -10,16 +12,39 @@ function AdminClientAddPage() {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [address, setAddress] = useState('')
 
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState('')
+
   const handleCancel = () => {
     navigate('/admin/clients')
   }
 
-  const handleAdd = () => {
-    console.log('Add client (не подключено к API...):', {
-      name,
-      phoneNumber,
-      address,
-    })
+  const handleAdd = async () => {
+    if (!name.trim()) {
+      setError('Enter a name')
+
+      return
+    }
+
+    setIsSaving(true)
+    setError('')
+
+    try {
+      await createClient({
+        fullName: name.trim(),
+      })
+
+      navigate('/admin/clients')
+    } catch (requestError) {
+      console.error(
+        'Failed to create client:',
+        requestError,
+      )
+
+      setError('Could not create the client')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -90,6 +115,10 @@ function AdminClientAddPage() {
         </div>
       </div>
 
+      {error && (
+        <p className="admin-client-add-page__error">{error}</p>
+      )}
+
       <div className="admin-client-add-page__actions">
         <button
           type="button"
@@ -102,9 +131,10 @@ function AdminClientAddPage() {
         <button
           type="button"
           className="admin-client-add-page__add-button"
+          disabled={isSaving}
           onClick={handleAdd}
         >
-          Add
+          {isSaving ? 'Saving...' : 'Add'}
         </button>
       </div>
     </div>

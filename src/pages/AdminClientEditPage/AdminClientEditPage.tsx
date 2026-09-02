@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { getClientById } from '../../services/clientService'
+import {
+  getClientById,
+  updateClient,
+} from '../../services/clientService'
 
 import './AdminClientEditPage.css'
 
@@ -14,6 +17,8 @@ function AdminClientEditPage() {
   const [address, setAddress] = useState('')
 
   const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     let isMounted = true
@@ -56,13 +61,32 @@ function AdminClientEditPage() {
     navigate('/admin/clients')
   }
 
-  const handleSave = () => {
-    console.log('Save client (пока не подключено к API):', {
-      clientId,
-      name,
-      phoneNumber,
-      address,
-    })
+  const handleSave = async () => {
+    if (!clientId || !name.trim()) {
+      setError('Enter a name')
+
+      return
+    }
+
+    setIsSaving(true)
+    setError('')
+
+    try {
+      await updateClient(Number(clientId), {
+        fullName: name.trim(),
+      })
+
+      navigate('/admin/clients')
+    } catch (requestError) {
+      console.error(
+        'Failed to update client:',
+        requestError,
+      )
+
+      setError('Could not save the changes')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -133,6 +157,10 @@ function AdminClientEditPage() {
         </div>
       </div>
 
+      {error && (
+        <p className="admin-client-edit-page__error">{error}</p>
+      )}
+
       <div className="admin-client-edit-page__actions">
         <button
           type="button"
@@ -145,9 +173,10 @@ function AdminClientEditPage() {
         <button
           type="button"
           className="admin-client-edit-page__save-button"
+          disabled={isSaving}
           onClick={handleSave}
         >
-          Save
+          {isSaving ? 'Saving...' : 'Save'}
         </button>
       </div>
     </div>
