@@ -1,4 +1,6 @@
-import { createBrowserRouter } from 'react-router-dom'
+import {
+  createBrowserRouter,
+} from 'react-router-dom'
 
 import ProtectedRoute from '../components/ProtectedRoute'
 
@@ -26,179 +28,232 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage'
 import RegisterPage from '../pages/RegisterPage/RegisterPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
+import OwnerHomePage from '../pages/owner/OwnerHomePage'
+import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
+
 import OwnerDeliveryAreasPage from '../pages/owner/OwnerDeliveryAreasPage/OwnerDeliveryAreasPage'
 import OwnerDeliveryCityPage from '../pages/owner/OwnerDeliveryCityPage/OwnerDeliveryCityPage'
 import OwnerEditRestaurantPage from '../pages/owner/OwnerEditRestaurantPage/OwnerEditRestaurantPage'
+import OwnerLayout from '../pages/owner/OwnerLayout/OwnerLayout'
+import OwnerNotFoundPage from '../pages/owner/OwnerNotFoundPage/OwnerNotFoundPage'
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <HomePage />,
-  },
-  {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/register',
-    element: <RegisterPage />,
-  },
-  {
-    path: '/favorites',
-    element: (
-      <ProtectedRoute>
-        <FavoritesPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/food',
-    element: <FoodPage />,
-  },
-  {
-    path: '/food/search',
-    element: <FoodSearch />,
-  },
-  {
-    path: '/food/category/:categoryId',
-    element: <FoodCategoryPage />,
-  },
-  {
-    path: '/food/restaurants/:restaurantId',
-    element: <RestaurantPage />,
-  },
-  {
-    path: '/food/establishments',
-    element: <FoodMorePage title="Establishments" />,
-  },
-  {
-    path: '/food/fastest-delivery',
-    element: <FoodMorePage title="The fastest delivery" />,
-  },
-  {
-    path: '/food/order',
-    element: (
-      <ProtectedRoute>
-        <OrderPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/food/order/payment',
-    element: (
-      <ProtectedRoute>
-        <OrderPaymentPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/food/order/address',
-    element: (
-      <ProtectedRoute>
-        <AddressCreatePage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/food/order/:orderId/rating',
-    element: (
-      <ProtectedRoute>
-        <OrderRatingPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/food/order/:orderId/status',
-    element: (
-      <ProtectedRoute>
-        <OrderStatusPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/food/orders',
-    element: (
-      <ProtectedRoute>
-        <OrdersHistoryPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/profile',
-    element: (
-      <ProtectedRoute>
-        <ProfilePage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/account',
-    element: (
-      <ProtectedRoute>
-        <AccountSettingPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/account/personal-information',
-    element: (
-      <ProtectedRoute>
-        <PersonalInformationPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/account/password',
-    element: (
-      <ProtectedRoute>
-        <AccountPasswordPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/information',
-    element: (
-      <ProtectedRoute>
-        <InformationPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/information/:type',
-    element: (
-      <ProtectedRoute>
-        <LegalPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/contact-support',
-    element: (
-      <ProtectedRoute>
-        <ContactSupportPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/notifications',
-    element: (
-      <ProtectedRoute>
-        <NotificationsPage />
-      </ProtectedRoute>
-    ),
-  },
+export const router =
+  createBrowserRouter([
+    {
+      path: '/',
+      element: <HomePage />,
+    },
+    {
+      path: '/login',
+      element: <LoginPage />,
+    },
+    {
+      path: '/register',
+      element: <RegisterPage />,
+    },
+    {
+      path: '/favorites',
+      element: (
+        <ProtectedRoute>
+          <FavoritesPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/food',
+      element: <FoodPage />,
+    },
+    {
+      path: '/food/search',
+      element: <FoodSearch />,
+    },
+    {
+      path: '/food/category/:categoryId',
+      element: <FoodCategoryPage />,
+    },
+    {
+      path: '/food/restaurants/:restaurantId',
+      element: <RestaurantPage />,
+    },
+    {
+      path: '/food/establishments',
+      element: (
+        <FoodMorePage
+          title="Establishments"
+        />
+      ),
+    },
+    {
+      path: '/food/fastest-delivery',
+      element: (
+        <FoodMorePage
+          title="The fastest delivery"
+        />
+      ),
+    },
+    {
+      path: '/food/order',
+      element: (
+        <ProtectedRoute>
+          <OrderPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/food/order/payment',
+      element: (
+        <ProtectedRoute>
+          <OrderPaymentPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/food/order/address',
+      element: (
+        <ProtectedRoute>
+          <AddressCreatePage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/food/order/:orderId/rating',
+      element: (
+        <ProtectedRoute>
+          <OrderRatingPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/food/order/:orderId/status',
+      element: (
+        <ProtectedRoute>
+          <OrderStatusPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/food/orders',
+      element: (
+        <ProtectedRoute>
+          <OrdersHistoryPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/profile',
+      element: (
+        <ProtectedRoute>
+          <ProfilePage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/account',
+      element: (
+        <ProtectedRoute>
+          <AccountSettingPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/account/personal-information',
+      element: (
+        <ProtectedRoute>
+          <PersonalInformationPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/account/password',
+      element: (
+        <ProtectedRoute>
+          <AccountPasswordPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/information',
+      element: (
+        <ProtectedRoute>
+          <InformationPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/information/:type',
+      element: (
+        <ProtectedRoute>
+          <LegalPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/contact-support',
+      element: (
+        <ProtectedRoute>
+          <ContactSupportPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/notifications',
+      element: (
+        <ProtectedRoute>
+          <NotificationsPage />
+        </ProtectedRoute>
+      ),
+    },
 
-  // Restaurant owner — Edit Restaurant
-  {
-    path: '/owner/restaurant/edit',
-    element: <OwnerEditRestaurantPage />,
-  },
-  {
-    path: '/owner/restaurant/edit/city',
-    element: <OwnerDeliveryCityPage />,
-  },
-  {
-    path: '/owner/restaurant/edit/areas',
-    element: <OwnerDeliveryAreasPage />,
-  },
-])
+    // Restaurant owner
+    {
+      path: '/owner',
+      element: (
+        <ProtectedRoute
+          allowedRoles={[
+            'RESTAURATEUR',
+          ]}
+        >
+          <OwnerLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          index: true,
+          element: <OwnerHomePage />,
+        },
+        {
+          path: 'notifications',
+          element: (
+            <OwnerNotificationsPage />
+          ),
+        },
+
+        // Edit restaurant
+        {
+          path: 'restaurant/edit',
+          element: (
+            <OwnerEditRestaurantPage />
+          ),
+        },
+        {
+          path: 'restaurant/edit/city',
+          element: (
+            <OwnerDeliveryCityPage />
+          ),
+        },
+        {
+          path: 'restaurant/edit/areas',
+          element: (
+            <OwnerDeliveryAreasPage />
+          ),
+        },
+
+        {
+          path: '*',
+          element: (
+            <OwnerNotFoundPage />
+          ),
+        },
+      ],
+    },
+  ])
