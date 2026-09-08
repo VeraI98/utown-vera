@@ -1,38 +1,9 @@
 .owner-delivery-city-page {
-  width: 100%;
-  max-width: 428px;
-  min-height: 100vh;
-  margin: 0 auto;
+  min-height: calc(100vh - 64px);
   background: #ffffff;
   display: flex;
   flex-direction: column;
   color: #111827;
-}
-
-.owner-delivery-city-header {
-  width: 100%;
-  height: 64px;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-.owner-delivery-city-back {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  cursor: pointer;
-}
-
-.owner-delivery-city-back img {
-  width: 20px;
-  height: 20px;
 }
 
 .owner-delivery-city-content {
@@ -120,11 +91,4 @@
 .owner-delivery-city-next:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-@media (min-width: 429px) {
-  .owner-delivery-city-page {
-    border-left: 1px solid #eeeeee;
-    border-right: 1px solid #eeeeee;
-  }
 }

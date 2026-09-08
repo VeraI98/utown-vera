@@ -5,8 +5,6 @@ import {
   useNavigate,
 } from 'react-router-dom'
 
-import backIcon from '../../../assets/restaurateur/Back Icon.svg'
-
 import './OwnerDeliveryAreasPage.css'
 
 const AREAS = [
@@ -22,13 +20,15 @@ const AREAS = [
 export default function OwnerDeliveryAreasPage() {
   const navigate = useNavigate()
 
-  const [selectedArea, setSelectedArea] =
-    useState(
-      () =>
-        sessionStorage.getItem(
-          'ownerEditRestaurantArea',
-        ) ?? '',
-    )
+  const [
+    selectedArea,
+    setSelectedArea,
+  ] = useState(
+    () =>
+      sessionStorage.getItem(
+        'ownerEditRestaurantArea',
+      ) ?? '',
+  )
 
   const handleSave = () => {
     if (!selectedArea) {
@@ -50,22 +50,10 @@ export default function OwnerDeliveryAreasPage() {
 
   return (
     <main className="owner-delivery-areas-page">
-      <header className="owner-delivery-areas-header">
-        <button
-          type="button"
-          className="owner-delivery-areas-back"
-          onClick={() => navigate(-1)}
-          aria-label="Go back"
-        >
-          <img
-            src={backIcon}
-            alt=""
-          />
-        </button>
-      </header>
-
       <section className="owner-delivery-areas-content">
-        <h1>Select delivery areas</h1>
+        <h1>
+          Select delivery areas
+        </h1>
 
         <div className="owner-delivery-areas-list">
           {AREAS.map((area) => (

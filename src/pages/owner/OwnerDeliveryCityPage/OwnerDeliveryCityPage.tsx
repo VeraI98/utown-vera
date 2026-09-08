@@ -5,8 +5,6 @@ import {
   useNavigate,
 } from 'react-router-dom'
 
-import backIcon from '../../../assets/restaurateur/Back Icon.svg'
-
 import './OwnerDeliveryCityPage.css'
 
 const CITIES = [
@@ -22,13 +20,15 @@ const CITIES = [
 export default function OwnerDeliveryCityPage() {
   const navigate = useNavigate()
 
-  const [selectedCity, setSelectedCity] =
-    useState(
-      () =>
-        sessionStorage.getItem(
-          'ownerEditRestaurantCity',
-        ) ?? '',
-    )
+  const [
+    selectedCity,
+    setSelectedCity,
+  ] = useState(
+    () =>
+      sessionStorage.getItem(
+        'ownerEditRestaurantCity',
+      ) ?? '',
+  )
 
   const handleNext = () => {
     if (!selectedCity) {
@@ -47,22 +47,10 @@ export default function OwnerDeliveryCityPage() {
 
   return (
     <main className="owner-delivery-city-page">
-      <header className="owner-delivery-city-header">
-        <button
-          type="button"
-          className="owner-delivery-city-back"
-          onClick={() => navigate(-1)}
-          aria-label="Go back"
-        >
-          <img
-            src={backIcon}
-            alt=""
-          />
-        </button>
-      </header>
-
       <section className="owner-delivery-city-content">
-        <h1>Select delivery city</h1>
+        <h1>
+          Select delivery city
+        </h1>
 
         <div className="owner-delivery-city-list">
           {CITIES.map((city) => (

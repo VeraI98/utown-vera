@@ -1,55 +1,11 @@
 .owner-edit-restaurant-page {
   width: 100%;
-  max-width: 428px;
-  min-height: 100vh;
-  margin: 0 auto;
+  min-height: calc(100vh - 64px);
   background: #ffffff;
   display: flex;
   flex-direction: column;
   color: #111827;
   overflow-y: auto;
-}
-
-.owner-edit-restaurant-header {
-  position: relative;
-  width: 100%;
-  height: 64px;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #f0f0f0;
-  box-sizing: border-box;
-}
-
-.owner-edit-restaurant-back {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  cursor: pointer;
-}
-
-.owner-edit-restaurant-back img {
-  width: 20px;
-  height: 20px;
-}
-
-.owner-edit-restaurant-logo {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  max-width: 105px;
-  max-height: 24px;
-  transform: translate(-50%, -50%);
-}
-
-.owner-edit-restaurant-header-spacer {
-  width: 32px;
 }
 
 .owner-edit-restaurant-content {
@@ -198,7 +154,7 @@
 }
 
 .owner-edit-restaurant-loading {
-  min-height: 100vh;
+  min-height: calc(100vh - 64px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -223,11 +179,4 @@
 .owner-edit-restaurant-message-success {
   background: #edf9f0;
   color: #277a3c;
-}
-
-@media (min-width: 429px) {
-  .owner-edit-restaurant-page {
-    border-left: 1px solid #eeeeee;
-    border-right: 1px solid #eeeeee;
-  }
 }
