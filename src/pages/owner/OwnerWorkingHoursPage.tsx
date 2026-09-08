@@ -7,9 +7,6 @@ import {
   useNavigate,
 } from 'react-router-dom'
 
-import backIcon from '../../assets/restaurateur/Back Icon.svg'
-import headerLogo from '../../assets/restaurateur/Header Text Container.svg'
-
 import { useAuth } from '../../hooks/useAuth'
 
 import {
@@ -134,6 +131,7 @@ function OwnerWorkingHoursPage() {
             setErrorMessage(
               'No restaurant found.',
             )
+
             setIsLoading(false)
 
             return
@@ -218,96 +216,65 @@ function OwnerWorkingHoursPage() {
     }
 
     navigate(
-      `/owner/working-hours/edit?${searchParams.toString()}`,
+      `edit?${searchParams.toString()}`,
     )
   }
 
   return (
     <main className="owner-working-hours-page">
-      <section className="owner-working-hours-page__screen">
-        <header className="owner-working-hours-page__header">
-          <button
-            className="owner-working-hours-page__back"
-            type="button"
-            aria-label="Go back"
-            onClick={() =>
-              navigate('/owner')
-            }
-          >
-            <img
-              src={backIcon}
-              alt=""
-              aria-hidden="true"
-            />
-          </button>
+      <div className="owner-working-hours-page__content">
+        <h1>
+          Opening hours of
+          <br />
+          the establishment
+        </h1>
 
-          <img
-            className="owner-working-hours-page__logo"
-            src={headerLogo}
-            alt="UT Business"
-          />
+        {isLoading && (
+          <p className="owner-working-hours-page__message">
+            Loading...
+          </p>
+        )}
 
-          <div
-            className="owner-working-hours-page__header-placeholder"
-            aria-hidden="true"
-          />
-        </header>
-
-        <div className="owner-working-hours-page__content">
-          <h1>
-            Opening hours of
-            <br />
-            the establishment
-          </h1>
-
-          {isLoading && (
-            <p className="owner-working-hours-page__message">
-              Loading...
+        {!isLoading &&
+          errorMessage && (
+            <p
+              className="owner-working-hours-page__error"
+              role="alert"
+            >
+              {errorMessage}
             </p>
           )}
 
-          {!isLoading &&
-            errorMessage && (
-              <p className="owner-working-hours-page__error">
-                {
-                  errorMessage
-                }
-              </p>
-            )}
+        {!isLoading &&
+          !errorMessage && (
+            <div className="owner-working-hours-page__days">
+              {DAYS.map(
+                (day) => (
+                  <button
+                    className="owner-working-hours-page__day"
+                    key={
+                      day.dayOfWeek
+                    }
+                    type="button"
+                    onClick={() =>
+                      handleEditDay(
+                        day.dayOfWeek,
+                      )
+                    }
+                  >
+                    <span>
+                      {day.label}
+                    </span>
 
-          {!isLoading &&
-            !errorMessage && (
-              <div className="owner-working-hours-page__days">
-                {DAYS.map(
-                  (day) => (
-                    <button
-                      className="owner-working-hours-page__day"
-                      key={
-                        day.dayOfWeek
-                      }
-                      type="button"
-                      onClick={() =>
-                        handleEditDay(
-                          day.dayOfWeek,
-                        )
-                      }
-                    >
-                      <span>
-                        {
-                          day.label
-                        }
-                      </span>
-
-                      <span className="owner-working-hours-page__edit">
-                        Edit
-                      </span>
-                    </button>
-                  ),
-                )}
-              </div>
-            )}
-        </div>
-      </section>
+                    <span className="owner-working-hours-page__edit">
+                      Edit
+                    </span>
+                  </button>
+                ),
+              )}
+            </div>
+          )}
+      </div>
     </main>
   )
 }

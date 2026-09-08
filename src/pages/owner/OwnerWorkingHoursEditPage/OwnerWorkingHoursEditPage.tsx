@@ -9,9 +9,6 @@ import {
   useSearchParams,
 } from 'react-router-dom'
 
-import backIcon from '../../../assets/restaurateur/Back Icon.svg'
-import headerLogo from '../../../assets/restaurateur/Header Text Container.svg'
-
 import {
   createOwnerOperatingMode,
   getOwnerOperatingModes,
@@ -25,7 +22,10 @@ import type {
 
 import './OwnerWorkingHoursEditPage.css'
 
-const DAY_NAMES: Record<number, string> = {
+const DAY_NAMES: Record<
+  number,
+  string
+> = {
   1: 'Monday',
   2: 'Tuesday',
   3: 'Wednesday',
@@ -44,9 +44,11 @@ function getErrorMessage(
 
     if (
       responseData &&
-      typeof responseData === 'object' &&
+      typeof responseData ===
+        'object' &&
       'message' in responseData &&
-      typeof responseData.message === 'string'
+      typeof responseData.message ===
+        'string'
     ) {
       return responseData.message
     }
@@ -70,11 +72,15 @@ function OwnerWorkingHoursEditPage() {
   ] = useSearchParams()
 
   const restaurantId = Number(
-    searchParams.get('restaurantId'),
+    searchParams.get(
+      'restaurantId',
+    ),
   )
 
   const dayOfWeek = Number(
-    searchParams.get('dayOfWeek'),
+    searchParams.get(
+      'dayOfWeek',
+    ),
   )
 
   const modeIdParam =
@@ -158,10 +164,13 @@ function OwnerWorkingHoursEditPage() {
             (item) => {
               if (
                 modeId !== null &&
-                Number.isFinite(modeId)
+                Number.isFinite(
+                  modeId,
+                )
               ) {
                 return (
-                  item.id === modeId
+                  item.id ===
+                  modeId
                 )
               }
 
@@ -262,26 +271,24 @@ function OwnerWorkingHoursEditPage() {
 
   const handleSave =
     async () => {
-      if (
-        isSaveDisabled
-      ) {
+      if (isSaveDisabled) {
         return
       }
 
       setIsSaving(true)
       setErrorMessage('')
 
-      const request: OperatingModeRequest =
-        {
-          dayOfWeek,
-          start: dayOff
-            ? null
-            : startTime,
-          end: dayOff
-            ? null
-            : endTime,
-          dayOff,
-        }
+      const request:
+        OperatingModeRequest = {
+        dayOfWeek,
+        start: dayOff
+          ? null
+          : startTime,
+        end: dayOff
+          ? null
+          : endTime,
+        dayOff,
+      }
 
       try {
         if (existingMode) {
@@ -314,200 +321,134 @@ function OwnerWorkingHoursEditPage() {
       }
     }
 
-  const handleBack =
-    () => {
-      navigate(
-        '/owner/working-hours',
-      )
-    }
-
   if (!hasValidParams) {
     return (
       <main className="owner-working-hours-edit-page">
-        <section className="owner-working-hours-edit-page__screen">
-          <header className="owner-working-hours-edit-page__header">
-            <button
-              className="owner-working-hours-edit-page__back"
-              type="button"
-              aria-label="Go back"
-              onClick={
-                handleBack
-              }
-            >
-              <img
-                src={backIcon}
-                alt=""
-                aria-hidden="true"
-              />
-            </button>
-
-            <img
-              className="owner-working-hours-edit-page__logo"
-              src={headerLogo}
-              alt="UT Business"
-            />
-
-            <div
-              className="owner-working-hours-edit-page__header-placeholder"
-              aria-hidden="true"
-            />
-          </header>
-
-          <div className="owner-working-hours-edit-page__content">
-            <p className="owner-working-hours-edit-page__error">
-              Invalid working hours
-              parameters.
-            </p>
-          </div>
-        </section>
+        <div className="owner-working-hours-edit-page__content">
+          <p
+            className="owner-working-hours-edit-page__error"
+            role="alert"
+          >
+            Invalid working hours
+            parameters.
+          </p>
+        </div>
       </main>
     )
   }
 
   return (
     <main className="owner-working-hours-edit-page">
-      <section className="owner-working-hours-edit-page__screen">
-        <header className="owner-working-hours-edit-page__header">
-          <button
-            className="owner-working-hours-edit-page__back"
-            type="button"
-            aria-label="Go back"
-            onClick={
-              handleBack
-            }
-          >
-            <img
-              src={backIcon}
-              alt=""
-              aria-hidden="true"
-            />
-          </button>
+      <div className="owner-working-hours-edit-page__content">
+        <h1>
+          {dayName}
+        </h1>
 
-          <img
-            className="owner-working-hours-edit-page__logo"
-            src={headerLogo}
-            alt="UT Business"
-          />
+        {isLoading ? (
+          <p className="owner-working-hours-edit-page__message">
+            Loading...
+          </p>
+        ) : (
+          <>
+            <label className="owner-working-hours-edit-page__field">
+              <span>
+                Start time
+              </span>
 
-          <div
-            className="owner-working-hours-edit-page__header-placeholder"
-            aria-hidden="true"
-          />
-        </header>
+              <input
+                type="time"
+                value={
+                  startTime
+                }
+                disabled={
+                  dayOff
+                }
+                onChange={(
+                  event,
+                ) => {
+                  setStartTime(
+                    event.target
+                      .value,
+                  )
+                }}
+              />
+            </label>
 
-        <div className="owner-working-hours-edit-page__content">
-          <h1>
-            {dayName}
-          </h1>
+            <label className="owner-working-hours-edit-page__field">
+              <span>
+                End time
+              </span>
 
-          {isLoading ? (
-            <p className="owner-working-hours-edit-page__message">
-              Loading...
-            </p>
-          ) : (
-            <>
-              <label className="owner-working-hours-edit-page__field">
-                <span>
-                  Start time
-                </span>
+              <input
+                type="time"
+                value={
+                  endTime
+                }
+                disabled={
+                  dayOff
+                }
+                onChange={(
+                  event,
+                ) => {
+                  setEndTime(
+                    event.target
+                      .value,
+                  )
+                }}
+              />
+            </label>
 
-                <input
-                  type="time"
-                  value={
-                    startTime
-                  }
-                  disabled={
-                    dayOff
-                  }
-                  onChange={(
-                    event,
-                  ) => {
-                    setStartTime(
-                      event.target
-                        .value,
-                    )
-                  }}
-                />
-              </label>
-
-              <label className="owner-working-hours-edit-page__field">
-                <span>
-                  End time
-                </span>
-
-                <input
-                  type="time"
-                  value={
-                    endTime
-                  }
-                  disabled={
-                    dayOff
-                  }
-                  onChange={(
-                    event,
-                  ) => {
-                    setEndTime(
-                      event.target
-                        .value,
-                    )
-                  }}
-                />
-              </label>
-
-              <div className="owner-working-hours-edit-page__day-off-row">
-                <span>
-                  Mark as a day off
-                </span>
-
-                <button
-                  className={`owner-working-hours-edit-page__switch ${
-                    dayOff
-                      ? 'owner-working-hours-edit-page__switch--active'
-                      : ''
-                  }`}
-                  type="button"
-                  role="switch"
-                  aria-checked={
-                    dayOff
-                  }
-                  aria-label="Mark as a day off"
-                  onClick={
-                    handleDayOffToggle
-                  }
-                >
-                  <span />
-                </button>
-              </div>
-
-              {errorMessage && (
-                <p
-                  className="owner-working-hours-edit-page__error"
-                  role="alert"
-                >
-                  {
-                    errorMessage
-                  }
-                </p>
-              )}
+            <div className="owner-working-hours-edit-page__day-off-row">
+              <span>
+                Mark as a day off
+              </span>
 
               <button
-                className="owner-working-hours-edit-page__save"
+                className={`owner-working-hours-edit-page__switch ${
+                  dayOff
+                    ? 'owner-working-hours-edit-page__switch--active'
+                    : ''
+                }`}
                 type="button"
-                disabled={
-                  isSaveDisabled
+                role="switch"
+                aria-checked={
+                  dayOff
                 }
-                onClick={() =>
-                  void handleSave()
+                aria-label="Mark as a day off"
+                onClick={
+                  handleDayOffToggle
                 }
               >
-                {isSaving
-                  ? 'Saving...'
-                  : 'Save'}
+                <span />
               </button>
-            </>
-          )}
-        </div>
-      </section>
+            </div>
+
+            {errorMessage && (
+              <p
+                className="owner-working-hours-edit-page__error"
+                role="alert"
+              >
+                {errorMessage}
+              </p>
+            )}
+
+            <button
+              className="owner-working-hours-edit-page__save"
+              type="button"
+              disabled={
+                isSaveDisabled
+              }
+              onClick={() =>
+                void handleSave()
+              }
+            >
+              {isSaving
+                ? 'Saving...'
+                : 'Save'}
+            </button>
+          </>
+        )}
+      </div>
     </main>
   )
 }
