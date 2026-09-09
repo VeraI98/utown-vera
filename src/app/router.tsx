@@ -30,8 +30,11 @@ import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
 import OwnerHomePage from '../pages/owner/OwnerHomePage'
 import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
+import OwnerWorkingHoursPage from '../pages/owner/OwnerWorkingHoursPage'
+
 import OwnerLayout from '../pages/owner/OwnerLayout/OwnerLayout'
 import OwnerNotFoundPage from '../pages/owner/OwnerNotFoundPage/OwnerNotFoundPage'
+import OwnerWorkingHoursEditPage from '../pages/owner/OwnerWorkingHoursEditPage/OwnerWorkingHoursEditPage'
 
 export const router =
   createBrowserRouter([
@@ -221,6 +224,18 @@ export const router =
           path: 'notifications',
           element: (
             <OwnerNotificationsPage />
+          ),
+        },
+        {
+          path: 'working-hours',
+          element: (
+            <OwnerWorkingHoursPage />
+          ),
+        },
+        {
+          path: 'working-hours/edit',
+          element: (
+            <OwnerWorkingHoursEditPage />
           ),
         },
         {
