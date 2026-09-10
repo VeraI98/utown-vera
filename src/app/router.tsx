@@ -2,11 +2,15 @@ import {
   createBrowserRouter,
 } from 'react-router-dom'
 
+import AdminLayout from '../components/AdminLayout/AdminLayout'
 import ProtectedRoute from '../components/ProtectedRoute'
 
 import AccountPasswordPage from '../pages/AccountPasswordPage/AccountPasswordPage'
 import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
 import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
+import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
+import AdminClientEditPage from '../pages/AdminClientEditPage/AdminClientEditPage'
+import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
 import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
 import FavoritesPage from '../pages/FavoritesPage/FavoritesPage'
 import FoodCategoryPage from '../pages/FoodCategoryPage/FoodCategoryPage'
@@ -203,6 +207,36 @@ export const router =
           <NotificationsPage />
         </ProtectedRoute>
       ),
+    },
+
+    // Admin
+    {
+      path: '/admin',
+      element: (
+        <ProtectedRoute
+          allowedRoles={['ADMIN']}
+        >
+          <AdminLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          path: 'clients',
+          element: <AdminClientsPage />,
+        },
+        {
+          path: 'clients/add',
+          element: (
+            <AdminClientAddPage />
+          ),
+        },
+        {
+          path: 'clients/:clientId/edit',
+          element: (
+            <AdminClientEditPage />
+          ),
+        },
+      ],
     },
 
     // Restaurant owner
