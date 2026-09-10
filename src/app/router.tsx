@@ -28,14 +28,15 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage'
 import RegisterPage from '../pages/RegisterPage/RegisterPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
-import OwnerHomePage from '../pages/owner/OwnerHomePage'
-import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
-
 import OwnerDeliveryAreasPage from '../pages/owner/OwnerDeliveryAreasPage/OwnerDeliveryAreasPage'
 import OwnerDeliveryCityPage from '../pages/owner/OwnerDeliveryCityPage/OwnerDeliveryCityPage'
 import OwnerEditRestaurantPage from '../pages/owner/OwnerEditRestaurantPage/OwnerEditRestaurantPage'
+import OwnerHomePage from '../pages/owner/OwnerHomePage'
 import OwnerLayout from '../pages/owner/OwnerLayout/OwnerLayout'
 import OwnerNotFoundPage from '../pages/owner/OwnerNotFoundPage/OwnerNotFoundPage'
+import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
+import OwnerWorkingHoursEditPage from '../pages/owner/OwnerWorkingHoursEditPage/OwnerWorkingHoursEditPage'
+import OwnerWorkingHoursPage from '../pages/owner/OwnerWorkingHoursPage'
 
 export const router =
   createBrowserRouter([
@@ -225,6 +226,20 @@ export const router =
           path: 'notifications',
           element: (
             <OwnerNotificationsPage />
+          ),
+        },
+
+        // Working hours
+        {
+          path: 'working-hours',
+          element: (
+            <OwnerWorkingHoursPage />
+          ),
+        },
+        {
+          path: 'working-hours/edit',
+          element: (
+            <OwnerWorkingHoursEditPage />
           ),
         },
 
