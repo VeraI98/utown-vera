@@ -1,0 +1,71 @@
+.owner-working-hours-page {
+  background: #ffffff;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+.owner-working-hours-page__content {
+  padding: 18px 16px 40px;
+}
+
+.owner-working-hours-page__content h1 {
+  margin: 0 0 22px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #111111;
+}
+
+.owner-working-hours-page__days {
+  display: flex;
+  flex-direction: column;
+}
+
+.owner-working-hours-page__day {
+  display: flex;
+  width: 100%;
+  height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  border: 0;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  color: #111111;
+  cursor: pointer;
+}
+
+.owner-working-hours-page__day:hover {
+  background: #f8f8f8;
+}
+
+.owner-working-hours-page__edit {
+  font-size: 11px;
+  color: #9a9a9a;
+}
+
+.owner-working-hours-page__message {
+  margin: 20px 0 0;
+  font-size: 13px;
+  color: #888888;
+}
+
+.owner-working-hours-page__error {
+  margin: 20px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f1;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #b42318;
+}
+
+@media (max-width: 360px) {
+  .owner-working-hours-page__content {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+}
