@@ -170,6 +170,7 @@ function AdminLayout() {
                       key={item.label}
                       type="button"
                       className="admin-layout__add-menu-item"
+                      disabled={!item.path}
                       onClick={() => {
                         setIsAddMenuOpen(false)
 

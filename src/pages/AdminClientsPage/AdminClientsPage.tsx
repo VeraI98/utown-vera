@@ -8,18 +8,29 @@ import './AdminClientsPage.css'
 import eyeIcon from '../../assets/admin-pages/Eye Icon.png'
 import ClientCardModal from './ClientCardModal'
 import { getClients } from '../../services/clientService'
-import type { User } from '../../types/auth'
+import type { ClientResponse } from '../../types/client'
 
 const PAGE_SIZE = 10
+
+const SORTABLE_COLUMNS = [
+  'Name',
+  'Number',
+  'City',
+  'Address',
+  'Orders',
+  'Order History',
+]
 
 function AdminClientsPage() {
   const navigate = useNavigate()
 
   const [selectedIds, setSelectedIds] = useState<number[]>([])
-  const [viewedClient, setViewedClient] = useState<User | null>(null)
+  const [viewedClient, setViewedClient] =
+    useState<ClientResponse | null>(null)
 
-  const [clients, setClients] = useState<User[]>([])
+  const [clients, setClients] = useState<ClientResponse[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
@@ -27,12 +38,15 @@ function AdminClientsPage() {
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
 
+  const [reloadKey, setReloadKey] = useState(0)
+
   useEffect(() => {
     let isMounted = true
 
     const loadClients = async () => {
       if (isMounted) {
         setIsLoading(true)
+        setLoadError('')
       }
 
       try {
@@ -57,6 +71,7 @@ function AdminClientsPage() {
         if (isMounted) {
           setClients([])
           setTotalPages(0)
+          setLoadError('Could not load the clients')
         }
       } finally {
         if (isMounted) {
@@ -70,11 +85,15 @@ function AdminClientsPage() {
     return () => {
       isMounted = false
     }
-  }, [page, search])
+  }, [page, search, reloadKey])
 
   const handleSearchSubmit = () => {
     setPage(0)
     setSearch(searchInput.trim())
+  }
+
+  const handleRetry = () => {
+    setReloadKey((current) => current + 1)
   }
 
   const toggleSelected = (id: number) => {
@@ -93,12 +112,15 @@ function AdminClientsPage() {
     }
   }
 
-  const openClientCard = (client: User) => {
+  const openClientCard = (client: ClientResponse) => {
     setViewedClient(client)
   }
 
   const canGoPrev = page > 0
   const canGoNext = page + 1 < totalPages
+
+  const showEmptyState =
+    !isLoading && !loadError && clients.length === 0
 
   return (
     <div className="admin-clients-page">
@@ -162,6 +184,7 @@ function AdminClientsPage() {
             <button
               className="admin-clients-page__toolbar-button admin-clients-page__toolbar-button--filter"
               type="button"
+              disabled
             >
               Filter <span aria-hidden="true">▾</span>
             </button>
@@ -169,6 +192,7 @@ function AdminClientsPage() {
             <button
               className="admin-clients-page__toolbar-button admin-clients-page__toolbar-button--choose-action"
               type="button"
+              disabled
             >
               Choose action <span aria-hidden="true">▾</span>
             </button>
@@ -176,6 +200,7 @@ function AdminClientsPage() {
             <button
               className="admin-clients-page__apply-button"
               type="button"
+              disabled
             >
               Apply
             </button>
@@ -198,36 +223,24 @@ function AdminClientsPage() {
               />
             </th>
 
-            <th>
-              Name <span aria-hidden="true">▾</span>
-            </th>
-
-            <th>
-              Number <span aria-hidden="true">▾</span>
-            </th>
-
-            <th>
-              City <span aria-hidden="true">▾</span>
-            </th>
-
-            <th>
-              Address <span aria-hidden="true">▾</span>
-            </th>
-
-            <th>
-              Orders <span aria-hidden="true">▾</span>
-            </th>
-
-            <th>
-              Order History <span aria-hidden="true">▾</span>
-            </th>
+            {SORTABLE_COLUMNS.map((column) => (
+              <th key={column}>
+                <button
+                  className="admin-clients-page__sort-button"
+                  type="button"
+                  disabled
+                >
+                  {column} <span aria-hidden="true">▾</span>
+                </button>
+              </th>
+            ))}
 
             <th />
           </tr>
         </thead>
 
         <tbody>
-          {isLoading && clients.length === 0 && (
+          {isLoading && (
             <tr>
               <td
                 colSpan={8}
@@ -238,7 +251,26 @@ function AdminClientsPage() {
             </tr>
           )}
 
-          {!isLoading && clients.length === 0 && (
+          {!isLoading && loadError && (
+            <tr>
+              <td
+                colSpan={8}
+                className="admin-clients-page__error-cell"
+              >
+                {loadError}
+
+                <button
+                  className="admin-clients-page__retry-button"
+                  type="button"
+                  onClick={handleRetry}
+                >
+                  Retry
+                </button>
+              </td>
+            </tr>
+          )}
+
+          {showEmptyState && (
             <tr>
               <td
                 colSpan={8}
@@ -249,62 +281,64 @@ function AdminClientsPage() {
             </tr>
           )}
 
-          {clients.map((client) => (
-            <tr key={client.id}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.includes(client.id)}
-                  onChange={() => toggleSelected(client.id)}
-                  aria-label={`Select ${client.fullName}`}
-                />
-              </td>
-
-              <td>{client.fullName}</td>
-              
-              <td>-</td>
-
-              <td>-</td>
-
-              <td className="admin-clients-page__address">
-                -
-              </td>
-
-              <td>-</td>
-
-              <td>
-                <button
-                  type="button"
-                  className="admin-clients-page__view-link"
-                  onClick={() => openClientCard(client)}
-                >
-                  <span>View</span>
-                  <span
-                    className="admin-clients-page__view-chevron"
-                    aria-hidden="true"
-                  >
-                    ›
-                  </span>
-                </button>
-              </td>
-
-              <td>
-                <button
-                  className="admin-clients-page__eye-button"
-                  type="button"
-                  aria-label={`Preview ${client.fullName}`}
-                  onClick={() => openClientCard(client)}
-                >
-                  <img
-                    src={eyeIcon}
-                    alt=""
-                    aria-hidden="true"
-                    className="admin-clients-page__eye-icon"
+          {!isLoading &&
+            !loadError &&
+            clients.map((client) => (
+              <tr key={client.id}>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(client.id)}
+                    onChange={() => toggleSelected(client.id)}
+                    aria-label={`Select ${client.fullName}`}
                   />
-                </button>
-              </td>
-            </tr>
-          ))}
+                </td>
+
+                <td>{client.fullName}</td>
+
+                <td>{client.username || '-'}</td>
+
+                <td>{client.city || '-'}</td>
+
+                <td className="admin-clients-page__address">
+                  {client.address || '-'}
+                </td>
+
+                <td>-</td>
+
+                <td>
+                  <button
+                    type="button"
+                    className="admin-clients-page__view-link"
+                    onClick={() => openClientCard(client)}
+                  >
+                    <span>View</span>
+                    <span
+                      className="admin-clients-page__view-chevron"
+                      aria-hidden="true"
+                    >
+                      ›
+                    </span>
+                  </button>
+                </td>
+
+                <td>
+                  <button
+                    className="admin-clients-page__eye-button"
+                    type="button"
+                    aria-label={`Preview ${client.fullName}`}
+                    onClick={() => openClientCard(client)}
+                  >
+                    <img
+                      src={eyeIcon}
+                      alt=""
+                      aria-hidden="true"
+                      className="admin-clients-page__eye-icon"
+                    />
+                  </button>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
 
@@ -352,6 +386,9 @@ function AdminClientsPage() {
           client={{
             id: viewedClient.id,
             name: viewedClient.fullName,
+            number: viewedClient.username,
+            city: viewedClient.city,
+            address: viewedClient.address,
           }}
           onClose={() => setViewedClient(null)}
           onEdit={() => {

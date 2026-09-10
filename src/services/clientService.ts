@@ -1,6 +1,10 @@
 import { api } from './api'
 
-import type { User } from '../types/auth'
+import type {
+  ClientResponse,
+  CreateClientRequest,
+  UpdateClientRequest,
+} from '../types/client'
 import type { PaginatedResponse } from '../types/restaurant'
 
 export interface GetClientsParams {
@@ -10,46 +14,9 @@ export interface GetClientsParams {
   city?: string
 }
 
-export interface ClientPayload {
-  fullName: string
-}
-
-export async function createClient(
-  payload: ClientPayload,
-): Promise<User> {
-  const { data } = await api.post<User>(
-    '/admin/clients',
-    payload,
-  )
-
-  return data
-}
-
-export async function updateClient(
-  clientId: number,
-  payload: ClientPayload,
-): Promise<User> {
-  const { data } = await api.put<User>(
-    `/admin/clients/${clientId}`,
-    payload,
-  )
-
-  return data
-}
-
-export async function getClientById(
-  clientId: number,
-): Promise<User> {
-  const { data } = await api.get<User>(
-    `/admin/clients/${clientId}`,
-  )
-
-  return data
-}
-
 export async function getClients(
   params: GetClientsParams = {},
-): Promise<PaginatedResponse<User>> {
+): Promise<PaginatedResponse<ClientResponse>> {
   const {
     page = 0,
     size = 10,
@@ -58,7 +25,7 @@ export async function getClients(
   } = params
 
   const { data } = await api.get<
-    PaginatedResponse<User>
+    PaginatedResponse<ClientResponse>
   >('/admin/clients', {
     params: {
       page,
@@ -67,6 +34,42 @@ export async function getClients(
       city,
     },
   })
+
+  return data
+}
+
+export async function getClientById(
+  clientId: number,
+): Promise<ClientResponse> {
+  const { data } =
+    await api.get<ClientResponse>(
+      `/admin/clients/${clientId}`,
+    )
+
+  return data
+}
+
+export async function createClient(
+  request: CreateClientRequest,
+): Promise<ClientResponse> {
+  const { data } =
+    await api.post<ClientResponse>(
+      '/admin/clients',
+      request,
+    )
+
+  return data
+}
+
+export async function updateClient(
+  clientId: number,
+  request: UpdateClientRequest,
+): Promise<ClientResponse> {
+  const { data } =
+    await api.put<ClientResponse>(
+      `/admin/clients/${clientId}`,
+      request,
+    )
 
   return data
 }

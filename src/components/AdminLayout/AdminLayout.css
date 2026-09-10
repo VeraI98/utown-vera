@@ -3,16 +3,13 @@
   flex-direction: column;
   min-height: 100vh;
   background: #ffffff;
-  font-size: 16px;
+  font-size: 24px;
 }
-
 
 .admin-layout__header {
   display: flex;
   height: 100px;
-  flex-shrink: 0;
 }
-
 
 .admin-layout__logo-box {
   width: 322px;
@@ -20,18 +17,14 @@
   display: flex;
   align-items: center;
   padding: 0 32px;
-  box-sizing: border-box;
   background: #ffffff;
   border-bottom: 1px solid #e4e7ec;
 }
 
-
 .admin-layout__logo {
   width: 162px;
   height: 33px;
-  object-fit: contain;
 }
-
 
 .admin-layout__header-gradient {
   flex: 1;
@@ -39,14 +32,8 @@
   align-items: center;
   justify-content: flex-end;
   padding: 0 32px;
-  background: linear-gradient(
-    16deg,
-    #5fd3f8 5%,
-    #3471f5 53%,
-    #e467f1 100%
-  );
+  background: linear-gradient(16deg, #5fd3f8 5%, #3471f5 53%, #e467f1 100%);
 }
-
 
 .admin-layout__admin-button {
   display: flex;
@@ -59,11 +46,8 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-family: inherit;
-  font-size: 16px;
-  color: #101828;
+  font-size: 24px;
 }
-
 
 .admin-layout__admin-avatar {
   width: 40px;
@@ -71,18 +55,14 @@
   border-radius: 50%;
 }
 
-
 .admin-layout__body {
   display: flex;
   flex: 1;
-  min-height: 0;
 }
-
 
 .admin-layout__sidebar {
   width: 322px;
   flex-shrink: 0;
-  box-sizing: border-box;
   border-right: 1px solid #e4e7ec;
   position: sticky;
   top: 100px;
@@ -93,40 +73,34 @@
   padding: 48px 0 24px;
 }
 
-
 .admin-layout__nav {
   overflow-y: auto;
 }
-
 
 .admin-layout__sidebar-group-title {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 8px 48px;
-  box-sizing: border-box;
+  padding: 8px 16px;
   background: none;
   border: none;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 24px;
   font-weight: 700;
   color: #101828;
   text-align: left;
   cursor: pointer;
 }
 
-
 .admin-layout__caret {
   display: inline-block;
   transition: transform 0.15s ease;
 }
 
-
 .admin-layout__caret--closed {
   transform: rotate(-90deg);
 }
-
 
 .admin-layout__sidebar ul {
   list-style: none;
@@ -134,29 +108,23 @@
   padding: 0;
 }
 
-
 .admin-layout__sidebar-link {
   display: block;
-  padding: 8px 64px;
-  box-sizing: border-box;
-  font-size: 16px;
-  line-height: 24px;
+  padding: 8px 16px;
+  font-size: 24px;
   color: #101828;
   text-decoration: none;
   cursor: pointer;
 }
 
-
 .admin-layout__sidebar-link:hover {
   background: #f0f5ff;
 }
-
 
 .admin-layout__sidebar-link--active {
   background: #f0f5ff;
   font-weight: 600;
 }
-
 
 .admin-layout__sidebar-divider {
   width: 100%;
@@ -165,24 +133,20 @@
   background: #e4e7ec;
 }
 
-
 .admin-layout__sidebar-footer {
-  padding: 0 32px;
-  box-sizing: border-box;
+  padding: 0 16px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
 }
-
 
 .admin-layout__add-wrapper {
   position: relative;
   width: 100%;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
 }
-
 
 .admin-layout__add-button {
   width: 211px;
@@ -196,16 +160,13 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-family: inherit;
-  font-size: 16px;
+  font-size: 24px;
 }
-
 
 .admin-layout__add-button img {
   width: 20px;
   height: 20px;
 }
-
 
 .admin-layout__add-menu {
   position: absolute;
@@ -220,7 +181,6 @@
   z-index: 10;
 }
 
-
 .admin-layout__add-menu-title {
   padding: 12px 16px;
   margin: 0;
@@ -230,7 +190,6 @@
   border-bottom: 1px solid #e4e7ec;
 }
 
-
 .admin-layout__add-menu-item {
   display: block;
   width: 100%;
@@ -239,29 +198,29 @@
   background: #fff;
   border: none;
   border-bottom: 1px solid #e4e7ec;
-  font-family: inherit;
-  font-size: 16px;
+  font-size: 18px;
   color: #101828;
   cursor: pointer;
 }
-
 
 .admin-layout__add-menu-item:last-child {
   border-bottom: none;
 }
 
-
-.admin-layout__add-menu-item:hover {
+.admin-layout__add-menu-item:hover:not(:disabled) {
   background: #f0f5ff;
 }
 
+.admin-layout__add-menu-item:disabled {
+  color: #98a2b3;
+  cursor: default;
+}
 
 .admin-layout__settings-row {
   width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
-
 
 .admin-layout__settings-button {
   background: none;
@@ -270,15 +229,12 @@
   padding: 4px;
 }
 
-
 .admin-layout__settings-button img {
   width: 32px;
   height: 32px;
 }
 
-
 .admin-layout__content {
   flex: 1;
-  min-width: 0;
-  padding: 0;
+  padding: 32px;
 }

@@ -275,3 +275,42 @@
   color: #68717a;
   padding: 32px 12px;
 }
+
+.admin-clients-page__error-cell {
+  text-align: center;
+  color: #d92d20;
+  padding: 32px 12px;
+}
+
+.admin-clients-page__retry-button {
+  height: 32px;
+  margin-left: 12px;
+  padding: 0 12px;
+  background: #414141;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-clients-page__sort-button {
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-clients-page__sort-button:disabled {
+  color: inherit;
+  cursor: default;
+}
+
+.admin-clients-page__toolbar-button:disabled,
+.admin-clients-page__apply-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

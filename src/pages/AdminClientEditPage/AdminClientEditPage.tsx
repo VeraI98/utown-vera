@@ -14,6 +14,7 @@ function AdminClientEditPage() {
 
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [city, setCity] = useState('')
   const [address, setAddress] = useState('')
 
   const [isLoading, setIsLoading] = useState(true)
@@ -38,11 +39,18 @@ function AdminClientEditPage() {
         }
 
         setName(client.fullName)
-      } catch (error) {
+        setPhoneNumber(client.username)
+        setCity(client.city)
+        setAddress(client.address)
+      } catch (requestError) {
         console.error(
           'Failed to load client:',
-          error,
+          requestError,
         )
+
+        if (isMounted) {
+          setError('Could not load the client')
+        }
       } finally {
         if (isMounted) {
           setIsLoading(false)
@@ -62,7 +70,9 @@ function AdminClientEditPage() {
   }
 
   const handleSave = async () => {
-    if (!clientId || !name.trim()) {
+    const trimmedName = name.trim()
+
+    if (!clientId || !trimmedName) {
       setError('Enter a name')
 
       return
@@ -73,7 +83,9 @@ function AdminClientEditPage() {
 
     try {
       await updateClient(Number(clientId), {
-        fullName: name.trim(),
+        fullName: trimmedName,
+        city: city.trim(),
+        address: address.trim(),
       })
 
       navigate('/admin/clients')
@@ -106,23 +118,6 @@ function AdminClientEditPage() {
       </nav>
 
       <div className="admin-client-edit-page__card">
-        <div className="admin-client-edit-page__photo-row">
-          <label className="admin-client-edit-page__photo-upload">
-            <input type="file" accept="image/*" hidden />
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M4 4H20M12 20V9M8 13L12 9L16 13"
-                stroke="#101828"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </label>
-
-          <div className="admin-client-edit-page__photo-panel" />
-        </div>
-
         <div className="admin-client-edit-page__field">
           <label htmlFor="client-name">Name</label>
           <input
@@ -139,9 +134,19 @@ function AdminClientEditPage() {
           <input
             id="client-phone"
             type="tel"
-            placeholder="Enter number"
             value={phoneNumber}
-            onChange={(event) => setPhoneNumber(event.target.value)}
+            disabled
+          />
+        </div>
+
+        <div className="admin-client-edit-page__field">
+          <label htmlFor="client-city">City</label>
+          <input
+            id="client-city"
+            type="text"
+            placeholder="Enter city"
+            value={city}
+            onChange={(event) => setCity(event.target.value)}
           />
         </div>
 
@@ -173,7 +178,7 @@ function AdminClientEditPage() {
         <button
           type="button"
           className="admin-client-edit-page__save-button"
-          disabled={isSaving}
+          disabled={isSaving || isLoading}
           onClick={handleSave}
         >
           {isSaving ? 'Saving...' : 'Save'}

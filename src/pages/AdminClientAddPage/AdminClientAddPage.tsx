@@ -5,11 +5,15 @@ import { createClient } from '../../services/clientService'
 
 import './AdminClientAddPage.css'
 
+
+const PHONE_PATTERN = /^\+?[1-9]\d{1,14}$/
+
 function AdminClientAddPage() {
   const navigate = useNavigate()
 
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [city, setCity] = useState('')
   const [address, setAddress] = useState('')
 
   const [isSaving, setIsSaving] = useState(false)
@@ -20,8 +24,22 @@ function AdminClientAddPage() {
   }
 
   const handleAdd = async () => {
-    if (!name.trim()) {
+    const trimmedName = name.trim()
+    const normalizedPhone = phoneNumber.replace(
+      /[\s()-]/g,
+      '',
+    )
+
+    if (!trimmedName) {
       setError('Enter a name')
+
+      return
+    }
+
+    if (!PHONE_PATTERN.test(normalizedPhone)) {
+      setError(
+        'Enter the phone number in international format, for example +821012345678',
+      )
 
       return
     }
@@ -31,7 +49,11 @@ function AdminClientAddPage() {
 
     try {
       await createClient({
-        fullName: name.trim(),
+        fullName: trimmedName,
+        username: normalizedPhone,
+        role: 'CLIENT',
+        city: city.trim() || undefined,
+        address: address.trim() || undefined,
       })
 
       navigate('/admin/clients')
@@ -64,23 +86,6 @@ function AdminClientAddPage() {
       </nav>
 
       <div className="admin-client-add-page__card">
-        <div className="admin-client-add-page__photo-row">
-          <label className="admin-client-add-page__photo-upload">
-            <input type="file" accept="image/*" hidden />
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M4 4H20M12 20V9M8 13L12 9L16 13"
-                stroke="#101828"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </label>
-
-          <div className="admin-client-add-page__photo-panel" />
-        </div>
-
         <div className="admin-client-add-page__field">
           <label htmlFor="client-name">Name</label>
           <input
@@ -97,9 +102,20 @@ function AdminClientAddPage() {
           <input
             id="client-phone"
             type="tel"
-            placeholder="Enter number"
+            placeholder="+821012345678"
             value={phoneNumber}
             onChange={(event) => setPhoneNumber(event.target.value)}
+          />
+        </div>
+
+        <div className="admin-client-add-page__field">
+          <label htmlFor="client-city">City</label>
+          <input
+            id="client-city"
+            type="text"
+            placeholder="Enter city"
+            value={city}
+            onChange={(event) => setCity(event.target.value)}
           />
         </div>
 

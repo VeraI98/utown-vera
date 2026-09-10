@@ -59,15 +59,15 @@ function ClientCardModal({ client, onClose, onEdit }: ClientCardModalProps) {
           <dl className="client-card-modal__details">
             <div className="client-card-modal__detail-row">
               <dt>Phone:</dt>
-              <dd>{client.number ?? '-'}</dd>
+              <dd>{client.number || '-'}</dd>
             </div>
             <div className="client-card-modal__detail-row">
               <dt>City:</dt>
-              <dd>{client.city ?? '-'}</dd>
+              <dd>{client.city || '-'}</dd>
             </div>
             <div className="client-card-modal__detail-row">
               <dt>Address:</dt>
-              <dd>{client.address ?? '-'}</dd>
+              <dd>{client.address || '-'}</dd>
             </div>
             <div className="client-card-modal__detail-row">
               <dt>Orders:</dt>
