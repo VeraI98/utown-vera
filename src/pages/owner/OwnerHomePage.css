@@ -1,0 +1,203 @@
+.owner-home-page {
+  background: #ffffff;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+.owner-home-page__content {
+  padding: 20px 16px 32px;
+}
+
+.owner-home-page__restaurant-name {
+  margin: 0 0 18px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #111111;
+}
+
+.owner-home-page__suspend-card {
+  display: flex;
+  min-height: 100px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: 15px;
+  background: #132342;
+  color: #ffffff;
+}
+
+.owner-home-page__suspend-text h2 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.owner-home-page__suspend-text p {
+  max-width: 200px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #aeb7c7;
+}
+
+.owner-home-page__switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 43px;
+  height: 25px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #d9d9d9;
+  cursor: pointer;
+}
+
+.owner-home-page__switch span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.owner-home-page__switch--active {
+  background: #3978f6;
+}
+
+.owner-home-page__switch--active span {
+  transform: translateX(18px);
+}
+
+.owner-home-page__switch:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.owner-home-page__navigation {
+  margin-top: 24px;
+}
+
+.owner-home-page__navigation h2,
+.owner-home-page__working-hours h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.owner-home-page__navigation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+}
+
+.owner-home-page__navigation-grid button {
+  width: 100%;
+  height: 95px;
+  padding: 0 12px;
+
+  border: 1px solid #3978f6;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.2;
+
+  text-align: center;
+  color: #3978f6;
+
+  cursor: pointer;
+}
+
+.owner-home-page__navigation-grid button:hover {
+  background: #f7faff;
+}
+
+.owner-home-page__navigation-grid button:active {
+  background: #edf3ff;
+}
+
+.owner-home-page__working-hours {
+  margin-top: 27px;
+}
+
+.owner-home-page__days {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.owner-home-page__day-name {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #111111;
+}
+
+.owner-home-page__day-card {
+  display: flex;
+  height: 55px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #f4f4f4;
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: center;
+  color: #888888;
+}
+
+.owner-home-page__working-hours-button {
+  width: 100%;
+  height: 64px;
+  margin-top: 20px;
+  border: 0;
+  border-radius: 10px;
+  background: #3978f6;
+  font-family: inherit;
+  font-size: 13px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.owner-home-page__error {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f1;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #b42318;
+}
+
+.owner-home-page__empty-hours {
+  margin: 0;
+  padding: 16px 0;
+  font-size: 12px;
+  color: #888888;
+}
+
+@media (max-width: 360px) {
+  .owner-home-page__content {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .owner-home-page__navigation-grid {
+    gap: 4px;
+  }
+
+  .owner-home-page__days {
+    gap: 5px;
+  }
+}
