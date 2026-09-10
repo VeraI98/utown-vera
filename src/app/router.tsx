@@ -28,6 +28,11 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage'
 import RegisterPage from '../pages/RegisterPage/RegisterPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
+import AdminLayout from '../components/AdminLayout/AdminLayout'
+import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
+import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
+import AdminClientEditPage from '../pages/AdminClientEditPage/AdminClientEditPage'
+
 import OwnerHomePage from '../pages/owner/OwnerHomePage'
 import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
 import OwnerWorkingHoursPage from '../pages/owner/OwnerWorkingHoursPage'
@@ -37,7 +42,7 @@ import OwnerNotFoundPage from '../pages/owner/OwnerNotFoundPage/OwnerNotFoundPag
 import OwnerWorkingHoursEditPage from '../pages/owner/OwnerWorkingHoursEditPage/OwnerWorkingHoursEditPage'
 
 export const router =
-  createBrowserRouter([
+  createBrowserRouter(
     {
       path: '/',
       element: <HomePage />,
@@ -203,7 +208,36 @@ export const router =
       ),
     },
 
-    // Restaurant owner
+    // Admin
+    {
+      path: '/admin',
+      element: (
+        <ProtectedRoute
+          allowedRoles={['ADMIN']}
+        >
+          <AdminLayout />
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          path: 'clients',
+          element: <AdminClientsPage />,
+        },
+        {
+          path: 'clients/add',
+          element: (
+            <AdminClientAddPage />
+          ),
+        },
+        {
+          path: 'clients/:clientId/edit',
+          element: (
+            <AdminClientEditPage />
+          ),
+        },
+      ],
+    },
+
     {
       path: '/owner',
       element: (
@@ -246,4 +280,4 @@ export const router =
         },
       ],
     },
-  ])
+  )
