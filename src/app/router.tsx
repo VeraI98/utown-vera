@@ -11,6 +11,7 @@ import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
 import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
 import AdminClientEditPage from '../pages/AdminClientEditPage/AdminClientEditPage'
 import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
+import AdminEstablishmentsPage from '../pages/AdminEstablishmentsPage/AdminEstablishmentsPage'
 import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
 import FavoritesPage from '../pages/FavoritesPage/FavoritesPage'
 import FoodCategoryPage from '../pages/FoodCategoryPage/FoodCategoryPage'
@@ -209,7 +210,6 @@ export const router =
       ),
     },
 
-    // Admin
     {
       path: '/admin',
       element: (
@@ -234,6 +234,12 @@ export const router =
           path: 'clients/:clientId/edit',
           element: (
             <AdminClientEditPage />
+          ),
+        },
+        {
+          path: 'establishments',
+          element: (
+            <AdminEstablishmentsPage />
           ),
         },
       ],
