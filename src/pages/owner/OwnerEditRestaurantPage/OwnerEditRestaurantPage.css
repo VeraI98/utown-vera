@@ -1,0 +1,182 @@
+.owner-edit-restaurant-page {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  color: #111827;
+  overflow-y: auto;
+}
+
+.owner-edit-restaurant-content {
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+.owner-edit-restaurant-content h1 {
+  margin: 0 0 18px;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: #111827;
+}
+
+.owner-edit-restaurant-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.owner-edit-restaurant-field label,
+.owner-edit-restaurant-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  color: #252b36;
+}
+
+.owner-edit-restaurant-field input,
+.owner-edit-restaurant-field textarea {
+  width: 100%;
+  border: 1px solid #cfd6e1;
+  border-radius: 4px;
+  background: #ffffff;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+  color: #252b36;
+  outline: none;
+}
+
+.owner-edit-restaurant-field input {
+  height: 42px;
+  padding: 0 12px;
+}
+
+.owner-edit-restaurant-field textarea {
+  min-height: 100px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.owner-edit-restaurant-field input:focus,
+.owner-edit-restaurant-field textarea:focus {
+  border-color: #3978f6;
+}
+
+.owner-edit-restaurant-hours {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.owner-edit-restaurant-hours-row {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #cfd6e1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  font-size: 14px;
+  color: #252b36;
+}
+
+.owner-edit-restaurant-select {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #cfd6e1;
+  border-radius: 4px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+  color: #252b36;
+  cursor: pointer;
+}
+
+.owner-edit-restaurant-chevron {
+  font-size: 23px;
+  line-height: 1;
+  font-weight: 300;
+  color: #7c8798;
+}
+
+.owner-edit-restaurant-actions {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  padding: 12px 16px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #ffffff;
+  border-top: 1px solid #f0f0f0;
+}
+
+.owner-edit-restaurant-save {
+  width: 100%;
+  height: 64px;
+  border: 0;
+  border-radius: 10px;
+  background: #3978f6;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.owner-edit-restaurant-save:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.owner-edit-restaurant-delete {
+  width: 100%;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: #e44949;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.owner-edit-restaurant-loading {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.owner-edit-restaurant-message {
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.owner-edit-restaurant-message-error {
+  background: #fff1f1;
+  color: #c43a3a;
+}
+
+.owner-edit-restaurant-message-success {
+  background: #edf9f0;
+  color: #277a3c;
+}

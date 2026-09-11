@@ -2,11 +2,15 @@ import {
   createBrowserRouter,
 } from 'react-router-dom'
 
+import AdminLayout from '../components/AdminLayout/AdminLayout'
 import ProtectedRoute from '../components/ProtectedRoute'
 
 import AccountPasswordPage from '../pages/AccountPasswordPage/AccountPasswordPage'
 import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
 import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
+import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
+import AdminClientEditPage from '../pages/AdminClientEditPage/AdminClientEditPage'
+import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
 import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
 import FavoritesPage from '../pages/FavoritesPage/FavoritesPage'
 import FoodCategoryPage from '../pages/FoodCategoryPage/FoodCategoryPage'
@@ -28,21 +32,18 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage'
 import RegisterPage from '../pages/RegisterPage/RegisterPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
-import AdminLayout from '../components/AdminLayout/AdminLayout'
-import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
-import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
-import AdminClientEditPage from '../pages/AdminClientEditPage/AdminClientEditPage'
-
+import OwnerDeliveryAreasPage from '../pages/owner/OwnerDeliveryAreasPage/OwnerDeliveryAreasPage'
+import OwnerDeliveryCityPage from '../pages/owner/OwnerDeliveryCityPage/OwnerDeliveryCityPage'
+import OwnerEditRestaurantPage from '../pages/owner/OwnerEditRestaurantPage/OwnerEditRestaurantPage'
 import OwnerHomePage from '../pages/owner/OwnerHomePage'
-import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
-import OwnerWorkingHoursPage from '../pages/owner/OwnerWorkingHoursPage'
-
 import OwnerLayout from '../pages/owner/OwnerLayout/OwnerLayout'
 import OwnerNotFoundPage from '../pages/owner/OwnerNotFoundPage/OwnerNotFoundPage'
+import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
 import OwnerWorkingHoursEditPage from '../pages/owner/OwnerWorkingHoursEditPage/OwnerWorkingHoursEditPage'
+import OwnerWorkingHoursPage from '../pages/owner/OwnerWorkingHoursPage'
 
 export const router =
-  createBrowserRouter(
+  createBrowserRouter([
     {
       path: '/',
       element: <HomePage />,
@@ -238,6 +239,7 @@ export const router =
       ],
     },
 
+    // Restaurant owner
     {
       path: '/owner',
       element: (
@@ -260,6 +262,8 @@ export const router =
             <OwnerNotificationsPage />
           ),
         },
+
+        // Working hours
         {
           path: 'working-hours',
           element: (
@@ -272,6 +276,27 @@ export const router =
             <OwnerWorkingHoursEditPage />
           ),
         },
+
+        // Edit restaurant
+        {
+          path: 'restaurant/edit',
+          element: (
+            <OwnerEditRestaurantPage />
+          ),
+        },
+        {
+          path: 'restaurant/edit/city',
+          element: (
+            <OwnerDeliveryCityPage />
+          ),
+        },
+        {
+          path: 'restaurant/edit/areas',
+          element: (
+            <OwnerDeliveryAreasPage />
+          ),
+        },
+
         {
           path: '*',
           element: (
@@ -280,4 +305,4 @@ export const router =
         },
       ],
     },
-  )
+  ])
