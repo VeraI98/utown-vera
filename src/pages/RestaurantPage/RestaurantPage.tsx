@@ -382,15 +382,10 @@ function RestaurantPage() {
           )
         },
       )
-      .catch((error) => {
+      .catch(() => {
         if (!isActive) {
           return
         }
-
-        console.error(
-          'Failed to load restaurant:',
-          error,
-        )
 
         setPageError(
           'Failed to load restaurant.',
@@ -442,15 +437,10 @@ function RestaurantPage() {
 
         setFavoriteError('')
       })
-      .catch((error) => {
+      .catch(() => {
         if (!isActive) {
           return
         }
-
-        console.error(
-          'Failed to load favorite status:',
-          error,
-        )
 
         setIsFavorite(false)
       })
@@ -496,15 +486,10 @@ function RestaurantPage() {
           currentRestaurantRating,
         )
       })
-      .catch((error) => {
+      .catch(() => {
         if (!isActive) {
           return
         }
-
-        console.error(
-          'Failed to load user ratings:',
-          error,
-        )
 
         setMyRating(null)
       })
@@ -539,15 +524,10 @@ function RestaurantPage() {
           )
         },
       )
-      .catch((error) => {
+      .catch(() => {
         if (!isActive) {
           return
         }
-
-        console.error(
-          'Failed to load cart:',
-          error,
-        )
 
         setCart(null)
       })
@@ -750,12 +730,7 @@ function RestaurantPage() {
           quantity,
           elementIds,
         )
-      } catch (error) {
-        console.error(
-          'Failed to add item to cart:',
-          error,
-        )
-
+      } catch {
         setCartError(
           'Failed to add the item to your cart. Please try again.',
         )
@@ -806,12 +781,7 @@ function RestaurantPage() {
         setPendingCartItem(
           null,
         )
-      } catch (error) {
-        console.error(
-          'Failed to replace cart:',
-          error,
-        )
-
+      } catch  {
         setCartError(
           'Failed to start a new cart. Please try again.',
         )
@@ -856,12 +826,7 @@ function RestaurantPage() {
             parsedRestaurantId,
           )
         }
-      } catch (error) {
-        console.error(
-          'Failed to update favorite:',
-          error,
-        )
-
+      } catch  {
         setIsFavorite(
           previousValue,
         )

@@ -48,7 +48,10 @@ interface OrderPaymentPageState {
 }
 
 function formatPrice(
-  value: number | null | undefined,
+  value:
+    | number
+    | null
+    | undefined,
 ): string {
   if (
     value === null ||
@@ -72,7 +75,8 @@ function getErrorMessage(
 
     if (
       responseData &&
-      typeof responseData === 'object' &&
+      typeof responseData ===
+        'object' &&
       'message' in responseData &&
       typeof responseData.message ===
         'string'
@@ -81,7 +85,8 @@ function getErrorMessage(
     }
 
     if (
-      typeof responseData === 'string'
+      typeof responseData ===
+      'string'
     ) {
       return responseData
     }
@@ -91,7 +96,9 @@ function getErrorMessage(
 }
 
 function getClientPhone(
-  username: string | undefined,
+  username:
+    | string
+    | undefined,
 ): string {
   if (!username) {
     return ''
@@ -118,7 +125,8 @@ function findDeliveryAddress(
 
   if (
     defaultAddressId !== null &&
-    defaultAddressId !== undefined
+    defaultAddressId !==
+      undefined
   ) {
     const defaultAddress =
       addresses.find(
@@ -254,12 +262,7 @@ function OrderPaymentPage() {
                   ? ''
                   : 'No delivery address found.',
               )
-            } catch (error) {
-              console.error(
-                'Failed to load user addresses:',
-                error,
-              )
-
+            } catch {
               if (isMounted) {
                 setDefaultAddress(
                   null,
@@ -308,12 +311,7 @@ function OrderPaymentPage() {
                 ? restaurant.deliveryTime
                 : 'Delivery time unavailable',
             )
-          } catch (error) {
-            console.error(
-              'Failed to load restaurant data:',
-              error,
-            )
-
+          } catch {
             if (isMounted) {
               setMinimumOrderAmount(
                 0,
@@ -493,17 +491,18 @@ function OrderPaymentPage() {
         return
       }
 
-     navigate(
-     '/food/order/address',
-       {
-        state: {
-        ...(locationState ?? {}),
-        returnTo:
-        '/food/order/payment',
-     },
-   },
- )   
-}
+      navigate(
+        '/food/order/address',
+        {
+          state: {
+            ...(locationState ??
+              {}),
+            returnTo:
+              '/food/order/payment',
+          },
+        },
+      )
+    }
 
   return (
     <main

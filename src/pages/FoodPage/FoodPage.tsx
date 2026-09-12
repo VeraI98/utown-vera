@@ -69,7 +69,8 @@ function isValidImageUrl(
     return false
   }
 
-  const value = imageUrl.trim()
+  const value =
+    imageUrl.trim()
 
   if (!value) {
     return false
@@ -84,14 +85,19 @@ function getCategoryFallbackImage(
   index: number,
 ): string {
   return FALLBACK_CATEGORY_IMAGES[
-    index % FALLBACK_CATEGORY_IMAGES.length
+    index %
+      FALLBACK_CATEGORY_IMAGES.length
   ]
 }
 
 function getRestaurantImage(
   restaurant: RestaurantResponse,
 ): string {
-  if (isValidImageUrl(restaurant.imageUrl)) {
+  if (
+    isValidImageUrl(
+      restaurant.imageUrl,
+    )
+  ) {
     return restaurant.imageUrl as string
   }
 
@@ -103,7 +109,8 @@ function getRestaurantCategory(
 ): string {
   if (
     restaurant.category &&
-    restaurant.category.trim() !== ''
+    restaurant.category.trim() !==
+      ''
   ) {
     return restaurant.category
   }
@@ -116,7 +123,8 @@ function getRestaurantDeliveryTime(
 ): string {
   if (
     restaurant.deliveryTime &&
-    restaurant.deliveryTime.trim() !== ''
+    restaurant.deliveryTime.trim() !==
+      ''
   ) {
     return restaurant.deliveryTime
   }
@@ -125,7 +133,10 @@ function getRestaurantDeliveryTime(
 }
 
 function formatPrice(
-  value: number | null | undefined,
+  value:
+    | number
+    | null
+    | undefined,
 ): string {
   if (
     value === null ||
@@ -149,7 +160,9 @@ function RestaurantSection({
   return (
     <section className="food-section">
       <div className="food-section-header">
-        <h2>{title}</h2>
+        <h2>
+          {title}
+        </h2>
 
         <Link
           className="food-more-button"
@@ -160,60 +173,71 @@ function RestaurantSection({
       </div>
 
       <div className="food-horizontal-list food-restaurant-list">
-        {restaurants.map((restaurant) => (
-          <button
-            className="food-restaurant-card"
-            type="button"
-            key={`${title}-${restaurant.id}`}
-            onClick={() =>
-              onRestaurantClick(
-                restaurant.id,
-              )
-            }
-            aria-label={`Open ${restaurant.title}`}
-          >
-            <img
-              className="food-restaurant-image"
-              src={getRestaurantImage(
-                restaurant,
-              )}
-              alt={restaurant.title}
-              onError={(event) => {
-                event.currentTarget.onerror =
-                  null
-
-                event.currentTarget.src =
-                  pizzaImage
-              }}
-            />
-
-            <div className="food-restaurant-body">
-              <h3>{restaurant.title}</h3>
-
-              <p>
-                {getRestaurantCategory(
+        {restaurants.map(
+          (restaurant) => (
+            <button
+              className="food-restaurant-card"
+              type="button"
+              key={`${title}-${restaurant.id}`}
+              onClick={() =>
+                onRestaurantClick(
+                  restaurant.id,
+                )
+              }
+              aria-label={`Open ${restaurant.title}`}
+            >
+              <img
+                className="food-restaurant-image"
+                src={getRestaurantImage(
                   restaurant,
                 )}
-              </p>
+                alt={
+                  restaurant.title
+                }
+                loading="lazy"
+                onError={(
+                  event,
+                ) => {
+                  event.currentTarget.onerror =
+                    null
 
-              <div className="food-restaurant-meta">
-                <span aria-hidden="true">
-                  ♿
-                </span>
+                  event.currentTarget.src =
+                    pizzaImage
+                }}
+              />
 
-                <span>
-                  {formatPrice(
-                    restaurant.minOrderAmount,
-                  )}{' '}
-                  won ·{' '}
-                  {getRestaurantDeliveryTime(
+              <div className="food-restaurant-body">
+                <h3>
+                  {
+                    restaurant.title
+                  }
+                </h3>
+
+                <p>
+                  {getRestaurantCategory(
                     restaurant,
                   )}
-                </span>
+                </p>
+
+                <div className="food-restaurant-meta">
+                  <span aria-hidden="true">
+                    ♿
+                  </span>
+
+                  <span>
+                    {formatPrice(
+                      restaurant.minOrderAmount,
+                    )}{' '}
+                    won ·{' '}
+                    {getRestaurantDeliveryTime(
+                      restaurant,
+                    )}
+                  </span>
+                </div>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          ),
+        )}
       </div>
     </section>
   )
@@ -225,12 +249,18 @@ function FoodPage() {
   const [
     categories,
     setCategories,
-  ] = useState<DishCategoryResponse[]>([])
+  ] =
+    useState<
+      DishCategoryResponse[]
+    >([])
 
   const [
     restaurants,
     setRestaurants,
-  ] = useState<RestaurantResponse[]>([])
+  ] =
+    useState<
+      RestaurantResponse[]
+    >([])
 
   const [
     isLoading,
@@ -245,57 +275,63 @@ function FoodPage() {
   useEffect(() => {
     let isMounted = true
 
-    const loadFoodPage = async () => {
-      try {
-        const [
-          categoriesResponse,
-          restaurantsResponse,
-        ] = await Promise.all([
-          getCategories(0, 100),
-          getActiveRestaurants(),
-        ])
+    const loadFoodPage =
+      async () => {
+        try {
+          const [
+            categoriesResponse,
+            restaurantsResponse,
+          ] =
+            await Promise.all([
+              getCategories(
+                0,
+                100,
+              ),
+              getActiveRestaurants(),
+            ])
 
-        if (!isMounted) {
-          return
-        }
+          if (!isMounted) {
+            return
+          }
 
-        const categoryItems =
-          categoriesResponse.content ?? []
+          const categoryItems =
+            categoriesResponse.content ??
+            []
 
-        setCategories(
-          categoryItems.filter(
-            (category) =>
-              category.isActive !== false,
-          ),
-        )
+          setCategories(
+            categoryItems.filter(
+              (category) =>
+                category.isActive !==
+                false,
+            ),
+          )
 
-        setRestaurants(
-          restaurantsResponse.filter(
-            (restaurant) =>
-              restaurant.isActive !== false,
-          ),
-        )
+          setRestaurants(
+            restaurantsResponse.filter(
+              (restaurant) =>
+                restaurant.isActive !==
+                false,
+            ),
+          )
 
-        setErrorMessage('')
-      } catch (error) {
-        console.error(
-          'Failed to load food page:',
-          error,
-        )
+          setErrorMessage('')
+        } catch {
+          if (!isMounted) {
+            return
+          }
 
-        if (isMounted) {
           setCategories([])
           setRestaurants([])
+
           setErrorMessage(
             'Failed to load restaurants and categories.',
           )
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
+        } finally {
+          if (isMounted) {
+            setIsLoading(false)
+          }
         }
       }
-    }
 
     void loadFoodPage()
 
@@ -306,11 +342,16 @@ function FoodPage() {
 
   const fastestRestaurants =
     useMemo(() => {
-      if (restaurants.length === 0) {
+      if (
+        restaurants.length ===
+        0
+      ) {
         return []
       }
 
-      return [...restaurants].sort(
+      return [
+        ...restaurants,
+      ].sort(
         (
           firstRestaurant,
           secondRestaurant,
@@ -329,7 +370,10 @@ function FoodPage() {
             ) ||
             Number.MAX_SAFE_INTEGER
 
-          return firstTime - secondTime
+          return (
+            firstTime -
+            secondTime
+          )
         },
       )
     }, [restaurants])
@@ -357,11 +401,15 @@ function FoodPage() {
           <button
             className="food-header-button"
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() =>
+              navigate(-1)
+            }
             aria-label="Go back"
           >
             <img
-              src={backButtonIcon}
+              src={
+                backButtonIcon
+              }
               alt=""
               aria-hidden="true"
             />
@@ -386,7 +434,9 @@ function FoodPage() {
             className="food-header-button"
             type="button"
             onClick={() =>
-              navigate('/notifications')
+              navigate(
+                '/notifications',
+              )
             }
             aria-label="Notifications"
           >
@@ -418,7 +468,9 @@ function FoodPage() {
             className="food-search"
             type="button"
             onClick={() =>
-              navigate('/food/search')
+              navigate(
+                '/food/search',
+              )
             }
             aria-label="Open food search"
           >
@@ -429,8 +481,8 @@ function FoodPage() {
             />
 
             <span>
-              Search for cafes, restaurants
-              and dishes
+              Search for cafes,
+              restaurants and dishes
             </span>
           </button>
 
@@ -446,8 +498,9 @@ function FoodPage() {
               </strong>
 
               <span>
-                Short promotional text -20%
-                on everything
+                Short promotional
+                text -20% on
+                everything
               </span>
             </div>
           </section>
@@ -474,16 +527,30 @@ function FoodPage() {
 
           <section className="food-section">
             <div className="food-section-header">
-              <h2>Categories</h2>
+              <h2>
+                Categories
+              </h2>
             </div>
 
             {isLoading ? (
-              <p className="food-loading">
-                Loading categories...
-              </p>
-            ) : categories.length === 0 ? (
+              <div
+                className="food-loading"
+                role="status"
+              >
+                <div
+                  className="food-loading-spinner"
+                  aria-hidden="true"
+                />
+
+                <p>
+                  Loading categories...
+                </p>
+              </div>
+            ) : categories.length ===
+              0 ? (
               <p className="food-empty">
-                No categories available.
+                No categories
+                available.
               </p>
             ) : (
               <div className="food-horizontal-list food-category-list">
@@ -505,7 +572,9 @@ function FoodPage() {
                       <button
                         className="food-category-card"
                         type="button"
-                        key={category.id}
+                        key={
+                          category.id
+                        }
                         onClick={() =>
                           handleCategoryClick(
                             category.id,
@@ -520,7 +589,10 @@ function FoodPage() {
                               index,
                             )
                           }
-                          alt={category.name}
+                          alt={
+                            category.name
+                          }
+                          loading="lazy"
                           onError={(
                             event,
                           ) => {
@@ -535,7 +607,9 @@ function FoodPage() {
                         />
 
                         <strong>
-                          {category.name}
+                          {
+                            category.name
+                          }
                         </strong>
 
                         <span>
@@ -551,7 +625,8 @@ function FoodPage() {
           </section>
 
           {!isLoading &&
-            restaurants.length > 0 && (
+            restaurants.length >
+              0 && (
               <>
                 <RestaurantSection
                   title="Establishments"
@@ -578,10 +653,12 @@ function FoodPage() {
             )}
 
           {!isLoading &&
-            restaurants.length === 0 &&
+            restaurants.length ===
+              0 &&
             !errorMessage && (
               <p className="food-empty">
-                No restaurants available.
+                No restaurants
+                available.
               </p>
             )}
         </div>
@@ -600,7 +677,9 @@ function FoodPage() {
               aria-hidden="true"
             />
 
-            <span>Home</span>
+            <span>
+              Home
+            </span>
           </Link>
 
           <Link
@@ -608,12 +687,16 @@ function FoodPage() {
             to="/favorites"
           >
             <img
-              src={favoritesIcon}
+              src={
+                favoritesIcon
+              }
               alt=""
               aria-hidden="true"
             />
 
-            <span>Favorites</span>
+            <span>
+              Favorites
+            </span>
           </Link>
 
           <Link
@@ -626,7 +709,9 @@ function FoodPage() {
               aria-hidden="true"
             />
 
-            <span>Profile</span>
+            <span>
+              Profile
+            </span>
           </Link>
         </nav>
       </section>

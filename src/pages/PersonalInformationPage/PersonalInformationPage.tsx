@@ -63,7 +63,9 @@ function PersonalInformationPage() {
   const [
     selectedAddressId,
     setSelectedAddressId,
-  ] = useState<number | null>(
+  ] = useState<
+    number | null
+  >(
     user?.defaultAddress ??
       null,
   )
@@ -97,11 +99,17 @@ function PersonalInformationPage() {
           return
         }
 
-        setAddresses(response)
-        setAddressesError('')
+        setAddresses(
+          response,
+        )
+
+        setAddressesError(
+          '',
+        )
 
         if (
-          response.length === 0
+          response.length ===
+          0
         ) {
           setSelectedAddressId(
             null,
@@ -119,7 +127,8 @@ function PersonalInformationPage() {
 
         if (
           defaultAddressExists &&
-          user?.defaultAddress != null
+          user?.defaultAddress !=
+            null
         ) {
           setSelectedAddressId(
             user.defaultAddress,
@@ -132,17 +141,13 @@ function PersonalInformationPage() {
           response[0].id,
         )
       })
-      .catch((loadError) => {
+      .catch(() => {
         if (!isActive) {
           return
         }
 
-        console.error(
-          'Failed to load addresses:',
-          loadError,
-        )
-
         setAddresses([])
+
         setSelectedAddressId(
           null,
         )
@@ -173,51 +178,56 @@ function PersonalInformationPage() {
         selectedAddressId,
     ) ?? null
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault()
+  const handleSubmit =
+    async (
+      event: FormEvent<HTMLFormElement>,
+    ) => {
+      event.preventDefault()
 
-    setError('')
+      if (isSubmitting) {
+        return
+      }
 
-    if (!name.trim()) {
-      setError(
-        'Enter your name.',
-      )
+      setError('')
 
-      return
-    }
+      const trimmedName =
+        name.trim()
 
-    try {
+      if (!trimmedName) {
+        setError(
+          'Enter your name.',
+        )
+
+        return
+      }
+
       setIsSubmitting(true)
 
-      const updatedUser =
-        await updateProfile({
-          fullName:
-            name.trim(),
+      try {
+        const updatedUser =
+          await updateProfile({
+            fullName:
+              trimmedName,
 
-          defaultAddress:
-            selectedAddressId,
-        })
+            defaultAddress:
+              selectedAddressId,
+          })
 
-      updateUser(
-        updatedUser,
-      )
+        updateUser(
+          updatedUser,
+        )
 
-      navigate('/account')
-    } catch (submitError) {
-      console.error(
-        'Failed to update personal information:',
-        submitError,
-      )
-
-      setError(
-        'Failed to update personal information.',
-      )
-    } finally {
-      setIsSubmitting(false)
+        navigate('/account')
+      } catch {
+        setError(
+          'Failed to update personal information.',
+        )
+      } finally {
+        setIsSubmitting(
+          false,
+        )
+      }
     }
-  }
 
   return (
     <main className="mobile-page account-page">
@@ -275,6 +285,9 @@ function PersonalInformationPage() {
                 id="account-name"
                 type="text"
                 value={name}
+                disabled={
+                  isSubmitting
+                }
                 onChange={(
                   event,
                 ) => {
@@ -345,7 +358,8 @@ function PersonalInformationPage() {
                     setError('')
                   }}
                   disabled={
-                    isLoadingAddresses
+                    isLoadingAddresses ||
+                    isSubmitting
                   }
                 >
                   {isLoadingAddresses && (
@@ -359,8 +373,7 @@ function PersonalInformationPage() {
                     addresses.length ===
                       0 && (
                       <option value="">
-                        No
-                        addresses
+                        No addresses
                       </option>
                     )}
 
@@ -416,6 +429,9 @@ function PersonalInformationPage() {
             <button
               className="account-address-manage-button"
               type="button"
+              disabled={
+                isSubmitting
+              }
               onClick={() =>
                 navigate(
                   '/food/order/address',

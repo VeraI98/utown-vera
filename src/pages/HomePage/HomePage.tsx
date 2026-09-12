@@ -9,8 +9,12 @@ import {
 
 import { useAuth } from '../../hooks/useAuth'
 
-import { getMyOrders } from '../../services/orderService'
-import { getActiveRestaurants } from '../../services/restaurantService'
+import {
+  getMyOrders,
+} from '../../services/orderService'
+import {
+  getActiveRestaurants,
+} from '../../services/restaurantService'
 
 import adOneImage from '../../assets/icons main pages/Ad 1.svg'
 import adTwoImage from '../../assets/icons main pages/Ad 2.svg'
@@ -25,7 +29,9 @@ import mobileConnectionIcon from '../../assets/icons main pages/Mobile connectio
 import profileIcon from '../../assets/icons main pages/Profile.svg'
 import servicesIcon from '../../assets/icons main pages/Services icon.svg'
 
-import type { RestaurantResponse } from '../../types/restaurant'
+import type {
+  RestaurantResponse,
+} from '../../types/restaurant'
 
 import './HomePage.css'
 
@@ -89,7 +95,8 @@ function isValidImageUrl(
     return false
   }
 
-  const value = imageUrl.trim()
+  const value =
+    imageUrl.trim()
 
   if (!value) {
     return false
@@ -103,7 +110,11 @@ function isValidImageUrl(
 function getRestaurantImage(
   restaurant: RestaurantResponse,
 ): string {
-  if (isValidImageUrl(restaurant.imageUrl)) {
+  if (
+    isValidImageUrl(
+      restaurant.imageUrl,
+    )
+  ) {
     return restaurant.imageUrl as string
   }
 
@@ -111,7 +122,10 @@ function getRestaurantImage(
 }
 
 function formatPrice(
-  price: number | null | undefined,
+  price:
+    | number
+    | null
+    | undefined,
 ): string {
   if (
     price === null ||
@@ -128,7 +142,15 @@ function formatPrice(
 
 function HomePage() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+
+  const {
+    user,
+  } = useAuth()
+
+  const isClient =
+    user?.roles.includes(
+      'CLIENT',
+    ) ?? false
 
   const [
     activeOrdersCount,
@@ -138,98 +160,122 @@ function HomePage() {
   const [
     restaurants,
     setRestaurants,
-  ] = useState<RestaurantResponse[]>([])
+  ] =
+    useState<
+      RestaurantResponse[]
+    >([])
+
+  const [
+    isRestaurantsLoading,
+    setIsRestaurantsLoading,
+  ] = useState(true)
+
+  const [
+    restaurantsError,
+    setRestaurantsError,
+  ] = useState('')
 
   useEffect(() => {
+    if (
+      !user ||
+      !isClient
+    ) {
+      return
+    }
+
     let isMounted = true
 
-    const loadActiveOrders = async () => {
-      const isClient =
-        user?.roles.includes('CLIENT')
+    const loadActiveOrders =
+      async () => {
+        try {
+          const orders =
+            await getMyOrders()
 
-      if (!user || !isClient) {
-        if (isMounted) {
-          setActiveOrdersCount(0)
-        }
+          if (!isMounted) {
+            return
+          }
 
-        return
-      }
+          const activeOrders =
+            orders.filter(
+              (order) => {
+                const status =
+                  order.status
+                    ?.trim()
+                    .toUpperCase() ??
+                  ''
 
-      try {
-        const orders =
-          await getMyOrders()
-
-        if (!isMounted) {
-          return
-        }
-
-        const activeOrders = orders.filter(
-          (order) => {
-            const status =
-              order.status
-                ?.trim()
-                .toUpperCase() ?? ''
-
-            return ACTIVE_ORDER_STATUSES.includes(
-              status,
+                return ACTIVE_ORDER_STATUSES.includes(
+                  status,
+                )
+              },
             )
-          },
-        )
 
-        setActiveOrdersCount(
-          activeOrders.length,
-        )
-      } catch (error) {
-        console.error(
-          'Failed to load active orders:',
-          error,
-        )
-
-        if (isMounted) {
-          setActiveOrdersCount(0)
+          setActiveOrdersCount(
+            activeOrders.length,
+          )
+        } catch {
+          if (isMounted) {
+            setActiveOrdersCount(
+              0,
+            )
+          }
         }
       }
-    }
 
     void loadActiveOrders()
 
     return () => {
       isMounted = false
     }
-  }, [user])
+  }, [
+    user,
+    isClient,
+  ])
 
   useEffect(() => {
     let isMounted = true
 
-    const loadRestaurants = async () => {
-      try {
-        const data =
-          await getActiveRestaurants()
+    const loadRestaurants =
+      async () => {
+        try {
+          const data =
+            await getActiveRestaurants()
 
-        if (!isMounted) {
-          return
-        }
+          if (!isMounted) {
+            return
+          }
 
-        setRestaurants(
-          data
-            .filter(
-              (restaurant) =>
-                restaurant.isActive !==
-                false,
-            )
-            .slice(0, 4),
-        )
-      } catch (error) {
-        console.error(
-          'Failed to load home restaurants:',
-          error,
-        )
+          setRestaurants(
+            data
+              .filter(
+                (restaurant) =>
+                  restaurant.isActive !==
+                  false,
+              )
+              .slice(0, 4),
+          )
 
-        if (isMounted) {
+          setRestaurantsError(
+            '',
+          )
+        } catch {
+          if (!isMounted) {
+            return
+          }
+
           setRestaurants([])
+
+          setRestaurantsError(
+            'Failed to load restaurants.',
+          )
+        } finally {
+          if (isMounted) {
+            setIsRestaurantsLoading(
+              false,
+            )
+          }
         }
       }
-    }
 
     void loadRestaurants()
 
@@ -237,6 +283,11 @@ function HomePage() {
       isMounted = false
     }
   }, [])
+
+  const visibleActiveOrdersCount =
+    isClient
+      ? activeOrdersCount
+      : 0
 
   return (
     <main className="home-page">
@@ -253,7 +304,9 @@ function HomePage() {
               className="home-notification-button"
               type="button"
               onClick={() =>
-                navigate('/notifications')
+                navigate(
+                  '/notifications',
+                )
               }
               aria-label="Notifications"
             >
@@ -283,7 +336,9 @@ function HomePage() {
                 </p>
 
                 <div className="weather-main">
-                  <span>+12°</span>
+                  <span>
+                    +12°
+                  </span>
 
                   <span className="weather-sun">
                     ☼
@@ -291,9 +346,17 @@ function HomePage() {
                 </div>
 
                 <div className="weather-details">
-                  <span>Sunny</span>
-                  <span>↓ +10°</span>
-                  <span>↑ +17°</span>
+                  <span>
+                    Sunny
+                  </span>
+
+                  <span>
+                    ↓ +10°
+                  </span>
+
+                  <span>
+                    ↑ +17°
+                  </span>
                 </div>
               </article>
 
@@ -301,7 +364,9 @@ function HomePage() {
                 className="active-orders-card"
                 type="button"
                 onClick={() =>
-                  navigate('/food/orders')
+                  navigate(
+                    '/food/orders',
+                  )
                 }
               >
                 <span className="active-orders-icon">
@@ -312,9 +377,12 @@ function HomePage() {
                   Your active orders
                 </span>
 
-                {activeOrdersCount > 0 && (
+                {visibleActiveOrdersCount >
+                  0 && (
                   <strong className="active-orders-count">
-                    {activeOrdersCount}
+                    {
+                      visibleActiveOrdersCount
+                    }
                   </strong>
                 )}
               </button>
@@ -330,12 +398,16 @@ function HomePage() {
               to="/food"
             >
               <img
-                src={foodDeliveryIcon}
+                src={
+                  foodDeliveryIcon
+                }
                 alt=""
                 aria-hidden="true"
               />
 
-              <span>Food delivery</span>
+              <span>
+                Food delivery
+              </span>
             </Link>
 
             <Link
@@ -343,7 +415,9 @@ function HomePage() {
               to="/mobile-connection"
             >
               <img
-                src={mobileConnectionIcon}
+                src={
+                  mobileConnectionIcon
+                }
                 alt=""
                 aria-hidden="true"
               />
@@ -363,7 +437,9 @@ function HomePage() {
                 aria-hidden="true"
               />
 
-              <span>Services</span>
+              <span>
+                Services
+              </span>
             </Link>
 
             <Link
@@ -376,7 +452,9 @@ function HomePage() {
                 aria-hidden="true"
               />
 
-              <span>Jobs</span>
+              <span>
+                Jobs
+              </span>
             </Link>
           </section>
 
@@ -385,27 +463,40 @@ function HomePage() {
             aria-label="Advertisements"
           >
             <div className="home-ad-list">
-              {ads.map((ad, index) => (
-                <article
-                  className={
-                    index === 1
-                      ? 'home-ad-card home-ad-card-shadow'
-                      : 'home-ad-card'
-                  }
-                  key={ad.id}
-                >
-                  <img
-                    src={ad.image}
-                    alt={ad.alt}
-                  />
-                </article>
-              ))}
+              {ads.map(
+                (
+                  ad,
+                  index,
+                ) => (
+                  <article
+                    className={
+                      index === 1
+                        ? 'home-ad-card home-ad-card-shadow'
+                        : 'home-ad-card'
+                    }
+                    key={
+                      ad.id
+                    }
+                  >
+                    <img
+                      src={
+                        ad.image
+                      }
+                      alt={
+                        ad.alt
+                      }
+                    />
+                  </article>
+                ),
+              )}
             </div>
           </section>
 
           <section className="food-section">
             <div className="section-header">
-              <h2>Food delivery</h2>
+              <h2>
+                Food delivery
+              </h2>
 
               <Link
                 className="section-more-link"
@@ -415,69 +506,106 @@ function HomePage() {
               </Link>
             </div>
 
-            {restaurants.length > 0 ? (
-              <div className="restaurant-list">
-                {restaurants.map(
-                  (restaurant) => (
-                    <Link
-                      className="restaurant-card"
-                      to={`/food/restaurants/${restaurant.id}`}
-                      key={restaurant.id}
-                    >
-                      <img
-                        className="restaurant-image"
-                        src={getRestaurantImage(
-                          restaurant,
-                        )}
-                        alt={
-                          restaurant.title
-                        }
-                        onError={(event) => {
-                          event.currentTarget.onerror =
-                            null
-
-                          event.currentTarget.src =
-                            localCuisineImage
-                        }}
-                      />
-
-                      <div className="restaurant-body">
-                        <h3>
-                          {
-                            restaurant.title
-                          }
-                        </h3>
-
-                        <p>
-                          {restaurant.category ||
-                            'Restaurant'}
-                        </p>
-
-                        <div className="restaurant-meta">
-                          <span>
-                            ♿
-                          </span>
-
-                          <span>
-                            {formatPrice(
-                              restaurant.minOrderAmount,
-                            )}{' '}
-                            won
-                            {restaurant.deliveryTime
-                              ? ` · ${restaurant.deliveryTime}`
-                              : ''}
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  ),
-                )}
-              </div>
-            ) : (
-              <p className="home-restaurants-empty">
-                No restaurants available.
+            {isRestaurantsLoading && (
+              <p
+                className="home-restaurants-empty"
+                role="status"
+              >
+                Loading restaurants...
               </p>
             )}
+
+            {!isRestaurantsLoading &&
+              restaurantsError && (
+                <p
+                  className="home-restaurants-empty"
+                  role="alert"
+                >
+                  {
+                    restaurantsError
+                  }
+                </p>
+              )}
+
+            {!isRestaurantsLoading &&
+              !restaurantsError &&
+              restaurants.length >
+                0 && (
+                <div className="restaurant-list">
+                  {restaurants.map(
+                    (
+                      restaurant,
+                    ) => (
+                      <Link
+                        className="restaurant-card"
+                        to={`/food/restaurants/${restaurant.id}`}
+                        key={
+                          restaurant.id
+                        }
+                      >
+                        <img
+                          className="restaurant-image"
+                          src={getRestaurantImage(
+                            restaurant,
+                          )}
+                          alt={
+                            restaurant.title
+                          }
+                          loading="lazy"
+                          onError={(
+                            event,
+                          ) => {
+                            event.currentTarget.onerror =
+                              null
+
+                            event.currentTarget.src =
+                              localCuisineImage
+                          }}
+                        />
+
+                        <div className="restaurant-body">
+                          <h3>
+                            {
+                              restaurant.title
+                            }
+                          </h3>
+
+                          <p>
+                            {restaurant.category ||
+                              'Restaurant'}
+                          </p>
+
+                          <div className="restaurant-meta">
+                            <span>
+                              ♿
+                            </span>
+
+                            <span>
+                              {formatPrice(
+                                restaurant.minOrderAmount,
+                              )}{' '}
+                              won
+                              {restaurant.deliveryTime
+                                ? ` · ${restaurant.deliveryTime}`
+                                : ''}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    ),
+                  )}
+                </div>
+              )}
+
+            {!isRestaurantsLoading &&
+              !restaurantsError &&
+              restaurants.length ===
+                0 && (
+                <p className="home-restaurants-empty">
+                  No restaurants
+                  available.
+                </p>
+              )}
           </section>
         </div>
 
@@ -495,7 +623,9 @@ function HomePage() {
               aria-hidden="true"
             />
 
-            <span>Home</span>
+            <span>
+              Home
+            </span>
           </Link>
 
           <Link
@@ -503,12 +633,16 @@ function HomePage() {
             to="/favorites"
           >
             <img
-              src={favoritesIcon}
+              src={
+                favoritesIcon
+              }
               alt=""
               aria-hidden="true"
             />
 
-            <span>Favorites</span>
+            <span>
+              Favorites
+            </span>
           </Link>
 
           <Link
@@ -521,7 +655,9 @@ function HomePage() {
               aria-hidden="true"
             />
 
-            <span>Profile</span>
+            <span>
+              Profile
+            </span>
           </Link>
         </nav>
       </section>

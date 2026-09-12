@@ -5,7 +5,6 @@ import {
   useRef,
   useState,
 } from 'react'
-
 import { useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/restaurant page/Back button.svg'
@@ -59,7 +58,8 @@ function isValidImageUrl(
     return false
   }
 
-  const value = imageUrl.trim()
+  const value =
+    imageUrl.trim()
 
   if (!value) {
     return false
@@ -71,7 +71,10 @@ function isValidImageUrl(
 }
 
 function formatPrice(
-  value: number | null | undefined,
+  value:
+    | number
+    | null
+    | undefined,
 ): string {
   if (
     value === null ||
@@ -95,7 +98,8 @@ function getErrorMessage(
 
     if (
       responseData &&
-      typeof responseData === 'object' &&
+      typeof responseData ===
+        'object' &&
       'message' in responseData &&
       typeof responseData.message ===
         'string'
@@ -104,7 +108,8 @@ function getErrorMessage(
     }
 
     if (
-      typeof responseData === 'string'
+      typeof responseData ===
+      'string'
     ) {
       return responseData
     }
@@ -116,37 +121,47 @@ function getErrorMessage(
 function createPaymentOrderItems(
   cartItems: CartItemResponse[],
 ): OrderItem[] {
-  return cartItems.map((item) => {
-    const selectedElements =
-      item.elements
-        .map(
-          (element) =>
-            element.name,
-        )
-        .filter(Boolean)
+  return cartItems.map(
+    (item) => {
+      const selectedElements =
+        item.elements
+          .map(
+            (element) =>
+              element.name,
+          )
+          .filter(Boolean)
 
-    const description =
-      selectedElements.length > 0
-        ? selectedElements.join(', ')
-        : item.restaurantName
+      const description =
+        selectedElements.length >
+        0
+          ? selectedElements.join(
+              ', ',
+            )
+          : item.restaurantName
 
-    const unitPrice =
-      item.count > 0
-        ? item.sum / item.count
-        : item.sum
+      const unitPrice =
+        item.count > 0
+          ? item.sum /
+            item.count
+          : item.sum
 
-    return {
-      product: {
-        id: item.dishId,
-        name: item.dishTitle,
-        description,
-        price: unitPrice,
-        image: item.dishImageUrl,
-        options: [],
-      },
-      quantity: item.count,
-    }
-  })
+      return {
+        product: {
+          id: item.dishId,
+          name:
+            item.dishTitle,
+          description,
+          price:
+            unitPrice,
+          image:
+            item.dishImageUrl,
+          options: [],
+        },
+        quantity:
+          item.count,
+      }
+    },
+  )
 }
 
 function OrderPage() {
@@ -158,9 +173,10 @@ function OrderPage() {
   const [
     cart,
     setCart,
-  ] = useState<CartResponse | null>(
-    null,
-  )
+  ] =
+    useState<CartResponse | null>(
+      null,
+    )
 
   const [
     minimumOrderAmount,
@@ -180,16 +196,18 @@ function OrderPage() {
   const [
     updatingDishId,
     setUpdatingDishId,
-  ] = useState<number | null>(
-    null,
-  )
+  ] =
+    useState<number | null>(
+      null,
+    )
 
   const [
     failedImageIds,
     setFailedImageIds,
-  ] = useState<Set<number>>(
-    () => new Set(),
-  )
+  ] =
+    useState<Set<number>>(
+      () => new Set(),
+    )
 
   const [
     isEditing,
@@ -199,16 +217,19 @@ function OrderPage() {
   const [
     deleteCandidateId,
     setDeleteCandidateId,
-  ] = useState<number | null>(
-    null,
-  )
+  ] =
+    useState<number | null>(
+      null,
+    )
 
   useEffect(() => {
     let isActive = true
 
     getMyCart()
       .then(
-        async (currentCart) => {
+        async (
+          currentCart,
+        ) => {
           if (!isActive) {
             return
           }
@@ -221,7 +242,9 @@ function OrderPage() {
               ?.restaurantId
 
           if (!restaurantId) {
-            setMinimumOrderAmount(0)
+            setMinimumOrderAmount(
+              0,
+            )
             return
           }
 
@@ -238,14 +261,11 @@ function OrderPage() {
             setMinimumOrderAmount(
               restaurant.minOrderAmount,
             )
-          } catch (error) {
-            console.error(
-              'Failed to load restaurant minimum order:',
-              error,
-            )
-
+          } catch {
             if (isActive) {
-              setMinimumOrderAmount(0)
+              setMinimumOrderAmount(
+                0,
+              )
             }
           }
         },
@@ -256,18 +276,25 @@ function OrderPage() {
         }
 
         if (
-          axios.isAxiosError(error) &&
-          error.response?.status === 404
+          axios.isAxiosError(
+            error,
+          ) &&
+          error.response
+            ?.status === 404
         ) {
           setCart(null)
           setErrorMessage('')
-          setMinimumOrderAmount(0)
+          setMinimumOrderAmount(
+            0,
+          )
 
           return
         }
 
         setErrorMessage(
-          getErrorMessage(error),
+          getErrorMessage(
+            error,
+          ),
         )
       })
       .finally(() => {
@@ -282,16 +309,19 @@ function OrderPage() {
   }, [])
 
   useEffect(() => {
-    isMountedRef.current = true
+    isMountedRef.current =
+      true
 
     return () => {
-      isMountedRef.current = false
+      isMountedRef.current =
+        false
     }
   }, [])
 
   const orderItems =
     useMemo(
-      () => cart?.items ?? [],
+      () =>
+        cart?.items ?? [],
       [cart],
     )
 
@@ -322,117 +352,151 @@ function OrderPage() {
 
   const hasReachedMinimum =
     minimumOrderAmount <= 0 ||
-    orderAmount >= minimumOrderAmount
+    orderAmount >=
+      minimumOrderAmount
 
-  const loadCart = async () => {
-    try {
-      const currentCart =
-        await getMyCart()
-
-      if (!isMountedRef.current) {
-        return
-      }
-
-      setCart(currentCart)
-      setErrorMessage('')
-
-      const restaurantId =
-        currentCart.items[0]
-          ?.restaurantId
-
-      if (!restaurantId) {
-        setMinimumOrderAmount(0)
-        return
-      }
-
+  const loadCart =
+    async () => {
       try {
-        const restaurant =
-          await getRestaurantById(
-            restaurantId,
-          )
+        const currentCart =
+          await getMyCart()
 
-        if (!isMountedRef.current) {
+        if (
+          !isMountedRef.current
+        ) {
           return
         }
 
-        setMinimumOrderAmount(
-          restaurant.minOrderAmount,
-        )
-      } catch (error) {
-        console.error(
-          'Failed to load restaurant minimum order:',
-          error,
-        )
+        setCart(currentCart)
+        setErrorMessage('')
 
-        if (isMountedRef.current) {
-          setMinimumOrderAmount(0)
+        const restaurantId =
+          currentCart.items[0]
+            ?.restaurantId
+
+        if (!restaurantId) {
+          setMinimumOrderAmount(
+            0,
+          )
+          return
+        }
+
+        try {
+          const restaurant =
+            await getRestaurantById(
+              restaurantId,
+            )
+
+          if (
+            !isMountedRef.current
+          ) {
+            return
+          }
+
+          setMinimumOrderAmount(
+            restaurant.minOrderAmount,
+          )
+        } catch {
+          if (
+            isMountedRef.current
+          ) {
+            setMinimumOrderAmount(
+              0,
+            )
+          }
+        }
+      } catch (error) {
+        if (
+          !isMountedRef.current
+        ) {
+          return
+        }
+
+        if (
+          axios.isAxiosError(
+            error,
+          ) &&
+          error.response
+            ?.status === 404
+        ) {
+          setCart(null)
+          setErrorMessage('')
+          setMinimumOrderAmount(
+            0,
+          )
+
+          return
+        }
+
+        setErrorMessage(
+          getErrorMessage(
+            error,
+          ),
+        )
+      } finally {
+        if (
+          isMountedRef.current
+        ) {
+          setIsLoading(false)
         }
       }
-    } catch (error) {
-      if (!isMountedRef.current) {
-        return
-      }
+    }
 
+  const updateQuantity =
+    async (
+      dishId: number,
+      quantity: number,
+    ) => {
       if (
-        axios.isAxiosError(error) &&
-        error.response?.status === 404
+        updatingDishId !==
+          null ||
+        quantity < 1
       ) {
-        setCart(null)
-        setErrorMessage('')
-        setMinimumOrderAmount(0)
-
         return
       }
 
-      setErrorMessage(
-        getErrorMessage(error),
+      setUpdatingDishId(
+        dishId,
       )
-    } finally {
-      if (isMountedRef.current) {
-        setIsLoading(false)
+      setErrorMessage('')
+      setDeleteCandidateId(
+        null,
+      )
+
+      try {
+        const updatedCart =
+          await updateCartItemQuantity(
+            dishId,
+            quantity,
+          )
+
+        if (
+          !isMountedRef.current
+        ) {
+          return
+        }
+
+        setCart(updatedCart)
+      } catch (error) {
+        if (
+          isMountedRef.current
+        ) {
+          setErrorMessage(
+            getErrorMessage(
+              error,
+            ),
+          )
+        }
+      } finally {
+        if (
+          isMountedRef.current
+        ) {
+          setUpdatingDishId(
+            null,
+          )
+        }
       }
     }
-  }
-
-  const updateQuantity = async (
-    dishId: number,
-    quantity: number,
-  ) => {
-    if (
-      updatingDishId !== null ||
-      quantity < 1
-    ) {
-      return
-    }
-
-    setUpdatingDishId(dishId)
-    setErrorMessage('')
-    setDeleteCandidateId(null)
-
-    try {
-      const updatedCart =
-        await updateCartItemQuantity(
-          dishId,
-          quantity,
-        )
-
-      if (!isMountedRef.current) {
-        return
-      }
-
-      setCart(updatedCart)
-    } catch (error) {
-      if (isMountedRef.current) {
-        setErrorMessage(
-          getErrorMessage(error),
-        )
-      }
-    } finally {
-      if (isMountedRef.current) {
-        setUpdatingDishId(null)
-      }
-    }
-  }
 
   const increaseQuantity = (
     item: CartItemResponse,
@@ -460,49 +524,68 @@ function OrderPage() {
     )
   }
 
-  const removeItem = async (
-    dishId: number,
-  ) => {
-    if (
-      updatingDishId !== null
-    ) {
-      return
-    }
-
-    setUpdatingDishId(dishId)
-    setErrorMessage('')
-
-    try {
-      const updatedCart =
-        await removeCartItem(
-          dishId,
-        )
-
-      if (!isMountedRef.current) {
+  const removeItem =
+    async (
+      dishId: number,
+    ) => {
+      if (
+        updatingDishId !==
+        null
+      ) {
         return
       }
 
-      setCart(updatedCart)
-      setDeleteCandidateId(null)
+      setUpdatingDishId(
+        dishId,
+      )
+      setErrorMessage('')
 
-      if (
-        updatedCart.items.length === 0
-      ) {
-        setIsEditing(false)
-        setMinimumOrderAmount(0)
-      }
-    } catch (error) {
-      if (isMountedRef.current) {
-        setErrorMessage(
-          getErrorMessage(error),
+      try {
+        const updatedCart =
+          await removeCartItem(
+            dishId,
+          )
+
+        if (
+          !isMountedRef.current
+        ) {
+          return
+        }
+
+        setCart(updatedCart)
+        setDeleteCandidateId(
+          null,
         )
-      }
-    } finally {
-      if (isMountedRef.current) {
-        setUpdatingDishId(null)
+
+        if (
+          updatedCart.items
+            .length === 0
+        ) {
+          setIsEditing(false)
+          setMinimumOrderAmount(
+            0,
+          )
+        }
+      } catch (error) {
+        if (
+          isMountedRef.current
+        ) {
+          setErrorMessage(
+            getErrorMessage(
+              error,
+            ),
+          )
+        }
+      } finally {
+        if (
+          isMountedRef.current
+        ) {
+          setUpdatingDishId(
+            null,
+          )
+        }
       }
     }
-  }
 
   const toggleEditing = () => {
     setIsEditing(
@@ -510,7 +593,9 @@ function OrderPage() {
         !currentValue,
     )
 
-    setDeleteCandidateId(null)
+    setDeleteCandidateId(
+      null,
+    )
   }
 
   const handleImageError = (
@@ -519,9 +604,13 @@ function OrderPage() {
     setFailedImageIds(
       (currentIds) => {
         const nextIds =
-          new Set(currentIds)
+          new Set(
+            currentIds,
+          )
 
-        nextIds.add(dishId)
+        nextIds.add(
+          dishId,
+        )
 
         return nextIds
       },
@@ -538,9 +627,11 @@ function OrderPage() {
   const handleProceedToPayment =
     () => {
       if (
-        orderItems.length === 0 ||
+        orderItems.length ===
+          0 ||
         !hasReachedMinimum ||
-        updatingDishId !== null ||
+        updatingDishId !==
+          null ||
         !cart
       ) {
         return
@@ -575,7 +666,9 @@ function OrderPage() {
           aria-label="Go back"
         >
           <img
-            src={backButtonIcon}
+            src={
+              backButtonIcon
+            }
             alt=""
             aria-hidden="true"
           />
@@ -654,23 +747,28 @@ function OrderPage() {
             />
 
             <p>
-              Loading your order...
+              Loading your
+              order...
             </p>
           </div>
         ) : orderItems.length ===
           0 ? (
           <div className="order-page__empty">
             <p>
-              Your order is empty
+              Your order is
+              empty
             </p>
 
             <button
               type="button"
               onClick={() =>
-                navigate('/food')
+                navigate(
+                  '/food',
+                )
               }
             >
-              Return to restaurants
+              Return to
+              restaurants
             </button>
           </div>
         ) : (
@@ -715,7 +813,9 @@ function OrderPage() {
                         ) =>
                           element.name,
                       )
-                      .filter(Boolean)
+                      .filter(
+                        Boolean,
+                      )
 
                   const description =
                     selectedElements.length >
@@ -740,7 +840,9 @@ function OrderPage() {
                           ? 'order-page__item--updating'
                           : ''
                       }`}
-                      key={item.id}
+                      key={
+                        item.id
+                      }
                       aria-busy={
                         isUpdating
                       }
@@ -753,7 +855,9 @@ function OrderPage() {
                         </h3>
 
                         <p>
-                          {description}
+                          {
+                            description
+                          }
                         </p>
 
                         <strong>
@@ -774,6 +878,7 @@ function OrderPage() {
                             alt={
                               item.dishTitle
                             }
+                            loading="lazy"
                             onError={() =>
                               handleImageError(
                                 item.dishId,
@@ -863,7 +968,8 @@ function OrderPage() {
                 className="order-page__minimum-message"
                 role="status"
               >
-                Minimum order is{' '}
+                Minimum order
+                is{' '}
                 {formatPrice(
                   minimumOrderAmount,
                 )}{' '}
@@ -879,7 +985,8 @@ function OrderPage() {
       </section>
 
       {!isLoading &&
-        orderItems.length > 0 && (
+        orderItems.length >
+          0 && (
           <div className="order-page__bottom-area">
             <button
               className="order-page__payment-button"
@@ -901,7 +1008,9 @@ function OrderPage() {
               }
             >
               <span className="order-page__count">
-                {totalQuantity}
+                {
+                  totalQuantity
+                }
               </span>
 
               <span className="order-page__payment-label">

@@ -4,11 +4,13 @@ import {
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import './AdminClientsPage.css'
 import eyeIcon from '../../assets/admin-pages/Eye Icon.png'
-import ClientCardModal from './ClientCardModal'
 import { getClients } from '../../services/clientService'
 import type { ClientResponse } from '../../types/client'
+
+import ClientCardModal from './ClientCardModal'
+
+import './AdminClientsPage.css'
 
 const PAGE_SIZE = 10
 
@@ -24,120 +26,220 @@ const SORTABLE_COLUMNS = [
 function AdminClientsPage() {
   const navigate = useNavigate()
 
-  const [selectedIds, setSelectedIds] = useState<number[]>([])
-  const [viewedClient, setViewedClient] =
-    useState<ClientResponse | null>(null)
+  const [
+    selectedIds,
+    setSelectedIds,
+  ] = useState<number[]>([])
 
-  const [clients, setClients] = useState<ClientResponse[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [loadError, setLoadError] = useState('')
+  const [
+    viewedClient,
+    setViewedClient,
+  ] =
+    useState<ClientResponse | null>(
+      null,
+    )
 
-  const [page, setPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
+  const [
+    clients,
+    setClients,
+  ] = useState<ClientResponse[]>([])
 
-  const [searchInput, setSearchInput] = useState('')
-  const [search, setSearch] = useState('')
+  const [
+    isLoading,
+    setIsLoading,
+  ] = useState(true)
 
-  const [reloadKey, setReloadKey] = useState(0)
+  const [
+    loadError,
+    setLoadError,
+  ] = useState('')
+
+  const [
+    page,
+    setPage,
+  ] = useState(0)
+
+  const [
+    totalPages,
+    setTotalPages,
+  ] = useState(0)
+
+  const [
+    searchInput,
+    setSearchInput,
+  ] = useState('')
+
+  const [
+    search,
+    setSearch,
+  ] = useState('')
+
+  const [
+    reloadKey,
+    setReloadKey,
+  ] = useState(0)
 
   useEffect(() => {
     let isMounted = true
 
-    const loadClients = async () => {
-      if (isMounted) {
-        setIsLoading(true)
-        setLoadError('')
-      }
-
-      try {
-        const data = await getClients({
-          page,
-          size: PAGE_SIZE,
-          search: search || undefined,
-        })
-
-        if (!isMounted) {
-          return
-        }
-
-        setClients(data.content)
-        setTotalPages(data.totalPages)
-      } catch (error) {
-        console.error(
-          'Failed to load clients:',
-          error,
-        )
-
+    const loadClients =
+      async () => {
         if (isMounted) {
-          setClients([])
-          setTotalPages(0)
-          setLoadError('Could not load the clients')
+          setIsLoading(true)
+          setLoadError('')
         }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
+
+        try {
+          const data =
+            await getClients({
+              page,
+              size: PAGE_SIZE,
+              search:
+                search ||
+                undefined,
+            })
+
+          if (!isMounted) {
+            return
+          }
+
+          setClients(
+            data.content,
+          )
+
+          setTotalPages(
+            data.totalPages,
+          )
+
+          setSelectedIds([])
+        } catch {
+          if (isMounted) {
+            setClients([])
+            setTotalPages(0)
+            setSelectedIds([])
+
+            setLoadError(
+              'Could not load the clients',
+            )
+          }
+        } finally {
+          if (isMounted) {
+            setIsLoading(false)
+          }
         }
       }
-    }
 
     void loadClients()
 
     return () => {
       isMounted = false
     }
-  }, [page, search, reloadKey])
+  }, [
+    page,
+    search,
+    reloadKey,
+  ])
 
-  const handleSearchSubmit = () => {
-    setPage(0)
-    setSearch(searchInput.trim())
-  }
+  const handleSearchSubmit =
+    () => {
+      if (isLoading) {
+        return
+      }
+
+      setPage(0)
+      setSelectedIds([])
+
+      setSearch(
+        searchInput.trim(),
+      )
+    }
 
   const handleRetry = () => {
-    setReloadKey((current) => current + 1)
-  }
+    if (isLoading) {
+      return
+    }
 
-  const toggleSelected = (id: number) => {
-    setSelectedIds((current) =>
-      current.includes(id)
-        ? current.filter((selectedId) => selectedId !== id)
-        : [...current, id],
+    setReloadKey(
+      (current) =>
+        current + 1,
     )
   }
 
-  const toggleSelectAll = () => {
-    if (selectedIds.length === clients.length) {
-      setSelectedIds([])
-    } else {
-      setSelectedIds(clients.map((client) => client.id))
-    }
+  const toggleSelected = (
+    id: number,
+  ) => {
+    setSelectedIds(
+      (current) =>
+        current.includes(id)
+          ? current.filter(
+              (selectedId) =>
+                selectedId !== id,
+            )
+          : [
+              ...current,
+              id,
+            ],
+    )
   }
 
-  const openClientCard = (client: ClientResponse) => {
+  const toggleSelectAll =
+    () => {
+      if (
+        selectedIds.length ===
+        clients.length
+      ) {
+        setSelectedIds([])
+      } else {
+        setSelectedIds(
+          clients.map(
+            (client) =>
+              client.id,
+          ),
+        )
+      }
+    }
+
+  const openClientCard = (
+    client: ClientResponse,
+  ) => {
     setViewedClient(client)
   }
 
-  const canGoPrev = page > 0
-  const canGoNext = page + 1 < totalPages
+  const canGoPrev =
+    page > 0
+
+  const canGoNext =
+    page + 1 < totalPages
 
   const showEmptyState =
-    !isLoading && !loadError && clients.length === 0
+    !isLoading &&
+    !loadError &&
+    clients.length === 0
 
   return (
     <div className="admin-clients-page">
       <div className="admin-clients-page__top-row">
         <div className="admin-clients-page__title-block">
-          <h1>Clients</h1>
+          <h1>
+            Clients
+          </h1>
 
           <nav className="admin-clients-page__breadcrumb">
             <span className="admin-clients-page__breadcrumb-link">
               Home
             </span>
+
             <span> / </span>
+
             <span className="admin-clients-page__breadcrumb-link">
               Users
             </span>
+
             <span> / </span>
-            <span>Clients</span>
+
+            <span>
+              Clients
+            </span>
           </nav>
         </div>
 
@@ -156,6 +258,7 @@ function AdminClientsPage() {
                 stroke="#98a2b3"
                 strokeWidth="1.5"
               />
+
               <path
                 d="M17 17L13.7 13.7"
                 stroke="#98a2b3"
@@ -168,12 +271,27 @@ function AdminClientsPage() {
               className="admin-clients-page__search"
               type="text"
               placeholder="Search"
-              value={searchInput}
-              onChange={(event) =>
-                setSearchInput(event.target.value)
+              value={
+                searchInput
               }
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
+              disabled={
+                isLoading
+              }
+              onChange={(
+                event,
+              ) =>
+                setSearchInput(
+                  event.target
+                    .value,
+                )
+              }
+              onKeyDown={(
+                event,
+              ) => {
+                if (
+                  event.key ===
+                  'Enter'
+                ) {
                   handleSearchSubmit()
                 }
               }}
@@ -186,7 +304,10 @@ function AdminClientsPage() {
               type="button"
               disabled
             >
-              Filter <span aria-hidden="true">▾</span>
+              Filter{' '}
+              <span aria-hidden="true">
+                ▾
+              </span>
             </button>
 
             <button
@@ -194,7 +315,10 @@ function AdminClientsPage() {
               type="button"
               disabled
             >
-              Choose action <span aria-hidden="true">▾</span>
+              Choose action{' '}
+              <span aria-hidden="true">
+                ▾
+              </span>
             </button>
 
             <button
@@ -215,25 +339,43 @@ function AdminClientsPage() {
               <input
                 type="checkbox"
                 checked={
-                  selectedIds.length === clients.length &&
-                  clients.length > 0
+                  selectedIds.length ===
+                    clients.length &&
+                  clients.length >
+                    0
                 }
-                onChange={toggleSelectAll}
+                disabled={
+                  isLoading ||
+                  clients.length ===
+                    0
+                }
+                onChange={
+                  toggleSelectAll
+                }
                 aria-label="Select all"
               />
             </th>
 
-            {SORTABLE_COLUMNS.map((column) => (
-              <th key={column}>
-                <button
-                  className="admin-clients-page__sort-button"
-                  type="button"
-                  disabled
+            {SORTABLE_COLUMNS.map(
+              (column) => (
+                <th
+                  key={
+                    column
+                  }
                 >
-                  {column} <span aria-hidden="true">▾</span>
-                </button>
-              </th>
-            ))}
+                  <button
+                    className="admin-clients-page__sort-button"
+                    type="button"
+                    disabled
+                  >
+                    {column}{' '}
+                    <span aria-hidden="true">
+                      ▾
+                    </span>
+                  </button>
+                </th>
+              ),
+            )}
 
             <th />
           </tr>
@@ -251,24 +393,27 @@ function AdminClientsPage() {
             </tr>
           )}
 
-          {!isLoading && loadError && (
-            <tr>
-              <td
-                colSpan={8}
-                className="admin-clients-page__error-cell"
-              >
-                {loadError}
-
-                <button
-                  className="admin-clients-page__retry-button"
-                  type="button"
-                  onClick={handleRetry}
+          {!isLoading &&
+            loadError && (
+              <tr>
+                <td
+                  colSpan={8}
+                  className="admin-clients-page__error-cell"
                 >
-                  Retry
-                </button>
-              </td>
-            </tr>
-          )}
+                  {loadError}
+
+                  <button
+                    className="admin-clients-page__retry-button"
+                    type="button"
+                    onClick={
+                      handleRetry
+                    }
+                  >
+                    Retry
+                  </button>
+                </td>
+              </tr>
+            )}
 
           {showEmptyState && (
             <tr>
@@ -276,94 +421,151 @@ function AdminClientsPage() {
                 colSpan={8}
                 className="admin-clients-page__state-cell"
               >
-                No clients found.
+                No clients
+                found.
               </td>
             </tr>
           )}
 
           {!isLoading &&
             !loadError &&
-            clients.map((client) => (
-              <tr key={client.id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(client.id)}
-                    onChange={() => toggleSelected(client.id)}
-                    aria-label={`Select ${client.fullName}`}
-                  />
-                </td>
-
-                <td>{client.fullName}</td>
-
-                <td>{client.username || '-'}</td>
-
-                <td>{client.city || '-'}</td>
-
-                <td className="admin-clients-page__address">
-                  {client.address || '-'}
-                </td>
-
-                <td>-</td>
-
-                <td>
-                  <button
-                    type="button"
-                    className="admin-clients-page__view-link"
-                    onClick={() => openClientCard(client)}
-                  >
-                    <span>View</span>
-                    <span
-                      className="admin-clients-page__view-chevron"
-                      aria-hidden="true"
-                    >
-                      ›
-                    </span>
-                  </button>
-                </td>
-
-                <td>
-                  <button
-                    className="admin-clients-page__eye-button"
-                    type="button"
-                    aria-label={`Preview ${client.fullName}`}
-                    onClick={() => openClientCard(client)}
-                  >
-                    <img
-                      src={eyeIcon}
-                      alt=""
-                      aria-hidden="true"
-                      className="admin-clients-page__eye-icon"
+            clients.map(
+              (client) => (
+                <tr
+                  key={
+                    client.id
+                  }
+                >
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(
+                        client.id,
+                      )}
+                      onChange={() =>
+                        toggleSelected(
+                          client.id,
+                        )
+                      }
+                      aria-label={`Select ${client.fullName}`}
                     />
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  </td>
+
+                  <td>
+                    {
+                      client.fullName
+                    }
+                  </td>
+
+                  <td>
+                    {client.username ||
+                      '-'}
+                  </td>
+
+                  <td>
+                    {client.city ||
+                      '-'}
+                  </td>
+
+                  <td className="admin-clients-page__address">
+                    {client.address ||
+                      '-'}
+                  </td>
+
+                  <td>
+                    -
+                  </td>
+
+                  <td>
+                    <button
+                      type="button"
+                      className="admin-clients-page__view-link"
+                      onClick={() =>
+                        openClientCard(
+                          client,
+                        )
+                      }
+                    >
+                      <span>
+                        View
+                      </span>
+
+                      <span
+                        className="admin-clients-page__view-chevron"
+                        aria-hidden="true"
+                      >
+                        ›
+                      </span>
+                    </button>
+                  </td>
+
+                  <td>
+                    <button
+                      className="admin-clients-page__eye-button"
+                      type="button"
+                      aria-label={`Preview ${client.fullName}`}
+                      onClick={() =>
+                        openClientCard(
+                          client,
+                        )
+                      }
+                    >
+                      <img
+                        src={
+                          eyeIcon
+                        }
+                        alt=""
+                        aria-hidden="true"
+                        className="admin-clients-page__eye-icon"
+                      />
+                    </button>
+                  </td>
+                </tr>
+              ),
+            )}
         </tbody>
       </table>
 
       <div className="admin-clients-page__pagination">
         <button
           type="button"
-          disabled={!canGoPrev}
+          disabled={
+            isLoading ||
+            !canGoPrev
+          }
           onClick={() =>
-            setPage((current) => current - 1)
+            setPage(
+              (current) =>
+                current - 1,
+            )
           }
         >
           Prev
         </button>
 
-        {Array.from({ length: totalPages }).map(
+        {Array.from({
+          length:
+            totalPages,
+        }).map(
           (_, index) => (
             <button
               type="button"
-              key={index}
+              key={
+                index
+              }
               className={
                 index === page
                   ? 'admin-clients-page__pagination-active'
                   : undefined
               }
-              onClick={() => setPage(index)}
+              disabled={
+                isLoading
+              }
+              onClick={() =>
+                setPage(
+                  index,
+                )
+              }
             >
               {index + 1}
             </button>
@@ -372,9 +574,15 @@ function AdminClientsPage() {
 
         <button
           type="button"
-          disabled={!canGoNext}
+          disabled={
+            isLoading ||
+            !canGoNext
+          }
           onClick={() =>
-            setPage((current) => current + 1)
+            setPage(
+              (current) =>
+                current + 1,
+            )
           }
         >
           Next
@@ -384,18 +592,33 @@ function AdminClientsPage() {
       {viewedClient && (
         <ClientCardModal
           client={{
-            id: viewedClient.id,
-            name: viewedClient.fullName,
-            number: viewedClient.username,
-            city: viewedClient.city,
-            address: viewedClient.address,
+            id:
+              viewedClient.id,
+            name:
+              viewedClient.fullName,
+            number:
+              viewedClient.username,
+            city:
+              viewedClient.city,
+            address:
+              viewedClient.address,
           }}
-          onClose={() => setViewedClient(null)}
+          onClose={() =>
+            setViewedClient(
+              null,
+            )
+          }
           onEdit={() => {
-            const clientId = viewedClient.id
+            const clientId =
+              viewedClient.id
 
-            setViewedClient(null)
-            navigate(`/admin/clients/${clientId}/edit`)
+            setViewedClient(
+              null,
+            )
+
+            navigate(
+              `/admin/clients/${clientId}/edit`,
+            )
           }}
         />
       )}

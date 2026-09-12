@@ -3,7 +3,6 @@ import {
   useMemo,
   useState,
 } from 'react'
-
 import {
   Link,
   useNavigate,
@@ -11,7 +10,6 @@ import {
 
 import backButton from '../../assets/icon bell/Back Button black.svg'
 import logoGradient from '../../assets/icon bell/logo gradient.svg'
-
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
@@ -37,7 +35,11 @@ const parseNotificationDate = (
 
   const parsed = new Date(value)
 
-  if (Number.isNaN(parsed.getTime())) {
+  if (
+    Number.isNaN(
+      parsed.getTime(),
+    )
+  ) {
     return null
   }
 
@@ -55,7 +57,11 @@ const getDateLabel = (
     `${dateValue}T00:00:00`,
   )
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime(),
+    )
+  ) {
     return dateValue
   }
 
@@ -67,11 +73,12 @@ const getDateLabel = (
     today.getDate(),
   )
 
-  const notificationStart = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-  )
+  const notificationStart =
+    new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+    )
 
   const difference =
     todayStart.getTime() -
@@ -80,14 +87,21 @@ const getDateLabel = (
   const differenceInDays =
     Math.round(
       difference /
-        (1000 * 60 * 60 * 24),
+        (1000 *
+          60 *
+          60 *
+          24),
     )
 
-  if (differenceInDays === 0) {
+  if (
+    differenceInDays === 0
+  ) {
     return 'Today'
   }
 
-  if (differenceInDays === 1) {
+  if (
+    differenceInDays === 1
+  ) {
     return 'Yesterday'
   }
 
@@ -121,7 +135,10 @@ function NotificationsPage() {
   const [
     notifications,
     setNotifications,
-  ] = useState<NotificationResponse[]>([])
+  ] =
+    useState<
+      NotificationResponse[]
+    >([])
 
   const [
     isLoading,
@@ -134,26 +151,31 @@ function NotificationsPage() {
   ] = useState('')
 
   useEffect(() => {
+    let isMounted = true
+
     const loadNotifications =
       async () => {
         try {
-          setIsLoading(true)
-          setError('')
-
           const response =
             await getMyNotifications(
               0,
               100,
             )
 
+          if (!isMounted) {
+            return
+          }
+
           setNotifications(
-            response.content ?? [],
+            response.content ??
+              [],
           )
-        } catch (error) {
-          console.error(
-            'Failed to load notifications:',
-            error,
-          )
+
+          setError('')
+        } catch {
+          if (!isMounted) {
+            return
+          }
 
           setNotifications([])
 
@@ -161,11 +183,17 @@ function NotificationsPage() {
             'Failed to load notifications.',
           )
         } finally {
-          setIsLoading(false)
+          if (isMounted) {
+            setIsLoading(false)
+          }
         }
       }
 
     void loadNotifications()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const groups =
@@ -174,40 +202,57 @@ function NotificationsPage() {
     >(() => {
       const sorted = [
         ...notifications,
-      ].sort((first, second) => {
-        const firstDate =
-          parseNotificationDate(first)
+      ].sort(
+        (
+          first,
+          second,
+        ) => {
+          const firstDate =
+            parseNotificationDate(
+              first,
+            )
 
-        const secondDate =
-          parseNotificationDate(second)
+          const secondDate =
+            parseNotificationDate(
+              second,
+            )
 
-        if (
-          !firstDate ||
-          !secondDate
-        ) {
-          return 0
-        }
+          if (
+            !firstDate ||
+            !secondDate
+          ) {
+            return 0
+          }
 
-        return (
-          secondDate.getTime() -
-          firstDate.getTime()
-        )
-      })
+          return (
+            secondDate.getTime() -
+            firstDate.getTime()
+          )
+        },
+      )
 
-      const grouped = new Map<
-        string,
-        NotificationResponse[]
-      >()
+      const grouped =
+        new Map<
+          string,
+          NotificationResponse[]
+        >()
 
       sorted.forEach(
-        (notification) => {
+        (
+          notification,
+        ) => {
           const key =
-            getDateKey(notification)
+            getDateKey(
+              notification,
+            )
 
           const current =
-            grouped.get(key) ?? []
+            grouped.get(key) ??
+            []
 
-          current.push(notification)
+          current.push(
+            notification,
+          )
 
           grouped.set(
             key,
@@ -224,8 +269,9 @@ function NotificationsPage() {
           groupNotifications,
         ]) => ({
           label:
-            getDateLabel(date),
-
+            getDateLabel(
+              date,
+            ),
           notifications:
             groupNotifications,
         }),
@@ -264,7 +310,10 @@ function NotificationsPage() {
           </h1>
 
           {isLoading && (
-            <p className="notifications-state">
+            <p
+              className="notifications-state"
+              role="status"
+            >
               Loading notifications...
             </p>
           )}
@@ -281,14 +330,17 @@ function NotificationsPage() {
 
           {!isLoading &&
             !error &&
-            groups.length === 0 && (
+            groups.length ===
+              0 && (
               <div className="notifications-empty">
                 <strong>
-                  No notifications yet
+                  No notifications
+                  yet
                 </strong>
 
                 <p>
-                  Your notifications will
+                  Your
+                  notifications will
                   appear here.
                 </p>
               </div>
@@ -296,51 +348,59 @@ function NotificationsPage() {
 
           {!isLoading &&
             !error &&
-            groups.map((group) => (
-              <section
-                className="notifications-group"
-                key={group.label}
-              >
-                <p className="notifications-date">
-                  {group.label}
-                </p>
+            groups.map(
+              (group) => (
+                <section
+                  className="notifications-group"
+                  key={
+                    group.label
+                  }
+                >
+                  <p className="notifications-date">
+                    {
+                      group.label
+                    }
+                  </p>
 
-                {group.notifications.map(
-                  (notification) => (
-                    <article
-                      className="notification-item"
-                      key={
-                        notification.id
-                      }
-                    >
-                      <div className="notification-message">
-                        {notification.title && (
-                          <>
-                            <strong>
-                              {
-                                notification.title
-                              }
-                            </strong>
-
-                            <br />
-                          </>
-                        )}
-
-                        {
-                          notification.text
+                  {group.notifications.map(
+                    (
+                      notification,
+                    ) => (
+                      <article
+                        className="notification-item"
+                        key={
+                          notification.id
                         }
-                      </div>
+                      >
+                        <div className="notification-message">
+                          {notification.title && (
+                            <>
+                              <strong>
+                                {
+                                  notification.title
+                                }
+                              </strong>
 
-                      <time className="notification-time">
-                        {formatTime(
-                          notification.time,
-                        )}
-                      </time>
-                    </article>
-                  ),
-                )}
-              </section>
-            ))}
+                              <br />
+                            </>
+                          )}
+
+                          {
+                            notification.text
+                          }
+                        </div>
+
+                        <time className="notification-time">
+                          {formatTime(
+                            notification.time,
+                          )}
+                        </time>
+                      </article>
+                    ),
+                  )}
+                </section>
+              ),
+            )}
         </div>
 
         <nav
@@ -357,7 +417,9 @@ function NotificationsPage() {
               aria-hidden="true"
             />
 
-            <span>Home</span>
+            <span>
+              Home
+            </span>
           </Link>
 
           <Link
@@ -365,7 +427,9 @@ function NotificationsPage() {
             to="/favorites"
           >
             <img
-              src={favoritesIcon}
+              src={
+                favoritesIcon
+              }
               alt=""
               aria-hidden="true"
             />

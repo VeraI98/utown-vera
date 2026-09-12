@@ -68,8 +68,9 @@ function getRestaurantImage(
   if (
     imageUrl &&
     imageUrl.trim() &&
-    imageUrl.trim().toLowerCase() !==
-      'string'
+    imageUrl
+      .trim()
+      .toLowerCase() !== 'string'
   ) {
     return imageUrl
   }
@@ -154,12 +155,7 @@ function FavoritesPage() {
           )
 
           setErrorMessage('')
-        } catch (error) {
-          console.error(
-            'Failed to load favorites:',
-            error,
-          )
-
+        } catch {
           if (!isMounted) {
             return
           }
@@ -194,11 +190,13 @@ function FavoritesPage() {
         return
       }
 
-      try {
-        setRemovingRestaurantId(
-          restaurantId,
-        )
+      setRemovingRestaurantId(
+        restaurantId,
+      )
 
+      setErrorMessage('')
+
+      try {
         await removeRestaurantFromFavorites(
           restaurantId,
         )
@@ -213,12 +211,7 @@ function FavoritesPage() {
                   restaurantId,
             ),
         )
-      } catch (error) {
-        console.error(
-          'Failed to remove favorite:',
-          error,
-        )
-
+      } catch {
         setErrorMessage(
           'Failed to remove restaurant from favorites.',
         )

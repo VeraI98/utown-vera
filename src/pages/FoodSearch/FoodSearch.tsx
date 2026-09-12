@@ -3,9 +3,7 @@ import {
   useMemo,
   useState,
 } from 'react'
-import {
-  useNavigate,
-} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/search/Back button.svg'
 import bellIcon from '../../assets/search/bell.svg'
@@ -66,7 +64,8 @@ function isValidImageUrl(
     return false
   }
 
-  const value = imageUrl.trim()
+  const value =
+    imageUrl.trim()
 
   if (!value) {
     return false
@@ -80,7 +79,11 @@ function isValidImageUrl(
 function getRestaurantImage(
   restaurant: RestaurantResponse,
 ): string {
-  if (isValidImageUrl(restaurant.imageUrl)) {
+  if (
+    isValidImageUrl(
+      restaurant.imageUrl,
+    )
+  ) {
     return restaurant.imageUrl as string
   }
 
@@ -90,7 +93,11 @@ function getRestaurantImage(
 function getDishImage(
   dish: DishResponse,
 ): string {
-  if (isValidImageUrl(dish.imageUrl)) {
+  if (
+    isValidImageUrl(
+      dish.imageUrl,
+    )
+  ) {
     return dish.imageUrl as string
   }
 
@@ -102,7 +109,8 @@ function getRestaurantCategory(
 ): string {
   if (
     restaurant.category &&
-    restaurant.category.trim() !== ''
+    restaurant.category.trim() !==
+      ''
   ) {
     return restaurant.category
   }
@@ -115,7 +123,8 @@ function getDeliveryTime(
 ): string {
   if (
     restaurant.deliveryTime &&
-    restaurant.deliveryTime.trim() !== ''
+    restaurant.deliveryTime.trim() !==
+      ''
   ) {
     return restaurant.deliveryTime
   }
@@ -124,7 +133,10 @@ function getDeliveryTime(
 }
 
 function formatPrice(
-  value: number | null | undefined,
+  value:
+    | number
+    | null
+    | undefined,
 ): string {
   if (
     value === null ||
@@ -153,7 +165,9 @@ function parseOptionalNumber(
     Number(normalizedValue)
 
   if (
-    Number.isNaN(parsedValue) ||
+    Number.isNaN(
+      parsedValue,
+    ) ||
     parsedValue < 0
   ) {
     return undefined
@@ -173,12 +187,18 @@ function FoodSearch() {
   const [
     restaurants,
     setRestaurants,
-  ] = useState<RestaurantResponse[]>([])
+  ] =
+    useState<
+      RestaurantResponse[]
+    >([])
 
   const [
     dishes,
     setDishes,
-  ] = useState<DishResponse[]>([])
+  ] =
+    useState<DishResponse[]>(
+      [],
+    )
 
   const [
     isFilterOpen,
@@ -188,22 +208,34 @@ function FoodSearch() {
   const [
     appliedFilter,
     setAppliedFilter,
-  ] = useState<FilterValue>('all')
+  ] =
+    useState<FilterValue>(
+      'all',
+    )
 
   const [
     appliedSort,
     setAppliedSort,
-  ] = useState<SortValue>('recommended')
+  ] =
+    useState<SortValue>(
+      'recommended',
+    )
 
   const [
     appliedStatusFilter,
     setAppliedStatusFilter,
-  ] = useState<StatusFilter>('all')
+  ] =
+    useState<StatusFilter>(
+      'all',
+    )
 
   const [
     appliedMinRating,
     setAppliedMinRating,
-  ] = useState<RatingFilter>(0)
+  ] =
+    useState<RatingFilter>(
+      0,
+    )
 
   const [
     appliedCity,
@@ -223,22 +255,34 @@ function FoodSearch() {
   const [
     draftFilter,
     setDraftFilter,
-  ] = useState<FilterValue>('all')
+  ] =
+    useState<FilterValue>(
+      'all',
+    )
 
   const [
     draftSort,
     setDraftSort,
-  ] = useState<SortValue>('recommended')
+  ] =
+    useState<SortValue>(
+      'recommended',
+    )
 
   const [
     draftStatusFilter,
     setDraftStatusFilter,
-  ] = useState<StatusFilter>('all')
+  ] =
+    useState<StatusFilter>(
+      'all',
+    )
 
   const [
     draftMinRating,
     setDraftMinRating,
-  ] = useState<RatingFilter>(0)
+  ] =
+    useState<RatingFilter>(
+      0,
+    )
 
   const [
     draftCity,
@@ -308,51 +352,54 @@ function FoodSearch() {
 
             const restaurantRequest =
               needsAdvancedSearch
-                ? searchRestaurantsAdvanced({
-                    title:
-                      normalizedSearch,
+                ? searchRestaurantsAdvanced(
+                    {
+                      title:
+                        normalizedSearch,
 
-                    ...(appliedStatusFilter !==
-                    'all'
-                      ? {
-                          status:
-                            appliedStatusFilter,
-                        }
-                      : {}),
+                      ...(appliedStatusFilter !==
+                      'all'
+                        ? {
+                            status:
+                              appliedStatusFilter,
+                          }
+                        : {}),
 
-                    ...(appliedMinRating > 0
-                      ? {
-                          minRating:
-                            appliedMinRating,
-                        }
-                      : {}),
+                      ...(appliedMinRating >
+                      0
+                        ? {
+                            minRating:
+                              appliedMinRating,
+                          }
+                        : {}),
 
-                    ...(normalizedAppliedCity
-                      ? {
-                          city:
-                            normalizedAppliedCity,
-                        }
-                      : {}),
+                      ...(normalizedAppliedCity
+                        ? {
+                            city:
+                              normalizedAppliedCity,
+                          }
+                        : {}),
 
-                    ...(parsedAppliedMinOrderAmount !==
-                    undefined
-                      ? {
-                          minMinOrderAmount:
-                            parsedAppliedMinOrderAmount,
-                        }
-                      : {}),
+                      ...(parsedAppliedMinOrderAmount !==
+                      undefined
+                        ? {
+                            minMinOrderAmount:
+                              parsedAppliedMinOrderAmount,
+                          }
+                        : {}),
 
-                    ...(parsedAppliedMaxOrderAmount !==
-                    undefined
-                      ? {
-                          maxMinOrderAmount:
-                            parsedAppliedMaxOrderAmount,
-                        }
-                      : {}),
+                      ...(parsedAppliedMaxOrderAmount !==
+                      undefined
+                        ? {
+                            maxMinOrderAmount:
+                              parsedAppliedMaxOrderAmount,
+                          }
+                        : {}),
 
-                    page: 0,
-                    size: 50,
-                  })
+                      page: 0,
+                      size: 50,
+                    },
+                  )
                 : searchRestaurants(
                     normalizedSearch,
                     0,
@@ -362,15 +409,17 @@ function FoodSearch() {
             const [
               restaurantsResult,
               dishesResult,
-            ] = await Promise.allSettled([
-              restaurantRequest,
-
-              searchDishes(
-                normalizedSearch,
-                0,
-                50,
-              ),
-            ])
+            ] =
+              await Promise.allSettled(
+                [
+                  restaurantRequest,
+                  searchDishes(
+                    normalizedSearch,
+                    0,
+                    50,
+                  ),
+                ],
+              )
 
             if (!isMounted) {
               return
@@ -380,24 +429,21 @@ function FoodSearch() {
               restaurantsResult.status ===
               'fulfilled'
             ) {
-              const activeRestaurants = (
-                restaurantsResult.value
-                  .content ?? []
-              ).filter(
-                (restaurant) =>
-                  restaurant.isActive !==
-                  false,
-              )
+              const activeRestaurants =
+                (
+                  restaurantsResult
+                    .value.content ??
+                  []
+                ).filter(
+                  (restaurant) =>
+                    restaurant.isActive !==
+                    false,
+                )
 
               setRestaurants(
                 activeRestaurants,
               )
             } else {
-              console.error(
-                'Restaurant search failed:',
-                restaurantsResult.reason,
-              )
-
               setRestaurants([])
             }
 
@@ -405,24 +451,22 @@ function FoodSearch() {
               dishesResult.status ===
               'fulfilled'
             ) {
-              const activeDishes = (
-                dishesResult.value.content ??
-                []
-              ).filter(
-                (dish) =>
-                  dish.isActive !== false &&
-                  dish.isDeleted !== true,
-              )
+              const activeDishes =
+                (
+                  dishesResult.value
+                    .content ?? []
+                ).filter(
+                  (dish) =>
+                    dish.isActive !==
+                      false &&
+                    dish.isDeleted !==
+                      true,
+                )
 
               setDishes(
                 activeDishes,
               )
             } else {
-              console.error(
-                'Dish search failed:',
-                dishesResult.reason,
-              )
-
               setDishes([])
             }
 
@@ -436,12 +480,7 @@ function FoodSearch() {
                 'Failed to search.',
               )
             }
-          } catch (error) {
-            console.error(
-              'Food search failed:',
-              error,
-            )
-
+          } catch {
             if (!isMounted) {
               return
             }
@@ -484,7 +523,8 @@ function FoodSearch() {
       ]
 
       if (
-        appliedSort === 'rating'
+        appliedSort ===
+        'rating'
       ) {
         return results.sort(
           (
@@ -497,7 +537,8 @@ function FoodSearch() {
       }
 
       if (
-        appliedSort === 'recommended'
+        appliedSort ===
+        'recommended'
       ) {
         return results.sort(
           (
@@ -521,14 +562,16 @@ function FoodSearch() {
 
   const showRestaurants =
     appliedFilter === 'all' ||
-    appliedFilter === 'restaurants'
+    appliedFilter ===
+      'restaurants'
 
   const showDishes =
     appliedFilter === 'all' ||
     appliedFilter === 'dishes'
 
   const showPrompt =
-    normalizedSearch.length === 0
+    normalizedSearch.length ===
+    0
 
   const restaurantCount =
     showRestaurants
@@ -541,23 +584,30 @@ function FoodSearch() {
       : 0
 
   const totalVisibleResults =
-    restaurantCount + dishCount
+    restaurantCount +
+    dishCount
 
   const showEmptyResult =
-    normalizedSearch.length > 0 &&
+    normalizedSearch.length >
+      0 &&
     !isLoading &&
     !errorMessage &&
     totalVisibleResults === 0
 
   const hasAppliedFilters =
     appliedFilter !== 'all' ||
-    appliedSort !== 'recommended' ||
-    appliedStatusFilter !== 'all' ||
+    appliedSort !==
+      'recommended' ||
+    appliedStatusFilter !==
+      'all' ||
     appliedMinRating > 0 ||
-    normalizedAppliedCity.length > 0 ||
-    appliedMinOrderAmount.trim()
+    normalizedAppliedCity.length >
+      0 ||
+    appliedMinOrderAmount
+      .trim()
       .length > 0 ||
-    appliedMaxOrderAmount.trim()
+    appliedMaxOrderAmount
+      .trim()
       .length > 0
 
   const handleSearchChange = (
@@ -589,79 +639,86 @@ function FoodSearch() {
     )
   }
 
-  const handleOpenFilters = () => {
-    setDraftFilter(
-      appliedFilter,
-    )
+  const handleOpenFilters =
+    () => {
+      setDraftFilter(
+        appliedFilter,
+      )
 
-    setDraftSort(
-      appliedSort,
-    )
+      setDraftSort(
+        appliedSort,
+      )
 
-    setDraftStatusFilter(
-      appliedStatusFilter,
-    )
+      setDraftStatusFilter(
+        appliedStatusFilter,
+      )
 
-    setDraftMinRating(
-      appliedMinRating,
-    )
+      setDraftMinRating(
+        appliedMinRating,
+      )
 
-    setDraftCity(
-      appliedCity,
-    )
+      setDraftCity(
+        appliedCity,
+      )
 
-    setDraftMinOrderAmount(
-      appliedMinOrderAmount,
-    )
+      setDraftMinOrderAmount(
+        appliedMinOrderAmount,
+      )
 
-    setDraftMaxOrderAmount(
-      appliedMaxOrderAmount,
-    )
+      setDraftMaxOrderAmount(
+        appliedMaxOrderAmount,
+      )
 
-    setIsFilterOpen(true)
-  }
+      setIsFilterOpen(true)
+    }
 
-  const handleApplyFilters = () => {
-    setAppliedFilter(
-      draftFilter,
-    )
+  const handleApplyFilters =
+    () => {
+      setAppliedFilter(
+        draftFilter,
+      )
 
-    setAppliedSort(
-      draftSort,
-    )
+      setAppliedSort(
+        draftSort,
+      )
 
-    setAppliedStatusFilter(
-      draftStatusFilter,
-    )
+      setAppliedStatusFilter(
+        draftStatusFilter,
+      )
 
-    setAppliedMinRating(
-      draftMinRating,
-    )
+      setAppliedMinRating(
+        draftMinRating,
+      )
 
-    setAppliedCity(
-      draftCity,
-    )
+      setAppliedCity(
+        draftCity,
+      )
 
-    setAppliedMinOrderAmount(
-      draftMinOrderAmount,
-    )
+      setAppliedMinOrderAmount(
+        draftMinOrderAmount,
+      )
 
-    setAppliedMaxOrderAmount(
-      draftMaxOrderAmount,
-    )
+      setAppliedMaxOrderAmount(
+        draftMaxOrderAmount,
+      )
 
-    setIsFilterOpen(false)
-  }
+      setIsFilterOpen(false)
+    }
 
-  const handleResetFilters = () => {
-    setDraftFilter('all')
-    setDraftSort('recommended')
-    setDraftStatusFilter('all')
-    setDraftMinRating(0)
-    setDraftCity('')
-    setDraftMinOrderAmount('')
-    setDraftMaxOrderAmount('')
-  }
+  const handleResetFilters =
+    () => {
+      setDraftFilter('all')
+      setDraftSort(
+        'recommended',
+      )
+      setDraftStatusFilter(
+        'all',
+      )
+      setDraftMinRating(0)
+      setDraftCity('')
+      setDraftMinOrderAmount('')
+      setDraftMaxOrderAmount('')
+    }
 
   return (
     <main className="mobile-page food-search-page">
@@ -676,7 +733,9 @@ function FoodSearch() {
             aria-label="Go back"
           >
             <img
-              src={backButtonIcon}
+              src={
+                backButtonIcon
+              }
               alt=""
               aria-hidden="true"
             />
@@ -744,7 +803,8 @@ function FoodSearch() {
               value={searchValue}
               onChange={(event) =>
                 handleSearchChange(
-                  event.target.value,
+                  event.target
+                    .value,
                 )
               }
               placeholder="Search for restaurants and dishes"
@@ -784,7 +844,10 @@ function FoodSearch() {
             )}
 
             {isLoading && (
-              <p className="food-search-empty">
+              <p
+                className="food-search-empty"
+                role="status"
+              >
                 Searching...
               </p>
             )}
@@ -809,13 +872,17 @@ function FoodSearch() {
                     </h2>
 
                     <span className="food-search-section-count">
-                      {restaurantCount}
+                      {
+                        restaurantCount
+                      }
                     </span>
                   </div>
 
                   <div className="food-search-results">
                     {visibleRestaurants.map(
-                      (restaurant) => (
+                      (
+                        restaurant,
+                      ) => (
                         <button
                           className="food-search-result-card"
                           type="button"
@@ -836,6 +903,7 @@ function FoodSearch() {
                             alt={
                               restaurant.title
                             }
+                            loading="lazy"
                             onError={(
                               event,
                             ) => {
@@ -861,7 +929,8 @@ function FoodSearch() {
                             </p>
 
                             <span>
-                              Min. order:{' '}
+                              Min.
+                              order:{' '}
                               {formatPrice(
                                 restaurant.minOrderAmount,
                               )}{' '}
@@ -888,7 +957,9 @@ function FoodSearch() {
                     </h2>
 
                     <span className="food-search-section-count">
-                      {dishCount}
+                      {
+                        dishCount
+                      }
                     </span>
                   </div>
 
@@ -898,7 +969,9 @@ function FoodSearch() {
                         <button
                           className="food-search-result-card"
                           type="button"
-                          key={dish.id}
+                          key={
+                            dish.id
+                          }
                           onClick={() =>
                             handleDishClick(
                               dish,
@@ -913,6 +986,7 @@ function FoodSearch() {
                             alt={
                               dish.title
                             }
+                            loading="lazy"
                             onError={(
                               event,
                             ) => {
@@ -926,7 +1000,9 @@ function FoodSearch() {
 
                           <div className="food-search-result-info">
                             <h2>
-                              {dish.title}
+                              {
+                                dish.title
+                              }
                             </h2>
 
                             <p>
@@ -964,7 +1040,9 @@ function FoodSearch() {
           <section className="food-filter-panel">
             <div className="food-filter-content">
               <div className="food-filter-title-row">
-                <h1>Filter</h1>
+                <h1>
+                  Filter
+                </h1>
 
                 <button
                   className="food-filter-reset"
@@ -977,12 +1055,15 @@ function FoodSearch() {
                 </button>
               </div>
 
-              <h2>Show</h2>
+              <h2>
+                Show
+              </h2>
 
               <div className="food-filter-options">
                 <button
                   className={
-                    draftFilter === 'all'
+                    draftFilter ===
+                    'all'
                       ? 'active'
                       : ''
                   }
@@ -1071,7 +1152,9 @@ function FoodSearch() {
                 </button>
               </div>
 
-              <h2>Status</h2>
+              <h2>
+                Status
+              </h2>
 
               <div className="food-filter-options">
                 <button
@@ -1139,7 +1222,8 @@ function FoodSearch() {
                     )
                   }
                 >
-                  Temporarily closed
+                  Temporarily
+                  closed
                 </button>
 
                 <button
@@ -1160,18 +1244,23 @@ function FoodSearch() {
                 </button>
               </div>
 
-              <h2>Minimum rating</h2>
+              <h2>
+                Minimum rating
+              </h2>
 
               <div className="food-filter-options">
                 <button
                   className={
-                    draftMinRating === 0
+                    draftMinRating ===
+                    0
                       ? 'active'
                       : ''
                   }
                   type="button"
                   onClick={() =>
-                    setDraftMinRating(0)
+                    setDraftMinRating(
+                      0,
+                    )
                   }
                 >
                   Any
@@ -1179,13 +1268,16 @@ function FoodSearch() {
 
                 <button
                   className={
-                    draftMinRating === 3
+                    draftMinRating ===
+                    3
                       ? 'active'
                       : ''
                   }
                   type="button"
                   onClick={() =>
-                    setDraftMinRating(3)
+                    setDraftMinRating(
+                      3,
+                    )
                   }
                 >
                   3+
@@ -1193,13 +1285,16 @@ function FoodSearch() {
 
                 <button
                   className={
-                    draftMinRating === 4
+                    draftMinRating ===
+                    4
                       ? 'active'
                       : ''
                   }
                   type="button"
                   onClick={() =>
-                    setDraftMinRating(4)
+                    setDraftMinRating(
+                      4,
+                    )
                   }
                 >
                   4+
@@ -1223,7 +1318,9 @@ function FoodSearch() {
                 </button>
               </div>
 
-              <h2>City</h2>
+              <h2>
+                City
+              </h2>
 
               <input
                 className="food-filter-input"
@@ -1231,17 +1328,22 @@ function FoodSearch() {
                 value={draftCity}
                 onChange={(event) =>
                   setDraftCity(
-                    event.target.value,
+                    event.target
+                      .value,
                   )
                 }
                 placeholder="Enter city"
               />
 
-              <h2>Order amount</h2>
+              <h2>
+                Order amount
+              </h2>
 
               <div className="food-filter-price-row">
                 <label>
-                  <span>From</span>
+                  <span>
+                    From
+                  </span>
 
                   <input
                     className="food-filter-input"
@@ -1252,7 +1354,8 @@ function FoodSearch() {
                     }
                     onChange={(event) =>
                       setDraftMinOrderAmount(
-                        event.target.value,
+                        event.target
+                          .value,
                       )
                     }
                     placeholder="0"
@@ -1260,7 +1363,9 @@ function FoodSearch() {
                 </label>
 
                 <label>
-                  <span>To</span>
+                  <span>
+                    To
+                  </span>
 
                   <input
                     className="food-filter-input"
@@ -1271,7 +1376,8 @@ function FoodSearch() {
                     }
                     onChange={(event) =>
                       setDraftMaxOrderAmount(
-                        event.target.value,
+                        event.target
+                          .value,
                       )
                     }
                     placeholder="50000"

@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react'
+import {
+  useEffect,
+  useState,
+} from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/food-menu/Back button.svg'
@@ -7,9 +10,13 @@ import foodLogo from '../../assets/food-menu/food.svg'
 import mapIcon from '../../assets/food-menu/map.svg'
 import utLogo from '../../assets/food-menu/ut.svg'
 
-import { getRestaurants } from '../../services/restaurantService'
+import {
+  getRestaurants,
+} from '../../services/restaurantService'
 
-import type { RestaurantResponse } from '../../types/restaurant'
+import type {
+  RestaurantResponse,
+} from '../../types/restaurant'
 
 import './FoodMorePage.css'
 
@@ -20,12 +27,15 @@ interface FoodMorePageProps {
 function getRestaurantImage(
   restaurant: RestaurantResponse,
 ): string | null {
-  const imageUrl = restaurant.imageUrl
+  const imageUrl =
+    restaurant.imageUrl
 
   if (
     !imageUrl ||
     !imageUrl.trim() ||
-    imageUrl.trim().toLowerCase() === 'string'
+    imageUrl
+      .trim()
+      .toLowerCase() === 'string'
   ) {
     return null
   }
@@ -38,60 +48,69 @@ function FoodMorePage({
 }: FoodMorePageProps) {
   const navigate = useNavigate()
 
-  const [restaurants, setRestaurants] =
-    useState<RestaurantResponse[]>([])
+  const [
+    restaurants,
+    setRestaurants,
+  ] =
+    useState<RestaurantResponse[]>(
+      [],
+    )
 
-  const [isLoading, setIsLoading] =
-    useState(true)
+  const [
+    isLoading,
+    setIsLoading,
+  ] = useState(true)
 
-  const [errorMessage, setErrorMessage] =
-    useState('')
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState('')
 
   useEffect(() => {
     let isMounted = true
 
-    const loadRestaurants = async () => {
-      try {
-        setIsLoading(true)
-        setErrorMessage('')
+    const loadRestaurants =
+      async () => {
+        try {
+          const data =
+            await getRestaurants(
+              0,
+              100,
+            )
 
-        const data = await getRestaurants(
-          0,
-          100,
-        )
+          if (!isMounted) {
+            return
+          }
 
-        if (!isMounted) {
-          return
-        }
+          const activeRestaurants = (
+            data.content ?? []
+          ).filter(
+            (restaurant) =>
+              restaurant.isActive !==
+              false,
+          )
 
-        const activeRestaurants = (
-          data.content ?? []
-        ).filter(
-          (restaurant) =>
-            restaurant.isActive !== false,
-        )
+          setRestaurants(
+            activeRestaurants,
+          )
 
-        setRestaurants(activeRestaurants)
-      } catch (error) {
-        console.error(
-          'Failed to load restaurants:',
-          error,
-        )
+          setErrorMessage('')
+        } catch {
+          if (!isMounted) {
+            return
+          }
 
-        if (!isMounted) {
-          return
-        }
+          setRestaurants([])
 
-        setRestaurants([])
-        setErrorMessage(
-          'Failed to load restaurants.',
-        )
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
+          setErrorMessage(
+            'Failed to load restaurants.',
+          )
+        } finally {
+          if (isMounted) {
+            setIsLoading(false)
+          }
         }
       }
-    }
 
     void loadRestaurants()
 
@@ -115,11 +134,15 @@ function FoodMorePage({
           <button
             className="food-more-header-button"
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() =>
+              navigate(-1)
+            }
             aria-label="Go back"
           >
             <img
-              src={backButtonIcon}
+              src={
+                backButtonIcon
+              }
               alt=""
               aria-hidden="true"
             />
@@ -144,7 +167,9 @@ function FoodMorePage({
             className="food-more-header-button"
             type="button"
             onClick={() =>
-              navigate('/notifications')
+              navigate(
+                '/notifications',
+              )
             }
             aria-label="Notifications"
           >
@@ -169,7 +194,9 @@ function FoodMorePage({
         </div>
 
         <div className="food-more-content">
-          <h1>{title}</h1>
+          <h1>
+            {title}
+          </h1>
 
           {isLoading && (
             <div
@@ -193,26 +220,33 @@ function FoodMorePage({
                 className="food-more-error"
                 role="alert"
               >
-                {errorMessage}
+                {
+                  errorMessage
+                }
               </div>
             )}
 
           {!isLoading &&
             !errorMessage &&
-            restaurants.length === 0 && (
+            restaurants.length ===
+              0 && (
               <div className="food-more-state">
                 <p>
-                  No restaurants available.
+                  No restaurants
+                  available.
                 </p>
               </div>
             )}
 
           {!isLoading &&
             !errorMessage &&
-            restaurants.length > 0 && (
+            restaurants.length >
+              0 && (
               <div className="food-more-list">
                 {restaurants.map(
-                  (restaurant) => {
+                  (
+                    restaurant,
+                  ) => {
                     const imageUrl =
                       getRestaurantImage(
                         restaurant,
@@ -222,7 +256,9 @@ function FoodMorePage({
                       <button
                         className="food-more-card"
                         type="button"
-                        key={restaurant.id}
+                        key={
+                          restaurant.id
+                        }
                         onClick={() =>
                           handleRestaurantClick(
                             restaurant.id,
@@ -232,15 +268,58 @@ function FoodMorePage({
                         <div className="food-more-card-image">
                           {imageUrl ? (
                             <img
-                              src={imageUrl}
+                              src={
+                                imageUrl
+                              }
                               alt={
                                 restaurant.title
                               }
                               loading="lazy"
+                              onError={(
+                                event,
+                              ) => {
+                                event.currentTarget.style.display =
+                                  'none'
+
+                                const parent =
+                                  event
+                                    .currentTarget
+                                    .parentElement
+
+                                if (
+                                  parent &&
+                                  !parent.querySelector(
+                                    '[data-image-fallback]',
+                                  )
+                                ) {
+                                  const fallback =
+                                    document.createElement(
+                                      'span',
+                                    )
+
+                                  fallback.setAttribute(
+                                    'data-image-fallback',
+                                    'true',
+                                  )
+
+                                  fallback.setAttribute(
+                                    'aria-hidden',
+                                    'true',
+                                  )
+
+                                  fallback.textContent =
+                                    '🍽️'
+
+                                  parent.appendChild(
+                                    fallback,
+                                  )
+                                }
+                              }}
                             />
                           ) : (
                             <span
                               aria-hidden="true"
+                              data-image-fallback="true"
                             >
                               🍽️
                             </span>
