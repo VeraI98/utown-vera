@@ -124,6 +124,18 @@
   cursor: default;
 }
 
+.admin-establishments-page__add-button {
+  height: 32px;
+  padding: 0 14px;
+  background: #171717;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
 .admin-establishments-page__table {
   width: 100%;
   border-collapse: collapse;

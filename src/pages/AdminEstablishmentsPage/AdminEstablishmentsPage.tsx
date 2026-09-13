@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import './AdminEstablishmentsPage.css'
 import EstablishmentCardModal from './EstablishmentCardModal'
@@ -25,6 +26,7 @@ const SORTABLE_COLUMNS = [
 ]
 
 function AdminEstablishmentsPage() {
+  const navigate = useNavigate()
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [viewedEstablishment, setViewedEstablishment] =
     useState<EstablishmentResponse | null>(null)
@@ -245,6 +247,14 @@ function AdminEstablishmentsPage() {
             >
               Apply
             </button>
+
+            <button
+              className="admin-establishments-page__add-button"
+              type="button"
+              onClick={() => navigate('/admin/establishments/add')}
+            >
+              Add establishment
+            </button>
           </div>
         </div>
       </div>
@@ -363,7 +373,11 @@ function AdminEstablishmentsPage() {
                   <button
                     className="admin-establishments-page__view-link"
                     type="button"
-                    disabled
+                    onClick={() =>
+                      navigate(
+                        `/admin/establishments/${establishment.id}/positions`,
+                      )
+                    }
                   >
                     <span>View</span>
                     <span

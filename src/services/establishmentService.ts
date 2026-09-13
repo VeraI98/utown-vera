@@ -1,7 +1,33 @@
 import { api } from './api'
 
 import type { EstablishmentResponse } from '../types/establishment'
-import type { PaginatedResponse } from '../types/restaurant'
+import type {
+  PaginatedResponse,
+  RestaurantResponse,
+} from '../types/restaurant'
+
+export interface CreateEstablishmentAddress {
+  city?: string
+  area?: string
+  street?: string
+  details?: string
+  fullAddress?: string
+  state?: string
+  postcode?: string
+  intercomCode?: string
+}
+
+export interface CreateEstablishmentRequest {
+  title: string
+  description?: string
+  category: string
+  deliveryTime?: string
+  facilities?: string
+  minOrderAmount: number
+  phone?: string
+  imageUrl?: string
+  address: CreateEstablishmentAddress
+}
 
 export interface GetEstablishmentsParams {
   page?: number
@@ -54,4 +80,27 @@ export async function deleteEstablishment(
   await api.delete(
     `/admin/restaurants/${establishmentId}`,
   )
+}
+
+export async function createEstablishment(
+  request: CreateEstablishmentRequest,
+): Promise<RestaurantResponse> {
+  const { data } = await api.post<RestaurantResponse>(
+    '/admin/restaurants',
+    request,
+  )
+
+  return data
+}
+
+export async function updateEstablishment(
+  establishmentId: number,
+  request: CreateEstablishmentRequest,
+): Promise<RestaurantResponse> {
+  const { data } = await api.put<RestaurantResponse>(
+    `/admin/restaurants/${establishmentId}`,
+    request,
+  )
+
+  return data
 }

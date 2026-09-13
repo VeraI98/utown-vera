@@ -23,6 +23,26 @@ export async function searchDishes(
   return data
 }
 
+export async function getDishesByRestaurant(
+  restaurantId: number,
+  page = 0,
+  size = 100,
+): Promise<PaginatedResponse<DishResponse>> {
+  const { data } = await api.get<
+    PaginatedResponse<DishResponse>
+  >(
+    `/dishes/restaurant/${restaurantId}`,
+    {
+      params: {
+        page,
+        size,
+      },
+    },
+  )
+
+  return data
+}
+
 export async function getDishesByCategory(
   categoryId: number,
   page = 0,

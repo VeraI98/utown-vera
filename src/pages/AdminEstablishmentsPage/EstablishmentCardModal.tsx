@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import './EstablishmentCardModal.css'
 import { getRestaurantById } from '../../services/restaurantService'
@@ -38,6 +39,7 @@ function EstablishmentCardModal({
   onClose,
   onDelete,
 }: EstablishmentCardModalProps) {
+  const navigate = useNavigate()
   const [operatingModes, setOperatingModes] = useState<
     RestaurantOperatingMode[]
   >([])
@@ -125,7 +127,9 @@ function EstablishmentCardModal({
               <button
                 className="establishment-card-modal__panel-button"
                 type="button"
-                disabled
+                onClick={() =>
+                  navigate(`/admin/establishments/${establishment.id}/edit`)
+                }
               >
                 Edit account
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
