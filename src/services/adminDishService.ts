@@ -1,6 +1,7 @@
 import { api } from './api'
 
 import type {
+  DishOption,
   DishResponse,
   PaginatedResponse,
 } from '../types/restaurant'
@@ -97,4 +98,50 @@ export async function deactivateDish(
   dishId: number,
 ): Promise<void> {
   await api.patch(`/dishes/${dishId}/deactivate`)
+}
+
+export interface CreateElementRequest {
+  name: string
+  description?: string
+  price?: number
+}
+
+export interface CreateOptionRequest {
+  name: string
+  isRequired?: boolean
+  min?: number
+  max?: number
+  elements: CreateElementRequest[]
+}
+
+export async function createDishOption(
+  dishId: number,
+  request: CreateOptionRequest,
+): Promise<DishOption> {
+  const { data } = await api.post<DishOption>(
+    `/admin/dishes/${dishId}/options`,
+    request,
+  )
+
+  return data
+}
+
+export async function updateDishOption(
+  dishId: number,
+  optionId: number,
+  request: CreateOptionRequest,
+): Promise<DishOption> {
+  const { data } = await api.put<DishOption>(
+    `/admin/dishes/${dishId}/options/${optionId}`,
+    request,
+  )
+
+  return data
+}
+
+export async function deleteDishOption(
+  dishId: number,
+  optionId: number,
+): Promise<void> {
+  await api.delete(`/admin/dishes/${dishId}/options/${optionId}`)
 }

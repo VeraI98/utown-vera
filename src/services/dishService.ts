@@ -23,6 +23,16 @@ export async function searchDishes(
   return data
 }
 
+export async function getDishById(
+  dishId: number,
+): Promise<DishResponse> {
+  const { data } = await api.get<DishResponse>(
+    `/dishes/${dishId}`,
+  )
+
+  return data
+}
+
 export async function getDishesByRestaurant(
   restaurantId: number,
   page = 0,

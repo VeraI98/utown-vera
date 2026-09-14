@@ -2,27 +2,18 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import AddCategoryModal from './AddCategoryModal'
-import AddPositionModal from './AddPositionModal'
 import './AdminPositionsPage.css'
-import EditPositionModal from './EditPositionModal'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import {
   activateDish,
-  createDish,
   deactivateDish,
   deleteDish,
   updateDish,
 } from '../../services/adminDishService'
-import {
-  createCategory,
-  getCategoriesByRestaurant,
-} from '../../services/categoryService'
+import { createCategory } from '../../services/categoryService'
 import { getDishesByRestaurant } from '../../services/dishService'
 import { getEstablishmentById } from '../../services/establishmentService'
-import type {
-  DishCategoryResponse,
-  DishResponse,
-} from '../../types/restaurant'
+import type { DishResponse } from '../../types/restaurant'
 
 const PAGE_SIZE = 10
 
@@ -49,8 +40,6 @@ function AdminPositionsPage() {
 
   const [establishmentName, setEstablishmentName] = useState('')
 
-  const [categories, setCategories] = useState<DishCategoryResponse[]>([])
-
   const [allDishes, setAllDishes] = useState<DishResponse[]>([])
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -67,9 +56,7 @@ function AdminPositionsPage() {
     Record<number, string>
   >({})
 
-  const [isAddPositionOpen, setIsAddPositionOpen] = useState(false)
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false)
-  const [editingDish, setEditingDish] = useState<DishResponse | null>(null)
   const [dishToDelete, setDishToDelete] = useState<DishResponse | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
@@ -99,32 +86,6 @@ function AdminPositionsPage() {
       isMounted = false
     }
   }, [restaurantId])
-
-  useEffect(() => {
-    let isMounted = true
-
-    const loadCategories = async () => {
-      if (!restaurantId) {
-        return
-      }
-
-      try {
-        const data = await getCategoriesByRestaurant(restaurantId)
-
-        if (isMounted) {
-          setCategories(data.content)
-        }
-      } catch (error) {
-        console.error('Failed to load categories:', error)
-      }
-    }
-
-    void loadCategories()
-
-    return () => {
-      isMounted = false
-    }
-  }, [restaurantId, reloadKey])
 
   useEffect(() => {
     let isMounted = true
@@ -272,24 +233,6 @@ function AdminPositionsPage() {
     }
   }
 
-  const handleAddPosition = async (input: {
-    title: string
-    description: string
-    price: number
-    dishCategoryId: number
-  }) => {
-    await createDish({
-      title: input.title,
-      description: input.description || undefined,
-      price: input.price,
-      restaurantId,
-      dishCategoryId: input.dishCategoryId,
-    })
-
-    setIsAddPositionOpen(false)
-    setReloadKey((current) => current + 1)
-  }
-
   const handleAddCategory = async (name: string) => {
     await createCategory({
       name,
@@ -297,27 +240,6 @@ function AdminPositionsPage() {
     })
 
     setIsAddCategoryOpen(false)
-    setReloadKey((current) => current + 1)
-  }
-
-  const handleEditPosition = async (input: {
-    title: string
-    description: string
-    price: number
-    dishCategoryId: number
-  }) => {
-    if (!editingDish) {
-      return
-    }
-
-    await updateDish(editingDish.id, {
-      title: input.title,
-      description: input.description,
-      price: input.price,
-      dishCategoryId: input.dishCategoryId,
-    })
-
-    setEditingDish(null)
     setReloadKey((current) => current + 1)
   }
 
@@ -368,7 +290,11 @@ function AdminPositionsPage() {
             <button
               type="button"
               className="admin-positions-page__title-button"
-              onClick={() => setIsAddPositionOpen(true)}
+              onClick={() =>
+                navigate(
+                  `/admin/establishments/${restaurantId}/positions/add`,
+                )
+              }
             >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle
@@ -611,7 +537,11 @@ function AdminPositionsPage() {
                     <button
                       className="admin-positions-page__edit-link"
                       type="button"
-                      onClick={() => setEditingDish(dish)}
+                      onClick={() =>
+                        navigate(
+                          `/admin/establishments/${restaurantId}/positions/${dish.id}/edit`,
+                        )
+                      }
                     >
                       <span>Edit</span>
                       <span
@@ -684,27 +614,10 @@ function AdminPositionsPage() {
         </button>
       </div>
 
-      {isAddPositionOpen && (
-        <AddPositionModal
-          categories={categories}
-          onSave={handleAddPosition}
-          onCancel={() => setIsAddPositionOpen(false)}
-        />
-      )}
-
       {isAddCategoryOpen && (
         <AddCategoryModal
           onSave={handleAddCategory}
           onCancel={() => setIsAddCategoryOpen(false)}
-        />
-      )}
-
-      {editingDish && (
-        <EditPositionModal
-          dish={editingDish}
-          categories={categories}
-          onSave={handleEditPosition}
-          onCancel={() => setEditingDish(null)}
         />
       )}
 

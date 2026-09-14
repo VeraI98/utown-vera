@@ -14,6 +14,8 @@ import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
 import AdminEstablishmentAddPage from '../pages/AdminEstablishmentAddPage/AdminEstablishmentAddPage'
 import AdminEstablishmentEditPage from '../pages/AdminEstablishmentEditPage/AdminEstablishmentEditPage'
 import AdminEstablishmentsPage from '../pages/AdminEstablishmentsPage/AdminEstablishmentsPage'
+import AdminPositionAddPage from '../pages/AdminPositionAddPage/AdminPositionAddPage'
+import AdminPositionEditPage from '../pages/AdminPositionEditPage/AdminPositionEditPage'
 import AdminPositionsPage from '../pages/AdminPositionsPage/AdminPositionsPage'
 import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
 import FavoritesPage from '../pages/FavoritesPage/FavoritesPage'
@@ -261,6 +263,18 @@ export const router =
           path: 'establishments/:establishmentId/positions',
           element: (
             <AdminPositionsPage />
+          ),
+        },
+        {
+          path: 'establishments/:establishmentId/positions/add',
+          element: (
+            <AdminPositionAddPage />
+          ),
+        },
+        {
+          path: 'establishments/:establishmentId/positions/:positionId/edit',
+          element: (
+            <AdminPositionEditPage />
           ),
         },
       ],
