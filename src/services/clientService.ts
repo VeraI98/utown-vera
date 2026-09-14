@@ -61,6 +61,14 @@ export async function createClient(
   return data
 }
 
+export async function deleteClient(
+  clientId: number,
+): Promise<void> {
+  await api.delete(
+    `/admin/clients/${clientId}`,
+  )
+}
+
 export async function updateClient(
   clientId: number,
   request: UpdateClientRequest,

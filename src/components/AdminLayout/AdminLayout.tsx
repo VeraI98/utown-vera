@@ -99,8 +99,17 @@ function AdminLayout() {
                   Riders
                 </li>
 
-                <li className="admin-layout__sidebar-link">
-                  Establishments
+                <li>
+                  <NavLink
+                    to="/admin/establishments"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'admin-layout__sidebar-link admin-layout__sidebar-link--active'
+                        : 'admin-layout__sidebar-link'
+                    }
+                  >
+                    Establishments
+                  </NavLink>
                 </li>
 
                 <li className="admin-layout__sidebar-link">

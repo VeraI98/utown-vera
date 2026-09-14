@@ -1,0 +1,255 @@
+.admin-establishment-add-page {
+  width: 100%;
+  padding: 32px 22px 60px;
+  color: #101828;
+}
+
+.admin-establishment-add-page h1 {
+  margin: 0 0 24px;
+  font-size: 40px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.admin-establishment-add-page__breadcrumb {
+  margin: 0 0 40px;
+  font-size: 16px;
+  color: #68717a;
+}
+
+.admin-establishment-add-page__breadcrumb-link {
+  color: #7749f8;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.admin-establishment-add-page__card {
+  width: 700px;
+  max-width: 100%;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+
+.admin-establishment-add-page__photo {
+  display: flex;
+  height: 176px;
+  margin-bottom: 32px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.admin-establishment-add-page__photo-input {
+  display: none;
+}
+
+.admin-establishment-add-page__photo-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 176px;
+  flex-shrink: 0;
+  background: #ececec;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.admin-establishment-add-page__photo-upload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-establishment-add-page__photo-upload svg {
+  width: 28px;
+  height: 28px;
+  color: #101828;
+}
+
+.admin-establishment-add-page__photo-fill {
+  flex: 1;
+  background: #f5f5f5;
+}
+
+.admin-establishment-add-page__field {
+  margin-bottom: 24px;
+}
+
+.admin-establishment-add-page__field:last-child {
+  margin-bottom: 0;
+}
+
+.admin-establishment-add-page__field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #101828;
+}
+
+.admin-establishment-add-page__field input,
+.admin-establishment-add-page__field select,
+.admin-establishment-add-page__field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 16px;
+  border: 1px solid #98a2b3;
+  border-radius: 4px;
+  outline: none;
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  color: #101828;
+}
+
+.admin-establishment-add-page__field input,
+.admin-establishment-add-page__field select {
+  height: 40px;
+}
+
+.admin-establishment-add-page__field textarea {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  min-height: 96px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.admin-establishment-add-page__field input:focus,
+.admin-establishment-add-page__field select:focus,
+.admin-establishment-add-page__field textarea:focus {
+  border-color: #667085;
+}
+
+.admin-establishment-add-page__field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'><path d='M5 7.5L10 12.5L15 7.5' stroke='%2398a2b3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+.admin-establishment-add-page__hours-title {
+  margin-bottom: 12px;
+}
+
+.admin-establishment-add-page__hours-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.admin-establishment-add-page__hours-day {
+  box-sizing: border-box;
+  width: 140px;
+  flex-shrink: 0;
+  height: 40px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #98a2b3;
+  border-radius: 4px;
+  background: #f9fafb;
+  font-size: 16px;
+  color: #101828;
+}
+
+.admin-establishment-add-page__hours-controls {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #98a2b3;
+  border-radius: 4px;
+}
+
+.admin-establishment-add-page__hours-controls input[type='time'] {
+  box-sizing: border-box;
+  flex: 1;
+  height: 28px;
+  padding: 0 6px;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 15px;
+  color: #101828;
+}
+
+.admin-establishment-add-page__hours-controls input[type='time']:disabled {
+  color: #98a2b3;
+  background: none;
+}
+
+.admin-establishment-add-page__hours-dash {
+  color: #68717a;
+}
+
+.admin-establishment-add-page__hours-dayoff {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: #68717a;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-establishment-add-page__hours-dayoff input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.admin-establishment-add-page__error {
+  margin: 16px 0 0;
+  font-size: 14px;
+  color: #d92d20;
+}
+
+.admin-establishment-add-page__hint {
+  margin: 16px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #98a2b3;
+}
+
+.admin-establishment-add-page__actions {
+  display: flex;
+  justify-content: center;
+  gap: 17px;
+  margin-top: 40px;
+}
+
+.admin-establishment-add-page__cancel-button,
+.admin-establishment-add-page__add-button {
+  width: 211px;
+  height: 55px;
+  border: none;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.admin-establishment-add-page__cancel-button {
+  background: #f5f5f5;
+  color: #101828;
+}
+
+.admin-establishment-add-page__add-button {
+  background: #171717;
+  color: #fff;
+}
+
+.admin-establishment-add-page__add-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
