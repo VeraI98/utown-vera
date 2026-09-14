@@ -35,11 +35,7 @@ function ContactSupportPage() {
             <img src={backButton} alt="" aria-hidden="true" />
           </button>
 
-          <img
-            className="support-logo"
-            src={logoWhite}
-            alt="UTOWN"
-          />
+          <img className="support-logo" src={logoWhite} alt="UTOWN" />
 
           <button
             className="support-header-button"

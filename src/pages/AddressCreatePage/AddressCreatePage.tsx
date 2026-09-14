@@ -1,13 +1,6 @@
 import axios from 'axios'
-import {
-  type ChangeEvent,
-  type FormEvent,
-  useState,
-} from 'react'
-import {
-  useLocation,
-  useNavigate,
-} from 'react-router-dom'
+import { type ChangeEvent, type FormEvent, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/order/Back button.svg'
 import foodLogo from '../../assets/order/food.svg'
@@ -15,10 +8,7 @@ import utLogo from '../../assets/order/ut.svg'
 
 import { createAddress } from '../../services/addressService'
 
-import type {
-  AddressResponse,
-  CreateAddressRequest,
-} from '../../types/address'
+import type { AddressResponse, CreateAddressRequest } from '../../types/address'
 
 import './AddressCreatePage.css'
 
@@ -55,26 +45,20 @@ const initialFormState: AddressFormState = {
   intercomCode: '',
 }
 
-function getErrorMessage(
-  error: unknown,
-): string {
+function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
-    const responseData =
-      error.response?.data
+    const responseData = error.response?.data
 
     if (
       responseData &&
       typeof responseData === 'object' &&
       'message' in responseData &&
-      typeof responseData.message ===
-        'string'
+      typeof responseData.message === 'string'
     ) {
       return responseData.message
     }
 
-    if (
-      typeof responseData === 'string'
-    ) {
+    if (typeof responseData === 'string') {
       return responseData
     }
   }
@@ -86,62 +70,39 @@ function AddressCreatePage() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const locationState =
-    location.state as
-      | AddressCreatePageState
-      | null
+  const locationState = location.state as AddressCreatePageState | null
 
-  const [form, setForm] =
-    useState<AddressFormState>(
-      initialFormState,
-    )
+  const [form, setForm] = useState<AddressFormState>(initialFormState)
 
-  const [isSaving, setIsSaving] =
-    useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
-  const [
-    errorMessage,
-    setErrorMessage,
-  ] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleChange = (
-    event: ChangeEvent<
-      | HTMLInputElement
-      | HTMLTextAreaElement
-    >,
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    const {
-      name,
-      value,
-    } = event.target
+    const { name, value } = event.target
 
-    setForm(
-      (currentForm) => ({
-        ...currentForm,
-        [name]: value,
-      }),
-    )
+    setForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }))
 
     setErrorMessage('')
   }
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (isSaving) {
       return
     }
 
-    const latitude =
-      Number(form.latitude)
+    const latitude = Number(form.latitude)
 
-    const longitude =
-      Number(form.longitude)
+    const longitude = Number(form.longitude)
 
-    const typeAddress =
-      Number(form.typeAddress)
+    const typeAddress = Number(form.typeAddress)
 
     if (
       !form.fullAddress.trim() ||
@@ -149,9 +110,7 @@ function AddressCreatePage() {
       !form.street.trim() ||
       !form.postcode.trim()
     ) {
-      setErrorMessage(
-        'Please fill in the required address fields.',
-      )
+      setErrorMessage('Please fill in the required address fields.')
 
       return
     }
@@ -168,68 +127,45 @@ function AddressCreatePage() {
       return
     }
 
-    const request:
-      CreateAddressRequest = {
-        area: form.area.trim(),
-        city: form.city.trim(),
-        details:
-          form.details.trim(),
-        fullAddress:
-          form.fullAddress.trim(),
-        latitude,
-        longitude,
-        postcode:
-          form.postcode.trim(),
-        state:
-          form.state.trim(),
-        street:
-          form.street.trim(),
-        typeAddress,
-        intercomCode:
-          form.intercomCode.trim(),
-      }
+    const request: CreateAddressRequest = {
+      area: form.area.trim(),
+      city: form.city.trim(),
+      details: form.details.trim(),
+      fullAddress: form.fullAddress.trim(),
+      latitude,
+      longitude,
+      postcode: form.postcode.trim(),
+      state: form.state.trim(),
+      street: form.street.trim(),
+      typeAddress,
+      intercomCode: form.intercomCode.trim(),
+    }
 
     try {
       setIsSaving(true)
       setErrorMessage('')
 
-      const createdAddress =
-        await createAddress(
-          request,
-        )
+      const createdAddress = await createAddress(request)
 
-      const returnTo =
-        locationState?.returnTo ??
-        '/account'
+      const returnTo = locationState?.returnTo ?? '/account'
 
-      if (
-        returnTo ===
-        '/food/order/payment'
-      ) {
-        navigate(
-          '/food/order/payment',
-          {
-            replace: true,
-            state: {
-              ...(locationState ?? {}),
-              createdAddress,
-            },
+      if (returnTo === '/food/order/payment') {
+        navigate('/food/order/payment', {
+          replace: true,
+          state: {
+            ...(locationState ?? {}),
+            createdAddress,
           },
-        )
+        })
 
         return
       }
 
-      navigate(
-        returnTo,
-        {
-          replace: true,
-        },
-      )
+      navigate(returnTo, {
+        replace: true,
+      })
     } catch (error) {
-      setErrorMessage(
-        getErrorMessage(error),
-      )
+      setErrorMessage(getErrorMessage(error))
     } finally {
       setIsSaving(false)
     }
@@ -241,74 +177,43 @@ function AddressCreatePage() {
         <button
           className="address-create-page__header-button"
           type="button"
-          onClick={() =>
-            navigate(-1)
-          }
+          onClick={() => navigate(-1)}
           aria-label="Go back"
           disabled={isSaving}
         >
-          <img
-            src={backButtonIcon}
-            alt=""
-            aria-hidden="true"
-          />
+          <img src={backButtonIcon} alt="" aria-hidden="true" />
         </button>
 
-        <div
-          className="address-create-page__logo"
-          aria-label="UT Food"
-        >
-          <img
-            src={utLogo}
-            alt="UT"
-          />
+        <div className="address-create-page__logo" aria-label="UT Food">
+          <img src={utLogo} alt="UT" />
 
-          <img
-            src={foodLogo}
-            alt="Food"
-          />
+          <img src={foodLogo} alt="Food" />
         </div>
 
         <div />
       </header>
 
       <section className="address-create-page__content">
-        <h1>
-          Add delivery address
-        </h1>
+        <h1>Add delivery address</h1>
 
         <p className="address-create-page__intro">
-          Enter the address details
-          that will be used for
-          delivery.
+          Enter the address details that will be used for delivery.
         </p>
 
         {errorMessage && (
-          <div
-            className="address-create-page__error"
-            role="alert"
-          >
+          <div className="address-create-page__error" role="alert">
             {errorMessage}
           </div>
         )}
 
-        <form
-          className="address-create-page__form"
-          onSubmit={handleSubmit}
-        >
+        <form className="address-create-page__form" onSubmit={handleSubmit}>
           <label>
-            <span>
-              Full address *
-            </span>
+            <span>Full address *</span>
 
             <input
               name="fullAddress"
-              value={
-                form.fullAddress
-              }
-              onChange={
-                handleChange
-              }
+              value={form.fullAddress}
+              onChange={handleChange}
               placeholder="Full delivery address"
               disabled={isSaving}
               required
@@ -316,16 +221,12 @@ function AddressCreatePage() {
           </label>
 
           <label>
-            <span>
-              Street *
-            </span>
+            <span>Street *</span>
 
             <input
               name="street"
               value={form.street}
-              onChange={
-                handleChange
-              }
+              onChange={handleChange}
               placeholder="Street"
               disabled={isSaving}
               required
@@ -334,41 +235,27 @@ function AddressCreatePage() {
 
           <div className="address-create-page__row">
             <label>
-              <span>
-                City *
-              </span>
+              <span>City *</span>
 
               <input
                 name="city"
                 value={form.city}
-                onChange={
-                  handleChange
-                }
+                onChange={handleChange}
                 placeholder="City"
-                disabled={
-                  isSaving
-                }
+                disabled={isSaving}
                 required
               />
             </label>
 
             <label>
-              <span>
-                Postcode *
-              </span>
+              <span>Postcode *</span>
 
               <input
                 name="postcode"
-                value={
-                  form.postcode
-                }
-                onChange={
-                  handleChange
-                }
+                value={form.postcode}
+                onChange={handleChange}
                 placeholder="Postcode"
-                disabled={
-                  isSaving
-                }
+                disabled={isSaving}
                 required
               />
             </label>
@@ -376,135 +263,89 @@ function AddressCreatePage() {
 
           <div className="address-create-page__row">
             <label>
-              <span>
-                State / Province
-              </span>
+              <span>State / Province</span>
 
               <input
                 name="state"
                 value={form.state}
-                onChange={
-                  handleChange
-                }
+                onChange={handleChange}
                 placeholder="State"
-                disabled={
-                  isSaving
-                }
+                disabled={isSaving}
               />
             </label>
 
             <label>
-              <span>
-                Area
-              </span>
+              <span>Area</span>
 
               <input
                 name="area"
                 value={form.area}
-                onChange={
-                  handleChange
-                }
+                onChange={handleChange}
                 placeholder="Area"
-                disabled={
-                  isSaving
-                }
+                disabled={isSaving}
               />
             </label>
           </div>
 
           <div className="address-create-page__row">
             <label>
-              <span>
-                Latitude
-              </span>
+              <span>Latitude</span>
 
               <input
                 name="latitude"
                 type="number"
                 step="any"
-                value={
-                  form.latitude
-                }
-                onChange={
-                  handleChange
-                }
-                disabled={
-                  isSaving
-                }
+                value={form.latitude}
+                onChange={handleChange}
+                disabled={isSaving}
               />
             </label>
 
             <label>
-              <span>
-                Longitude
-              </span>
+              <span>Longitude</span>
 
               <input
                 name="longitude"
                 type="number"
                 step="any"
-                value={
-                  form.longitude
-                }
-                onChange={
-                  handleChange
-                }
-                disabled={
-                  isSaving
-                }
+                value={form.longitude}
+                onChange={handleChange}
+                disabled={isSaving}
               />
             </label>
           </div>
 
           <label>
-            <span>
-              Address type
-            </span>
+            <span>Address type</span>
 
             <input
               name="typeAddress"
               type="number"
-              value={
-                form.typeAddress
-              }
-              onChange={
-                handleChange
-              }
+              value={form.typeAddress}
+              onChange={handleChange}
               disabled={isSaving}
             />
           </label>
 
           <label>
-            <span>
-              Intercom code
-            </span>
+            <span>Intercom code</span>
 
             <input
               name="intercomCode"
-              value={
-                form.intercomCode
-              }
-              onChange={
-                handleChange
-              }
+              value={form.intercomCode}
+              onChange={handleChange}
               placeholder="Optional"
               disabled={isSaving}
             />
           </label>
 
           <label>
-            <span>
-              Details
-            </span>
+            <span>Details</span>
 
             <textarea
               name="details"
-              value={
-                form.details
-              }
-              onChange={
-                handleChange
-              }
+              value={form.details}
+              onChange={handleChange}
               placeholder="Apartment, floor, entrance, etc."
               rows={3}
               disabled={isSaving}
@@ -516,9 +357,7 @@ function AddressCreatePage() {
             type="submit"
             disabled={isSaving}
           >
-            {isSaving
-              ? 'Saving...'
-              : 'Save delivery address'}
+            {isSaving ? 'Saving...' : 'Save delivery address'}
           </button>
         </form>
       </section>

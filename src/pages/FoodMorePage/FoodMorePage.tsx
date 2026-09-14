@@ -1,7 +1,4 @@
-import {
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/food-menu/Back button.svg'
@@ -10,13 +7,9 @@ import foodLogo from '../../assets/food-menu/food.svg'
 import mapIcon from '../../assets/food-menu/map.svg'
 import utLogo from '../../assets/food-menu/ut.svg'
 
-import {
-  getRestaurants,
-} from '../../services/restaurantService'
+import { getRestaurants } from '../../services/restaurantService'
 
-import type {
-  RestaurantResponse,
-} from '../../types/restaurant'
+import type { RestaurantResponse } from '../../types/restaurant'
 
 import './FoodMorePage.css'
 
@@ -24,18 +17,13 @@ interface FoodMorePageProps {
   title: string
 }
 
-function getRestaurantImage(
-  restaurant: RestaurantResponse,
-): string | null {
-  const imageUrl =
-    restaurant.imageUrl
+function getRestaurantImage(restaurant: RestaurantResponse): string | null {
+  const imageUrl = restaurant.imageUrl
 
   if (
     !imageUrl ||
     !imageUrl.trim() ||
-    imageUrl
-      .trim()
-      .toLowerCase() === 'string'
+    imageUrl.trim().toLowerCase() === 'string'
   ) {
     return null
   }
@@ -43,74 +31,47 @@ function getRestaurantImage(
   return imageUrl
 }
 
-function FoodMorePage({
-  title,
-}: FoodMorePageProps) {
+function FoodMorePage({ title }: FoodMorePageProps) {
   const navigate = useNavigate()
 
-  const [
-    restaurants,
-    setRestaurants,
-  ] =
-    useState<RestaurantResponse[]>(
-      [],
-    )
+  const [restaurants, setRestaurants] = useState<RestaurantResponse[]>([])
 
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const [
-    errorMessage,
-    setErrorMessage,
-  ] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     let isMounted = true
 
-    const loadRestaurants =
-      async () => {
-        try {
-          const data =
-            await getRestaurants(
-              0,
-              100,
-            )
+    const loadRestaurants = async () => {
+      try {
+        const data = await getRestaurants(0, 100)
 
-          if (!isMounted) {
-            return
-          }
+        if (!isMounted) {
+          return
+        }
 
-          const activeRestaurants = (
-            data.content ?? []
-          ).filter(
-            (restaurant) =>
-              restaurant.isActive !==
-              false,
-          )
+        const activeRestaurants = (data.content ?? []).filter(
+          (restaurant) => restaurant.isActive !== false,
+        )
 
-          setRestaurants(
-            activeRestaurants,
-          )
+        setRestaurants(activeRestaurants)
 
-          setErrorMessage('')
-        } catch {
-          if (!isMounted) {
-            return
-          }
+        setErrorMessage('')
+      } catch {
+        if (!isMounted) {
+          return
+        }
 
-          setRestaurants([])
+        setRestaurants([])
 
-          setErrorMessage(
-            'Failed to load restaurants.',
-          )
-        } finally {
-          if (isMounted) {
-            setIsLoading(false)
-          }
+        setErrorMessage('Failed to load restaurants.')
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
         }
       }
+    }
 
     void loadRestaurants()
 
@@ -119,12 +80,8 @@ function FoodMorePage({
     }
   }, [])
 
-  const handleRestaurantClick = (
-    restaurantId: number,
-  ) => {
-    navigate(
-      `/food/restaurants/${restaurantId}`,
-    )
+  const handleRestaurantClick = (restaurantId: number) => {
+    navigate(`/food/restaurants/${restaurantId}`)
   }
 
   return (
@@ -134,232 +91,128 @@ function FoodMorePage({
           <button
             className="food-more-header-button"
             type="button"
-            onClick={() =>
-              navigate(-1)
-            }
+            onClick={() => navigate(-1)}
             aria-label="Go back"
           >
-            <img
-              src={
-                backButtonIcon
-              }
-              alt=""
-              aria-hidden="true"
-            />
+            <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div
-            className="food-more-logo"
-            aria-label="UT Food"
-          >
-            <img
-              src={utLogo}
-              alt="UT"
-            />
+          <div className="food-more-logo" aria-label="UT Food">
+            <img src={utLogo} alt="UT" />
 
-            <img
-              src={foodLogo}
-              alt="Food"
-            />
+            <img src={foodLogo} alt="Food" />
           </div>
 
           <button
             className="food-more-header-button"
             type="button"
-            onClick={() =>
-              navigate(
-                '/notifications',
-              )
-            }
+            onClick={() => navigate('/notifications')}
             aria-label="Notifications"
           >
-            <img
-              src={bellIcon}
-              alt=""
-              aria-hidden="true"
-            />
+            <img src={bellIcon} alt="" aria-hidden="true" />
           </button>
         </header>
 
         <div className="food-more-address">
-          <img
-            src={mapIcon}
-            alt=""
-            aria-hidden="true"
-          />
+          <img src={mapIcon} alt="" aria-hidden="true" />
 
-          <span>
-            Delivery restaurants
-          </span>
+          <span>Delivery restaurants</span>
         </div>
 
         <div className="food-more-content">
-          <h1>
-            {title}
-          </h1>
+          <h1>{title}</h1>
 
           {isLoading && (
-            <div
-              className="food-more-state"
-              role="status"
-            >
-              <div
-                className="food-more-spinner"
-                aria-hidden="true"
-              />
+            <div className="food-more-state" role="status">
+              <div className="food-more-spinner" aria-hidden="true" />
 
-              <p>
-                Loading restaurants...
-              </p>
+              <p>Loading restaurants...</p>
             </div>
           )}
 
-          {!isLoading &&
-            errorMessage && (
-              <div
-                className="food-more-error"
-                role="alert"
-              >
-                {
-                  errorMessage
-                }
-              </div>
-            )}
+          {!isLoading && errorMessage && (
+            <div className="food-more-error" role="alert">
+              {errorMessage}
+            </div>
+          )}
 
-          {!isLoading &&
-            !errorMessage &&
-            restaurants.length ===
-              0 && (
-              <div className="food-more-state">
-                <p>
-                  No restaurants
-                  available.
-                </p>
-              </div>
-            )}
+          {!isLoading && !errorMessage && restaurants.length === 0 && (
+            <div className="food-more-state">
+              <p>No restaurants available.</p>
+            </div>
+          )}
 
-          {!isLoading &&
-            !errorMessage &&
-            restaurants.length >
-              0 && (
-              <div className="food-more-list">
-                {restaurants.map(
-                  (
-                    restaurant,
-                  ) => {
-                    const imageUrl =
-                      getRestaurantImage(
-                        restaurant,
-                      )
+          {!isLoading && !errorMessage && restaurants.length > 0 && (
+            <div className="food-more-list">
+              {restaurants.map((restaurant) => {
+                const imageUrl = getRestaurantImage(restaurant)
 
-                    return (
-                      <button
-                        className="food-more-card"
-                        type="button"
-                        key={
-                          restaurant.id
-                        }
-                        onClick={() =>
-                          handleRestaurantClick(
-                            restaurant.id,
-                          )
-                        }
-                      >
-                        <div className="food-more-card-image">
-                          {imageUrl ? (
-                            <img
-                              src={
-                                imageUrl
-                              }
-                              alt={
-                                restaurant.title
-                              }
-                              loading="lazy"
-                              onError={(
-                                event,
-                              ) => {
-                                event.currentTarget.style.display =
-                                  'none'
+                return (
+                  <button
+                    className="food-more-card"
+                    type="button"
+                    key={restaurant.id}
+                    onClick={() => handleRestaurantClick(restaurant.id)}
+                  >
+                    <div className="food-more-card-image">
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={restaurant.title}
+                          loading="lazy"
+                          onError={(event) => {
+                            event.currentTarget.style.display = 'none'
 
-                                const parent =
-                                  event
-                                    .currentTarget
-                                    .parentElement
+                            const parent = event.currentTarget.parentElement
 
-                                if (
-                                  parent &&
-                                  !parent.querySelector(
-                                    '[data-image-fallback]',
-                                  )
-                                ) {
-                                  const fallback =
-                                    document.createElement(
-                                      'span',
-                                    )
+                            if (
+                              parent &&
+                              !parent.querySelector('[data-image-fallback]')
+                            ) {
+                              const fallback = document.createElement('span')
 
-                                  fallback.setAttribute(
-                                    'data-image-fallback',
-                                    'true',
-                                  )
+                              fallback.setAttribute(
+                                'data-image-fallback',
+                                'true',
+                              )
 
-                                  fallback.setAttribute(
-                                    'aria-hidden',
-                                    'true',
-                                  )
+                              fallback.setAttribute('aria-hidden', 'true')
 
-                                  fallback.textContent =
-                                    '🍽️'
+                              fallback.textContent = '🍽️'
 
-                                  parent.appendChild(
-                                    fallback,
-                                  )
-                                }
-                              }}
-                            />
-                          ) : (
-                            <span
-                              aria-hidden="true"
-                              data-image-fallback="true"
-                            >
-                              🍽️
-                            </span>
-                          )}
-                        </div>
+                              parent.appendChild(fallback)
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span aria-hidden="true" data-image-fallback="true">
+                          🍽️
+                        </span>
+                      )}
+                    </div>
 
-                        <div className="food-more-card-info">
-                          <div className="food-more-card-text">
-                            <h2>
-                              {
-                                restaurant.title
-                              }
-                            </h2>
+                    <div className="food-more-card-info">
+                      <div className="food-more-card-text">
+                        <h2>{restaurant.title}</h2>
 
-                            <p>
-                              {restaurant.description ||
-                                restaurant.category ||
-                                'Restaurant'}
-                            </p>
-                          </div>
+                        <p>
+                          {restaurant.description ||
+                            restaurant.category ||
+                            'Restaurant'}
+                        </p>
+                      </div>
 
-                          <div className="food-more-delivery-time">
-                            <strong>
-                              {restaurant.deliveryTime ||
-                                '—'}
-                            </strong>
+                      <div className="food-more-delivery-time">
+                        <strong>{restaurant.deliveryTime || '—'}</strong>
 
-                            {restaurant.deliveryTime && (
-                              <span>
-                                min
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </button>
-                    )
-                  },
-                )}
-              </div>
-            )}
+                        {restaurant.deliveryTime && <span>min</span>}
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </div>
       </section>
     </main>

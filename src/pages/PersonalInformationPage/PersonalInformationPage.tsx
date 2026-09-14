@@ -1,27 +1,14 @@
-import {
-  useEffect,
-  useState,
-  type FormEvent,
-} from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 
-import {
-  Link,
-  useNavigate,
-} from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../hooks/useAuth'
 
-import {
-  getMyAddresses,
-} from '../../services/addressService'
+import { getMyAddresses } from '../../services/addressService'
 
-import {
-  updateProfile,
-} from '../../services/authService'
+import { updateProfile } from '../../services/authService'
 
-import type {
-  AddressResponse,
-} from '../../types/address'
+import type { AddressResponse } from '../../types/address'
 
 import arrowAddressIcon from '../../assets/icon account/arrow-address.svg'
 import backButtonBlackIcon from '../../assets/icon account/Back Button black.svg'
@@ -34,61 +21,27 @@ import profileIcon from '../../assets/icons main pages/Profile.svg'
 import './PersonalInformationPage.css'
 
 function PersonalInformationPage() {
-  const navigate =
-    useNavigate()
+  const navigate = useNavigate()
 
-  const {
-    user,
-    updateUser,
-  } = useAuth()
+  const { user, updateUser } = useAuth()
 
-  const [
-    name,
-    setName,
-  ] = useState(
-    user?.fullName || '',
+  const [name, setName] = useState(user?.fullName || '')
+
+  const phoneNumber = user?.username || ''
+
+  const [addresses, setAddresses] = useState<AddressResponse[]>([])
+
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
+    user?.defaultAddress ?? null,
   )
 
-  const phoneNumber =
-    user?.username || ''
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(true)
 
-  const [
-    addresses,
-    setAddresses,
-  ] =
-    useState<AddressResponse[]>(
-      [],
-    )
+  const [addressesError, setAddressesError] = useState('')
 
-  const [
-    selectedAddressId,
-    setSelectedAddressId,
-  ] = useState<
-    number | null
-  >(
-    user?.defaultAddress ??
-      null,
-  )
+  const [error, setError] = useState('')
 
-  const [
-    isLoadingAddresses,
-    setIsLoadingAddresses,
-  ] = useState(true)
-
-  const [
-    addressesError,
-    setAddressesError,
-  ] = useState('')
-
-  const [
-    error,
-    setError,
-  ] = useState('')
-
-  const [
-    isSubmitting,
-    setIsSubmitting,
-  ] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     let isActive = true
@@ -99,47 +52,27 @@ function PersonalInformationPage() {
           return
         }
 
-        setAddresses(
-          response,
-        )
+        setAddresses(response)
 
-        setAddressesError(
-          '',
-        )
+        setAddressesError('')
 
-        if (
-          response.length ===
-          0
-        ) {
-          setSelectedAddressId(
-            null,
-          )
+        if (response.length === 0) {
+          setSelectedAddressId(null)
 
           return
         }
 
-        const defaultAddressExists =
-          response.some(
-            (address) =>
-              address.id ===
-              user?.defaultAddress,
-          )
+        const defaultAddressExists = response.some(
+          (address) => address.id === user?.defaultAddress,
+        )
 
-        if (
-          defaultAddressExists &&
-          user?.defaultAddress !=
-            null
-        ) {
-          setSelectedAddressId(
-            user.defaultAddress,
-          )
+        if (defaultAddressExists && user?.defaultAddress != null) {
+          setSelectedAddressId(user.defaultAddress)
 
           return
         }
 
-        setSelectedAddressId(
-          response[0].id,
-        )
+        setSelectedAddressId(response[0].id)
       })
       .catch(() => {
         if (!isActive) {
@@ -148,86 +81,59 @@ function PersonalInformationPage() {
 
         setAddresses([])
 
-        setSelectedAddressId(
-          null,
-        )
+        setSelectedAddressId(null)
 
-        setAddressesError(
-          'Failed to load addresses.',
-        )
+        setAddressesError('Failed to load addresses.')
       })
       .finally(() => {
         if (isActive) {
-          setIsLoadingAddresses(
-            false,
-          )
+          setIsLoadingAddresses(false)
         }
       })
 
     return () => {
       isActive = false
     }
-  }, [
-    user?.defaultAddress,
-  ])
+  }, [user?.defaultAddress])
 
   const selectedAddress =
-    addresses.find(
-      (address) =>
-        address.id ===
-        selectedAddressId,
-    ) ?? null
+    addresses.find((address) => address.id === selectedAddressId) ?? null
 
-  const handleSubmit =
-    async (
-      event: FormEvent<HTMLFormElement>,
-    ) => {
-      event.preventDefault()
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
 
-      if (isSubmitting) {
-        return
-      }
-
-      setError('')
-
-      const trimmedName =
-        name.trim()
-
-      if (!trimmedName) {
-        setError(
-          'Enter your name.',
-        )
-
-        return
-      }
-
-      setIsSubmitting(true)
-
-      try {
-        const updatedUser =
-          await updateProfile({
-            fullName:
-              trimmedName,
-
-            defaultAddress:
-              selectedAddressId,
-          })
-
-        updateUser(
-          updatedUser,
-        )
-
-        navigate('/account')
-      } catch {
-        setError(
-          'Failed to update personal information.',
-        )
-      } finally {
-        setIsSubmitting(
-          false,
-        )
-      }
+    if (isSubmitting) {
+      return
     }
+
+    setError('')
+
+    const trimmedName = name.trim()
+
+    if (!trimmedName) {
+      setError('Enter your name.')
+
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const updatedUser = await updateProfile({
+        fullName: trimmedName,
+
+        defaultAddress: selectedAddressId,
+      })
+
+      updateUser(updatedUser)
+
+      navigate('/account')
+    } catch {
+      setError('Failed to update personal information.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <main className="mobile-page account-page">
@@ -236,65 +142,29 @@ function PersonalInformationPage() {
           <button
             className="account-form-back-button"
             type="button"
-            onClick={() =>
-              navigate(
-                '/account',
-              )
-            }
+            onClick={() => navigate('/account')}
             aria-label="Go back to account settings"
           >
-            <img
-              src={
-                backButtonBlackIcon
-              }
-              alt=""
-              aria-hidden="true"
-            />
+            <img src={backButtonBlackIcon} alt="" aria-hidden="true" />
           </button>
 
-          <img
-            className="account-logo-gradient"
-            src={
-              logoGradient
-            }
-            alt="UT"
-          />
+          <img className="account-logo-gradient" src={logoGradient} alt="UT" />
         </header>
 
         <div className="account-form-content">
-          <h1 className="account-form-title">
-            Personal
-            Information
-          </h1>
+          <h1 className="account-form-title">Personal Information</h1>
 
-          <form
-            className="account-form"
-            onSubmit={
-              handleSubmit
-            }
-          >
-            <label
-              className="account-form-group"
-              htmlFor="account-name"
-            >
-              <span>
-                Your Name
-              </span>
+          <form className="account-form" onSubmit={handleSubmit}>
+            <label className="account-form-group" htmlFor="account-name">
+              <span>Your Name</span>
 
               <input
                 id="account-name"
                 type="text"
                 value={name}
-                disabled={
-                  isSubmitting
-                }
-                onChange={(
-                  event,
-                ) => {
-                  setName(
-                    event.target
-                      .value,
-                  )
+                disabled={isSubmitting}
+                onChange={(event) => {
+                  setName(event.target.value)
 
                   setError('')
                 }}
@@ -302,150 +172,76 @@ function PersonalInformationPage() {
               />
             </label>
 
-            <label
-              className="account-form-group"
-              htmlFor="account-phone"
-            >
-              <span>
-                Your Phone
-                Number
-              </span>
+            <label className="account-form-group" htmlFor="account-phone">
+              <span>Your Phone Number</span>
 
               <input
                 id="account-phone"
                 type="tel"
-                value={
-                  phoneNumber
-                }
+                value={phoneNumber}
                 readOnly
                 aria-readonly="true"
               />
             </label>
 
-            <label
-              className="account-form-group"
-              htmlFor="account-address"
-            >
-              <span>
-                Your Address
-                (for delivery)
-              </span>
+            <label className="account-form-group" htmlFor="account-address">
+              <span>Your Address (for delivery)</span>
 
               <div className="account-address-field">
                 <select
                   id="account-address"
-                  value={
-                    selectedAddressId ??
-                    ''
-                  }
-                  onChange={(
-                    event,
-                  ) => {
-                    const value =
-                      Number(
-                        event.target
-                          .value,
-                      )
+                  value={selectedAddressId ?? ''}
+                  onChange={(event) => {
+                    const value = Number(event.target.value)
 
-                    setSelectedAddressId(
-                      Number.isNaN(
-                        value,
-                      )
-                        ? null
-                        : value,
-                    )
+                    setSelectedAddressId(Number.isNaN(value) ? null : value)
 
                     setError('')
                   }}
-                  disabled={
-                    isLoadingAddresses ||
-                    isSubmitting
-                  }
+                  disabled={isLoadingAddresses || isSubmitting}
                 >
                   {isLoadingAddresses && (
-                    <option value="">
-                      Loading
-                      addresses...
+                    <option value="">Loading addresses...</option>
+                  )}
+
+                  {!isLoadingAddresses && addresses.length === 0 && (
+                    <option value="">No addresses</option>
+                  )}
+
+                  {addresses.map((address) => (
+                    <option key={address.id} value={address.id}>
+                      {address.fullAddress}
                     </option>
-                  )}
-
-                  {!isLoadingAddresses &&
-                    addresses.length ===
-                      0 && (
-                      <option value="">
-                        No addresses
-                      </option>
-                    )}
-
-                  {addresses.map(
-                    (
-                      address,
-                    ) => (
-                      <option
-                        key={
-                          address.id
-                        }
-                        value={
-                          address.id
-                        }
-                      >
-                        {
-                          address.fullAddress
-                        }
-                      </option>
-                    ),
-                  )}
+                  ))}
                 </select>
 
-                <img
-                  src={
-                    arrowAddressIcon
-                  }
-                  alt=""
-                  aria-hidden="true"
-                />
+                <img src={arrowAddressIcon} alt="" aria-hidden="true" />
               </div>
             </label>
 
             {addressesError && (
-              <p
-                className="account-form-error"
-                role="alert"
-              >
-                {
-                  addressesError
-                }
+              <p className="account-form-error" role="alert">
+                {addressesError}
               </p>
             )}
 
             {selectedAddress && (
               <p className="account-form-address-preview">
-                {
-                  selectedAddress.fullAddress
-                }
+                {selectedAddress.fullAddress}
               </p>
             )}
 
             <button
               className="account-address-manage-button"
               type="button"
-              disabled={
-                isSubmitting
-              }
-              onClick={() =>
-                navigate(
-                  '/food/order/address',
-                )
-              }
+              disabled={isSubmitting}
+              onClick={() => navigate('/food/order/address')}
             >
               Manage addresses
             </button>
 
             {error && (
-              <p
-                className="account-form-error"
-                role="alert"
-              >
+              <p className="account-form-error" role="alert">
                 {error}
               </p>
             )}
@@ -453,14 +249,9 @@ function PersonalInformationPage() {
             <button
               className="account-save-button"
               type="submit"
-              disabled={
-                isSubmitting ||
-                isLoadingAddresses
-              }
+              disabled={isSubmitting || isLoadingAddresses}
             >
-              {isSubmitting
-                ? 'Saving...'
-                : 'Save'}
+              {isSubmitting ? 'Saving...' : 'Save'}
             </button>
           </form>
         </div>
@@ -469,53 +260,22 @@ function PersonalInformationPage() {
           className="bottom-nav account-bottom-nav"
           aria-label="Main navigation"
         >
-          <Link
-            className="bottom-nav-link"
-            to="/"
-          >
-            <img
-              src={homeIcon}
-              alt=""
-              aria-hidden="true"
-            />
+          <Link className="bottom-nav-link" to="/">
+            <img src={homeIcon} alt="" aria-hidden="true" />
 
-            <span>
-              Home
-            </span>
+            <span>Home</span>
           </Link>
 
-          <Link
-            className="bottom-nav-link"
-            to="/favorites"
-          >
-            <img
-              src={
-                favoritesIcon
-              }
-              alt=""
-              aria-hidden="true"
-            />
+          <Link className="bottom-nav-link" to="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
 
-            <span>
-              Favorites
-            </span>
+            <span>Favorites</span>
           </Link>
 
-          <Link
-            className="bottom-nav-link active"
-            to="/profile"
-          >
-            <img
-              src={
-                profileIcon
-              }
-              alt=""
-              aria-hidden="true"
-            />
+          <Link className="bottom-nav-link active" to="/profile">
+            <img src={profileIcon} alt="" aria-hidden="true" />
 
-            <span>
-              Profile
-            </span>
+            <span>Profile</span>
           </Link>
         </nav>
       </section>

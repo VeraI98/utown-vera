@@ -116,9 +116,7 @@
 
   background: #ffffff;
 
-  box-shadow:
-    0 2px 8px
-    rgb(0 0 0 / 12%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
 }
 
 .restaurant-page__badge {
@@ -197,9 +195,7 @@
 }
 
 .restaurant-page__favorite-loading img {
-  animation:
-    restaurant-favorite-pulse
-    0.7s ease-in-out infinite alternate;
+  animation: restaurant-favorite-pulse 0.7s ease-in-out infinite alternate;
 }
 
 .restaurant-page__favorite-error {
@@ -249,9 +245,7 @@
 
   background: #eee8e2;
 
-  box-shadow:
-    0 8px 20px
-    rgb(0 0 0 / 20%);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 20%);
 }
 
 .restaurant-page__popup-menu button {
@@ -353,9 +347,7 @@
 
   background: #ffffff;
 
-  box-shadow:
-    0 2px 8px
-    rgb(0 0 0 / 6%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
 }
 
 .restaurant-page__rating-info-main {
@@ -676,9 +668,7 @@
 
   transform: translateX(50%);
 
-  box-shadow:
-    0 6px 18px
-    rgb(0 0 0 / 16%);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 16%);
 }
 
 .restaurant-page__order-count {
@@ -736,8 +726,6 @@
 
 @media (min-width: 429px) {
   .restaurant-page {
-    box-shadow:
-      0 0 24px
-      rgb(0 0 0 / 8%);
+    box-shadow: 0 0 24px rgb(0 0 0 / 8%);
   }
 }

@@ -1,17 +1,10 @@
 import axios from 'axios'
-import {
-  useEffect,
-  useState,
-} from 'react'
-import {
-  useNavigate,
-} from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../hooks/useAuth'
 
-import {
-  getOwnerRestaurants,
-} from '../../services/ownerRestaurantService'
+import { getOwnerRestaurants } from '../../services/ownerRestaurantService'
 
 import {
   getOwnerOperatingModes,
@@ -51,28 +44,20 @@ const DAYS = [
   },
 ]
 
-function getErrorMessage(
-  error: unknown,
-): string {
+function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
-    const responseData =
-      error.response?.data
+    const responseData = error.response?.data
 
     if (
       responseData &&
-      typeof responseData ===
-        'object' &&
+      typeof responseData === 'object' &&
       'message' in responseData &&
-      typeof responseData.message ===
-        'string'
+      typeof responseData.message === 'string'
     ) {
       return responseData.message
     }
 
-    if (
-      typeof responseData ===
-      'string'
-    ) {
+    if (typeof responseData === 'string') {
       return responseData
     }
   }
@@ -86,29 +71,15 @@ function OwnerWorkingHoursPage() {
 
   const userId = user?.id
 
-  const [
-    restaurantId,
-    setRestaurantId,
-  ] = useState<number | null>(
-    null,
+  const [restaurantId, setRestaurantId] = useState<number | null>(null)
+
+  const [operatingModes, setOperatingModes] = useState<OperatingModeResponse[]>(
+    [],
   )
 
-  const [
-    operatingModes,
-    setOperatingModes,
-  ] = useState<
-    OperatingModeResponse[]
-  >([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(true)
-
-  const [
-    errorMessage,
-    setErrorMessage,
-  ] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     if (!userId) {
@@ -118,55 +89,39 @@ function OwnerWorkingHoursPage() {
     let isActive = true
 
     getOwnerRestaurants(userId)
-      .then(
-        async (restaurants) => {
-          if (!isActive) {
-            return
-          }
+      .then(async (restaurants) => {
+        if (!isActive) {
+          return
+        }
 
-          const restaurant =
-            restaurants[0]
+        const restaurant = restaurants[0]
 
-          if (!restaurant) {
-            setErrorMessage(
-              'No restaurant found.',
-            )
+        if (!restaurant) {
+          setErrorMessage('No restaurant found.')
 
-            setIsLoading(false)
+          setIsLoading(false)
 
-            return
-          }
+          return
+        }
 
-          setRestaurantId(
-            restaurant.id,
-          )
+        setRestaurantId(restaurant.id)
 
-          const modes =
-            await getOwnerOperatingModes(
-              restaurant.id,
-            )
+        const modes = await getOwnerOperatingModes(restaurant.id)
 
-          if (!isActive) {
-            return
-          }
+        if (!isActive) {
+          return
+        }
 
-          setOperatingModes(
-            modes,
-          )
+        setOperatingModes(modes)
 
-          setErrorMessage('')
-        },
-      )
+        setErrorMessage('')
+      })
       .catch((error: unknown) => {
         if (!isActive) {
           return
         }
 
-        setErrorMessage(
-          getErrorMessage(
-            error,
-          ),
-        )
+        setErrorMessage(getErrorMessage(error))
       })
       .finally(() => {
         if (!isActive) {
@@ -181,43 +136,24 @@ function OwnerWorkingHoursPage() {
     }
   }, [userId])
 
-  const handleEditDay = (
-    dayOfWeek: number,
-  ) => {
+  const handleEditDay = (dayOfWeek: number) => {
     if (!restaurantId) {
       return
     }
 
-    const mode =
-      operatingModes.find(
-        (item) =>
-          item.dayOfWeek ===
-          dayOfWeek,
-      )
+    const mode = operatingModes.find((item) => item.dayOfWeek === dayOfWeek)
 
-    const searchParams =
-      new URLSearchParams()
+    const searchParams = new URLSearchParams()
 
-    searchParams.set(
-      'restaurantId',
-      String(restaurantId),
-    )
+    searchParams.set('restaurantId', String(restaurantId))
 
-    searchParams.set(
-      'dayOfWeek',
-      String(dayOfWeek),
-    )
+    searchParams.set('dayOfWeek', String(dayOfWeek))
 
     if (mode) {
-      searchParams.set(
-        'modeId',
-        String(mode.id),
-      )
+      searchParams.set('modeId', String(mode.id))
     }
 
-    navigate(
-      `edit?${searchParams.toString()}`,
-    )
+    navigate(`edit?${searchParams.toString()}`)
   }
 
   return (
@@ -230,50 +166,31 @@ function OwnerWorkingHoursPage() {
         </h1>
 
         {isLoading && (
-          <p className="owner-working-hours-page__message">
-            Loading...
+          <p className="owner-working-hours-page__message">Loading...</p>
+        )}
+
+        {!isLoading && errorMessage && (
+          <p className="owner-working-hours-page__error" role="alert">
+            {errorMessage}
           </p>
         )}
 
-        {!isLoading &&
-          errorMessage && (
-            <p
-              className="owner-working-hours-page__error"
-              role="alert"
-            >
-              {errorMessage}
-            </p>
-          )}
+        {!isLoading && !errorMessage && (
+          <div className="owner-working-hours-page__days">
+            {DAYS.map((day) => (
+              <button
+                className="owner-working-hours-page__day"
+                key={day.dayOfWeek}
+                type="button"
+                onClick={() => handleEditDay(day.dayOfWeek)}
+              >
+                <span>{day.label}</span>
 
-        {!isLoading &&
-          !errorMessage && (
-            <div className="owner-working-hours-page__days">
-              {DAYS.map(
-                (day) => (
-                  <button
-                    className="owner-working-hours-page__day"
-                    key={
-                      day.dayOfWeek
-                    }
-                    type="button"
-                    onClick={() =>
-                      handleEditDay(
-                        day.dayOfWeek,
-                      )
-                    }
-                  >
-                    <span>
-                      {day.label}
-                    </span>
-
-                    <span className="owner-working-hours-page__edit">
-                      Edit
-                    </span>
-                  </button>
-                ),
-              )}
-            </div>
-          )}
+                <span className="owner-working-hours-page__edit">Edit</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   )

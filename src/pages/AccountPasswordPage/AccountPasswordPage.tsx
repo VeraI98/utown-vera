@@ -51,9 +51,7 @@ function AccountPasswordPage() {
 
       navigate('/account')
     } catch {
-      setError(
-        'Failed to change password. Please check your current password.',
-      )
+      setError('Failed to change password. Please check your current password.')
     } finally {
       setIsSubmitting(false)
     }
@@ -72,11 +70,7 @@ function AccountPasswordPage() {
             <img src={backButtonBlackIcon} alt="" aria-hidden="true" />
           </button>
 
-          <img
-            className="account-logo-gradient"
-            src={logoGradient}
-            alt="UT"
-          />
+          <img className="account-logo-gradient" src={logoGradient} alt="UT" />
         </header>
 
         <div className="account-form-content">

@@ -50,9 +50,7 @@
   flex-shrink: 0;
 }
 
-.owner-delivery-city-option
-  input:checked
-  + .owner-delivery-city-radio::after {
+.owner-delivery-city-option input:checked + .owner-delivery-city-radio::after {
   content: '';
   position: absolute;
   width: 10px;

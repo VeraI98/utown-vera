@@ -25,9 +25,7 @@
 
   text-align: center;
 
-  box-shadow:
-    0 18px 50px
-    rgb(0 0 0 / 24%);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 24%);
 }
 
 .cart-conflict-modal h2 {
@@ -53,8 +51,7 @@
 .cart-conflict-modal__actions {
   display: grid;
 
-  grid-template-columns:
-    1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 
   gap: 10px;
 
@@ -103,7 +100,6 @@
 
     padding: 24px 16px 20px;
 
-    border-radius:
-      24px 24px 0 0;
+    border-radius: 24px 24px 0 0;
   }
 }

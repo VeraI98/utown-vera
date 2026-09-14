@@ -18,7 +18,10 @@ interface ClientCardModalProps {
 function ClientCardModal({ client, onClose, onEdit }: ClientCardModalProps) {
   return (
     <div className="client-card-modal__overlay" onClick={onClose}>
-      <div className="client-card-modal" onClick={(event) => event.stopPropagation()}>
+      <div
+        className="client-card-modal"
+        onClick={(event) => event.stopPropagation()}
+      >
         <button
           className="client-card-modal__close"
           type="button"
@@ -26,7 +29,12 @@ function ClientCardModal({ client, onClose, onEdit }: ClientCardModalProps) {
           onClick={onClose}
         >
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M6 6L18 18M18 6L6 18" stroke="#101828" strokeWidth="1.5" strokeLinecap="round" />
+            <path
+              d="M6 6L18 18M18 6L6 18"
+              stroke="#101828"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
 
@@ -72,9 +80,7 @@ function ClientCardModal({ client, onClose, onEdit }: ClientCardModalProps) {
             <div className="client-card-modal__detail-row">
               <dt>Orders:</dt>
               <dd>
-                {client.orders !== undefined
-                  ? `${client.orders} orders`
-                  : '-'}
+                {client.orders !== undefined ? `${client.orders} orders` : '-'}
               </dd>
             </div>
           </dl>

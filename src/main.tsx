@@ -7,9 +7,7 @@ import { AuthProvider } from './hooks/AuthProvider'
 
 import './styles/global.css'
 
-createRoot(
-  document.getElementById('root')!,
-).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
       <RouterProvider router={router} />

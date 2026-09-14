@@ -13,5 +13,4 @@ export interface AddressResponse {
   intercomCode: string
 }
 
-export type CreateAddressRequest =
-  Omit<AddressResponse, 'id'>
+export type CreateAddressRequest = Omit<AddressResponse, 'id'>

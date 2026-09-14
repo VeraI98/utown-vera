@@ -1,15 +1,6 @@
-import {
-  useEffect,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 
-import type {
-  AuthResponse,
-  LoginData,
-  RegisterData,
-  User,
-} from '../types/auth'
+import type { AuthResponse, LoginData, RegisterData, User } from '../types/auth'
 
 import { api } from '../services/api'
 
@@ -34,60 +25,37 @@ function clearStoredAuthData() {
   localStorage.removeItem(USER_KEY)
 }
 
-function saveAuthData(
-  response: AuthResponse,
-) {
-  localStorage.setItem(
-    TOKEN_KEY,
-    response.token,
-  )
+function saveAuthData(response: AuthResponse) {
+  localStorage.setItem(TOKEN_KEY, response.token)
 
-  localStorage.setItem(
-    REFRESH_TOKEN_KEY,
-    response.refreshToken,
-  )
+  localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken)
 
-  localStorage.setItem(
-    USER_KEY,
-    JSON.stringify(response.user),
-  )
+  localStorage.setItem(USER_KEY, JSON.stringify(response.user))
 }
 
 function getStoredUser(): User | null {
-  const savedUser =
-    localStorage.getItem(USER_KEY)
+  const savedUser = localStorage.getItem(USER_KEY)
 
   if (!savedUser) {
     return null
   }
 
   try {
-    return JSON.parse(
-      savedUser,
-    ) as User
+    return JSON.parse(savedUser) as User
   } catch {
     clearStoredAuthData()
     return null
   }
 }
 
-export function AuthProvider({
-  children,
-}: AuthProviderProps) {
-  const [user, setUser] =
-    useState<User | null>(
-      getStoredUser,
-    )
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(getStoredUser)
 
-  const [isLoading, setIsLoading] =
-    useState(true)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token =
-        localStorage.getItem(
-          TOKEN_KEY,
-        )
+      const token = localStorage.getItem(TOKEN_KEY)
 
       if (!token) {
         clearStoredAuthData()
@@ -97,15 +65,9 @@ export function AuthProvider({
       }
 
       try {
-        const { data } =
-          await api.get<User>(
-            '/users/profile',
-          )
+        const { data } = await api.get<User>('/users/profile')
 
-        localStorage.setItem(
-          USER_KEY,
-          JSON.stringify(data),
-        )
+        localStorage.setItem(USER_KEY, JSON.stringify(data))
 
         setUser(data)
       } catch {
@@ -119,21 +81,15 @@ export function AuthProvider({
     void checkAuth()
   }, [])
 
-  const login = async (
-    data: LoginData,
-  ) => {
-    const response =
-      await loginRequest(data)
+  const login = async (data: LoginData) => {
+    const response = await loginRequest(data)
 
     saveAuthData(response)
     setUser(response.user)
   }
 
-  const register = async (
-    data: RegisterData,
-  ) => {
-    const response =
-      await registerRequest(data)
+  const register = async (data: RegisterData) => {
+    const response = await registerRequest(data)
 
     saveAuthData(response)
     setUser(response.user)
@@ -144,13 +100,8 @@ export function AuthProvider({
     setUser(null)
   }
 
-  const updateUser = (
-    updatedUser: User,
-  ) => {
-    localStorage.setItem(
-      USER_KEY,
-      JSON.stringify(updatedUser),
-    )
+  const updateUser = (updatedUser: User) => {
+    localStorage.setItem(USER_KEY, JSON.stringify(updatedUser))
 
     setUser(updatedUser)
   }
@@ -160,8 +111,7 @@ export function AuthProvider({
       value={{
         user,
         isLoading,
-        isAuthenticated:
-          Boolean(user),
+        isAuthenticated: Boolean(user),
         login,
         register,
         logout,

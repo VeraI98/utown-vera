@@ -401,8 +401,7 @@
   border: 0;
   border-radius: 11px;
   background: #ffffff;
-  box-shadow:
-    0 2px 7px rgb(0 0 0 / 10%);
+  box-shadow: 0 2px 7px rgb(0 0 0 / 10%);
   color: #111111;
   text-align: left;
 }

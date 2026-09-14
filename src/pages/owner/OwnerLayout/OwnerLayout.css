@@ -1,10 +1,7 @@
 .owner-layout {
   min-height: 100vh;
   background: #f3f3f3;
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .owner-layout__screen {
