@@ -9,6 +9,12 @@ import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
 import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
 import AdminClientEditPage from '../pages/AdminClientEditPage/AdminClientEditPage'
 import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
+import AdminEstablishmentAddPage from '../pages/AdminEstablishmentAddPage/AdminEstablishmentAddPage'
+import AdminEstablishmentEditPage from '../pages/AdminEstablishmentEditPage/AdminEstablishmentEditPage'
+import AdminEstablishmentsPage from '../pages/AdminEstablishmentsPage/AdminEstablishmentsPage'
+import AdminPositionAddPage from '../pages/AdminPositionAddPage/AdminPositionAddPage'
+import AdminPositionEditPage from '../pages/AdminPositionEditPage/AdminPositionEditPage'
+import AdminPositionsPage from '../pages/AdminPositionsPage/AdminPositionsPage'
 import ContactSupportPage from '../pages/ContactSupportPage/ContactSupportPage'
 import FavoritesPage from '../pages/FavoritesPage/FavoritesPage'
 import FoodCategoryPage from '../pages/FoodCategoryPage/FoodCategoryPage'
@@ -219,6 +225,30 @@ export const router = createBrowserRouter([
         path: 'clients/:clientId/edit',
         element: <AdminClientEditPage />,
       },
+      {
+        path: 'establishments',
+        element: <AdminEstablishmentsPage />,
+      },
+      {
+        path: 'establishments/add',
+        element: <AdminEstablishmentAddPage />,
+      },
+      {
+        path: 'establishments/:establishmentId/edit',
+        element: <AdminEstablishmentEditPage />,
+      },
+      {
+        path: 'establishments/:establishmentId/positions',
+        element: <AdminPositionsPage />,
+      },
+      {
+        path: 'establishments/:establishmentId/positions/add',
+        element: <AdminPositionAddPage />,
+      },
+      {
+        path: 'establishments/:establishmentId/positions/:positionId/edit',
+        element: <AdminPositionEditPage />,
+      },
     ],
   },
 
@@ -263,7 +293,6 @@ export const router = createBrowserRouter([
         path: 'restaurant/edit/areas',
         element: <OwnerDeliveryAreasPage />,
       },
-
       {
         path: '*',
         element: <OwnerNotFoundPage />,

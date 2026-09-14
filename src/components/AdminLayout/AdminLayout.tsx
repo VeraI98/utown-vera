@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import './AdminLayout.css'
+
 import logo from '../../assets/admin-pages/Logo.png'
 import avatarIcon from '../../assets/admin-pages/Avatar.png'
 import addIcon from '../../assets/admin-pages/master.png'
@@ -90,7 +91,18 @@ function AdminLayout() {
 
                 <li className="admin-layout__sidebar-link">Riders</li>
 
-                <li className="admin-layout__sidebar-link">Establishments</li>
+                <li>
+                  <NavLink
+                    to="/admin/establishments"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'admin-layout__sidebar-link admin-layout__sidebar-link--active'
+                        : 'admin-layout__sidebar-link'
+                    }
+                  >
+                    Establishments
+                  </NavLink>
+                </li>
 
                 <li className="admin-layout__sidebar-link">Orders</li>
               </ul>
@@ -119,7 +131,6 @@ function AdminLayout() {
             {isAppOpen && (
               <ul>
                 <li className="admin-layout__sidebar-link">Services</li>
-
                 <li className="admin-layout__sidebar-link">Vacancies</li>
               </ul>
             )}

@@ -13,9 +13,15 @@ interface ClientCardModalProps {
   client: ClientCardModalClient
   onClose: () => void
   onEdit: () => void
+  onDelete: () => void
 }
 
-function ClientCardModal({ client, onClose, onEdit }: ClientCardModalProps) {
+function ClientCardModal({
+  client,
+  onClose,
+  onEdit,
+  onDelete,
+}: ClientCardModalProps) {
   return (
     <div className="client-card-modal__overlay" onClick={onClose}>
       <div
@@ -38,26 +44,36 @@ function ClientCardModal({ client, onClose, onEdit }: ClientCardModalProps) {
           </svg>
         </button>
 
-        <div className="client-card-modal__header">
+        <div className="client-card-modal__top">
           <div className="client-card-modal__photo" />
 
-          <div className="client-card-modal__photo-panel">
-            <button
-              className="client-card-modal__edit-button"
-              type="button"
-              onClick={onEdit}
-            >
-              Edit account
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M5 12H19M19 12L13 6M19 12L13 18"
-                  stroke="#101828"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+          <div className="client-card-modal__panel">
+            <div className="client-card-modal__panel-actions">
+              <button
+                className="client-card-modal__edit-button"
+                type="button"
+                onClick={onEdit}
+              >
+                Edit account
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M5 12H19M19 12L13 6M19 12L13 18"
+                    stroke="#101828"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+
+              <button
+                className="client-card-modal__delete-button"
+                type="button"
+                onClick={onDelete}
+              >
+                Delete client
+              </button>
+            </div>
           </div>
         </div>
 

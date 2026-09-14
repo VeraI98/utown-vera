@@ -1,51 +1,48 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import './AdminEstablishmentsPage.css'
+import EstablishmentCardModal from './EstablishmentCardModal'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
-import { deleteClient, getClients } from '../../services/clientService'
-import type { ClientResponse } from '../../types/client'
-
-import ClientCardModal from './ClientCardModal'
-
-import './AdminClientsPage.css'
+import {
+  deleteEstablishment,
+  getEstablishments,
+} from '../../services/establishmentService'
+import type { EstablishmentResponse } from '../../types/establishment'
 
 const PAGE_SIZE = 10
 
 const SORTABLE_COLUMNS = [
   'Name',
-  'Number',
+  'Phone number',
   'City',
-  'Address',
-  'Orders',
-  'Order History',
+  'Number of orders',
+  'Categories',
+  'Positions',
+  'Order history',
 ]
 
-function AdminClientsPage() {
+function AdminEstablishmentsPage() {
   const navigate = useNavigate()
-
   const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [viewedEstablishment, setViewedEstablishment] =
+    useState<EstablishmentResponse | null>(null)
 
-  const [viewedClient, setViewedClient] = useState<ClientResponse | null>(null)
-
-  const [clientToDelete, setClientToDelete] = useState<ClientResponse | null>(
-    null,
-  )
-
+  const [establishmentToDelete, setEstablishmentToDelete] =
+    useState<EstablishmentResponse | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
 
-  const [clients, setClients] = useState<ClientResponse[]>([])
-
+  const [establishments, setEstablishments] = useState<EstablishmentResponse[]>(
+    [],
+  )
   const [isLoading, setIsLoading] = useState(true)
-
   const [loadError, setLoadError] = useState('')
 
   const [page, setPage] = useState(0)
-
   const [totalPages, setTotalPages] = useState(0)
 
   const [searchInput, setSearchInput] = useState('')
-
   const [search, setSearch] = useState('')
 
   const [reloadKey, setReloadKey] = useState(0)
@@ -53,14 +50,14 @@ function AdminClientsPage() {
   useEffect(() => {
     let isMounted = true
 
-    const loadClients = async () => {
+    const loadEstablishments = async () => {
       if (isMounted) {
         setIsLoading(true)
         setLoadError('')
       }
 
       try {
-        const data = await getClients({
+        const data = await getEstablishments({
           page,
           size: PAGE_SIZE,
           search: search || undefined,
@@ -70,18 +67,15 @@ function AdminClientsPage() {
           return
         }
 
-        setClients(data.content)
-
+        setEstablishments(data.content)
         setTotalPages(data.totalPages)
+      } catch (error) {
+        console.error('Failed to load establishments:', error)
 
-        setSelectedIds([])
-      } catch {
         if (isMounted) {
-          setClients([])
+          setEstablishments([])
           setTotalPages(0)
-          setSelectedIds([])
-
-          setLoadError('Could not load the clients')
+          setLoadError('Could not load the establishments')
         }
       } finally {
         if (isMounted) {
@@ -90,7 +84,7 @@ function AdminClientsPage() {
       }
     }
 
-    void loadClients()
+    void loadEstablishments()
 
     return () => {
       isMounted = false
@@ -98,26 +92,16 @@ function AdminClientsPage() {
   }, [page, search, reloadKey])
 
   const handleSearchSubmit = () => {
-    if (isLoading) {
-      return
-    }
-
     setPage(0)
-    setSelectedIds([])
-
     setSearch(searchInput.trim())
   }
 
   const handleRetry = () => {
-    if (isLoading) {
-      return
-    }
-
     setReloadKey((current) => current + 1)
   }
 
   const handleConfirmDelete = async () => {
-    if (!clientToDelete) {
+    if (!establishmentToDelete) {
       return
     }
 
@@ -125,15 +109,15 @@ function AdminClientsPage() {
     setDeleteError('')
 
     try {
-      await deleteClient(clientToDelete.id)
+      await deleteEstablishment(establishmentToDelete.id)
 
-      setClientToDelete(null)
+      setEstablishmentToDelete(null)
       setSelectedIds([])
       setReloadKey((current) => current + 1)
     } catch (error) {
-      console.error('Failed to delete client:', error)
+      console.error('Failed to delete establishment:', error)
 
-      setDeleteError('Could not delete the client')
+      setDeleteError('Could not delete the establishment')
     } finally {
       setIsDeleting(false)
     }
@@ -144,7 +128,7 @@ function AdminClientsPage() {
       return
     }
 
-    setClientToDelete(null)
+    setEstablishmentToDelete(null)
     setDeleteError('')
   }
 
@@ -157,46 +141,41 @@ function AdminClientsPage() {
   }
 
   const toggleSelectAll = () => {
-    if (selectedIds.length === clients.length) {
+    if (selectedIds.length === establishments.length) {
       setSelectedIds([])
     } else {
-      setSelectedIds(clients.map((client) => client.id))
+      setSelectedIds(establishments.map((establishment) => establishment.id))
     }
   }
 
-  const openClientCard = (client: ClientResponse) => {
-    setViewedClient(client)
-  }
-
   const canGoPrev = page > 0
-
   const canGoNext = page + 1 < totalPages
 
-  const showEmptyState = !isLoading && !loadError && clients.length === 0
+  const showEmptyState = !isLoading && !loadError && establishments.length === 0
 
   return (
-    <div className="admin-clients-page">
-      <div className="admin-clients-page__top-row">
-        <div className="admin-clients-page__title-block">
-          <h1>Clients</h1>
+    <div className="admin-establishments-page">
+      <div className="admin-establishments-page__top-row">
+        <div className="admin-establishments-page__title-block">
+          <h1>Establishments</h1>
 
-          <nav className="admin-clients-page__breadcrumb">
-            <span className="admin-clients-page__breadcrumb-link">Home</span>
-
+          <nav className="admin-establishments-page__breadcrumb">
+            <span className="admin-establishments-page__breadcrumb-link">
+              Home
+            </span>
             <span> / </span>
-
-            <span className="admin-clients-page__breadcrumb-link">Users</span>
-
+            <span className="admin-establishments-page__breadcrumb-link">
+              Users
+            </span>
             <span> / </span>
-
-            <span>Clients</span>
+            <span>Establishments</span>
           </nav>
         </div>
 
-        <div className="admin-clients-page__controls">
-          <div className="admin-clients-page__search-wrapper">
+        <div className="admin-establishments-page__controls">
+          <div className="admin-establishments-page__search-wrapper">
             <svg
-              className="admin-clients-page__search-icon"
+              className="admin-establishments-page__search-icon"
               viewBox="0 0 20 20"
               fill="none"
               aria-hidden="true"
@@ -208,7 +187,6 @@ function AdminClientsPage() {
                 stroke="#98a2b3"
                 strokeWidth="1.5"
               />
-
               <path
                 d="M17 17L13.7 13.7"
                 stroke="#98a2b3"
@@ -218,11 +196,10 @@ function AdminClientsPage() {
             </svg>
 
             <input
-              className="admin-clients-page__search"
+              className="admin-establishments-page__search"
               type="text"
               placeholder="Search"
               value={searchInput}
-              disabled={isLoading}
               onChange={(event) => setSearchInput(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
@@ -232,9 +209,9 @@ function AdminClientsPage() {
             />
           </div>
 
-          <div className="admin-clients-page__toolbar">
+          <div className="admin-establishments-page__toolbar">
             <button
-              className="admin-clients-page__toolbar-button admin-clients-page__toolbar-button--filter"
+              className="admin-establishments-page__toolbar-button admin-establishments-page__toolbar-button--filter"
               type="button"
               disabled
             >
@@ -242,7 +219,7 @@ function AdminClientsPage() {
             </button>
 
             <button
-              className="admin-clients-page__toolbar-button admin-clients-page__toolbar-button--choose-action"
+              className="admin-establishments-page__toolbar-button admin-establishments-page__toolbar-button--choose-action"
               type="button"
               disabled
             >
@@ -250,26 +227,34 @@ function AdminClientsPage() {
             </button>
 
             <button
-              className="admin-clients-page__apply-button"
+              className="admin-establishments-page__apply-button"
               type="button"
               disabled
             >
               Apply
             </button>
+
+            <button
+              className="admin-establishments-page__add-button"
+              type="button"
+              onClick={() => navigate('/admin/establishments/add')}
+            >
+              Add establishment
+            </button>
           </div>
         </div>
       </div>
 
-      <table className="admin-clients-page__table">
+      <table className="admin-establishments-page__table">
         <thead>
           <tr>
             <th>
               <input
                 type="checkbox"
                 checked={
-                  selectedIds.length === clients.length && clients.length > 0
+                  selectedIds.length === establishments.length &&
+                  establishments.length > 0
                 }
-                disabled={isLoading || clients.length === 0}
                 onChange={toggleSelectAll}
                 aria-label="Select all"
               />
@@ -278,7 +263,7 @@ function AdminClientsPage() {
             {SORTABLE_COLUMNS.map((column) => (
               <th key={column}>
                 <button
-                  className="admin-clients-page__sort-button"
+                  className="admin-establishments-page__sort-button"
                   type="button"
                   disabled
                 >
@@ -294,7 +279,7 @@ function AdminClientsPage() {
         <tbody>
           {isLoading && (
             <tr>
-              <td colSpan={8} className="admin-clients-page__state-cell">
+              <td colSpan={9} className="admin-establishments-page__state-cell">
                 Loading...
               </td>
             </tr>
@@ -302,11 +287,11 @@ function AdminClientsPage() {
 
           {!isLoading && loadError && (
             <tr>
-              <td colSpan={8} className="admin-clients-page__error-cell">
+              <td colSpan={9} className="admin-establishments-page__error-cell">
                 {loadError}
 
                 <button
-                  className="admin-clients-page__retry-button"
+                  className="admin-establishments-page__retry-button"
                   type="button"
                   onClick={handleRetry}
                 >
@@ -318,47 +303,42 @@ function AdminClientsPage() {
 
           {showEmptyState && (
             <tr>
-              <td colSpan={8} className="admin-clients-page__state-cell">
-                No clients found.
+              <td colSpan={9} className="admin-establishments-page__state-cell">
+                No establishments found.
               </td>
             </tr>
           )}
 
           {!isLoading &&
             !loadError &&
-            clients.map((client) => (
-              <tr key={client.id}>
+            establishments.map((establishment) => (
+              <tr key={establishment.id}>
                 <td>
                   <input
                     type="checkbox"
-                    checked={selectedIds.includes(client.id)}
-                    onChange={() => toggleSelected(client.id)}
-                    aria-label={`Select ${client.fullName}`}
+                    checked={selectedIds.includes(establishment.id)}
+                    onChange={() => toggleSelected(establishment.id)}
+                    aria-label={`Select ${establishment.title}`}
                   />
                 </td>
 
-                <td>{client.fullName}</td>
+                <td>{establishment.title}</td>
 
-                <td>{client.username || '-'}</td>
+                <td>{establishment.phone || '-'}</td>
 
-                <td>{client.city || '-'}</td>
+                <td>{establishment.city || '-'}</td>
 
-                <td className="admin-clients-page__address">
-                  {client.address || '-'}
-                </td>
-
-                <td>-</td>
+                <td>{establishment.ordersCount ?? 0}</td>
 
                 <td>
                   <button
+                    className="admin-establishments-page__view-link"
                     type="button"
-                    className="admin-clients-page__view-link"
-                    onClick={() => openClientCard(client)}
+                    disabled
                   >
                     <span>View</span>
-
                     <span
-                      className="admin-clients-page__view-chevron"
+                      className="admin-establishments-page__view-chevron"
                       aria-hidden="true"
                     >
                       ›
@@ -368,13 +348,49 @@ function AdminClientsPage() {
 
                 <td>
                   <button
-                    className="admin-clients-page__eye-button"
+                    className="admin-establishments-page__view-link"
                     type="button"
-                    aria-label={`Preview ${client.fullName}`}
-                    onClick={() => openClientCard(client)}
+                    onClick={() =>
+                      navigate(
+                        `/admin/establishments/${establishment.id}/positions`,
+                      )
+                    }
+                  >
+                    <span>View</span>
+                    <span
+                      className="admin-establishments-page__view-chevron"
+                      aria-hidden="true"
+                    >
+                      ›
+                    </span>
+                  </button>
+                </td>
+
+                <td>
+                  <button
+                    className="admin-establishments-page__view-link"
+                    type="button"
+                    disabled
+                  >
+                    <span>View</span>
+                    <span
+                      className="admin-establishments-page__view-chevron"
+                      aria-hidden="true"
+                    >
+                      ›
+                    </span>
+                  </button>
+                </td>
+
+                <td>
+                  <button
+                    className="admin-establishments-page__eye-button"
+                    type="button"
+                    aria-label={`Preview ${establishment.title}`}
+                    onClick={() => setViewedEstablishment(establishment)}
                   >
                     <svg
-                      className="admin-clients-page__eye-icon"
+                      className="admin-establishments-page__eye-icon"
                       viewBox="0 0 24 24"
                       fill="none"
                       aria-hidden="true"
@@ -386,7 +402,6 @@ function AdminClientsPage() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
-
                       <circle
                         cx="12"
                         cy="12"
@@ -402,27 +417,24 @@ function AdminClientsPage() {
         </tbody>
       </table>
 
-      <div className="admin-clients-page__pagination">
+      <div className="admin-establishments-page__pagination">
         <button
           type="button"
-          disabled={isLoading || !canGoPrev}
+          disabled={!canGoPrev}
           onClick={() => setPage((current) => current - 1)}
         >
           Prev
         </button>
 
-        {Array.from({
-          length: totalPages,
-        }).map((_, index) => (
+        {Array.from({ length: totalPages }).map((_, index) => (
           <button
             type="button"
             key={index}
             className={
               index === page
-                ? 'admin-clients-page__pagination-active'
+                ? 'admin-establishments-page__pagination-active'
                 : undefined
             }
-            disabled={isLoading}
             onClick={() => setPage(index)}
           >
             {index + 1}
@@ -431,40 +443,27 @@ function AdminClientsPage() {
 
         <button
           type="button"
-          disabled={isLoading || !canGoNext}
+          disabled={!canGoNext}
           onClick={() => setPage((current) => current + 1)}
         >
           Next
         </button>
       </div>
 
-      {viewedClient && (
-        <ClientCardModal
-          client={{
-            id: viewedClient.id,
-            name: viewedClient.fullName,
-            number: viewedClient.username,
-            city: viewedClient.city,
-            address: viewedClient.address,
-          }}
-          onClose={() => setViewedClient(null)}
-          onEdit={() => {
-            const clientId = viewedClient.id
-
-            setViewedClient(null)
-
-            navigate(`/admin/clients/${clientId}/edit`)
-          }}
+      {viewedEstablishment && (
+        <EstablishmentCardModal
+          establishment={viewedEstablishment}
+          onClose={() => setViewedEstablishment(null)}
           onDelete={() => {
-            setClientToDelete(viewedClient)
-            setViewedClient(null)
+            setEstablishmentToDelete(viewedEstablishment)
+            setViewedEstablishment(null)
           }}
         />
       )}
 
-      {clientToDelete && (
+      {establishmentToDelete && (
         <ConfirmDeleteModal
-          title="Delete client?"
+          title="Delete establishment?"
           isDeleting={isDeleting}
           error={deleteError}
           onConfirm={handleConfirmDelete}
@@ -475,4 +474,4 @@ function AdminClientsPage() {
   )
 }
 
-export default AdminClientsPage
+export default AdminEstablishmentsPage
