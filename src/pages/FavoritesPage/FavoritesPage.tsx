@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import bellIcon from '../../assets/icons main pages/bell-color.svg'
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
-import localCuisineImage from '../../assets/icons main pages/Local cuisine.svg'
+import localCuisineImage from '../../assets/food-common/local-cuisine.webp'
 import logo from '../../assets/icons main pages/logo.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
 

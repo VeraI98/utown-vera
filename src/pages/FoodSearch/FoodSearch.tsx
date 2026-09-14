@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/search/Back button.svg'
 import bellIcon from '../../assets/search/bell.svg'
-import cuisineAreaImage from '../../assets/search/Cuisine in the area.svg'
+import cuisineAreaImage from '../../assets/food-common/local-cuisine.webp'
 import filterIcon from '../../assets/search/filter.svg'
 import foodLogo from '../../assets/search/food.svg'
 import mapIcon from '../../assets/search/map.svg'
