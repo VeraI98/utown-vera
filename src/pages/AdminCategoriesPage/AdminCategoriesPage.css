@@ -1,0 +1,501 @@
+.admin-categories-page {
+  width: 100%;
+  color: #101828;
+}
+
+.admin-categories-page__top-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 32px 22px 16px;
+}
+
+.admin-categories-page__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-categories-page__title-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.admin-categories-page__top-row h1 {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.admin-categories-page__title-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: #68717a;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.admin-categories-page__title-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.admin-categories-page__breadcrumb {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: #68717a;
+}
+
+.admin-categories-page__breadcrumb-link {
+  color: #7749f8;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.admin-categories-page__controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.admin-categories-page__search-wrapper {
+  position: relative;
+  width: 424px;
+}
+
+.admin-categories-page__search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.admin-categories-page__search {
+  box-sizing: border-box;
+  width: 100%;
+  height: 36px;
+  padding: 0 16px 0 40px;
+  border: 1px solid #98a2b3;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #101828;
+}
+
+.admin-categories-page__search::placeholder {
+  color: #98a2b3;
+}
+
+.admin-categories-page__search:focus {
+  border-color: #667085;
+}
+
+.admin-categories-page__toolbar {
+  display: flex;
+  gap: 12px;
+}
+
+.admin-categories-page__toolbar-button {
+  height: 32px;
+  padding: 4px 8px;
+  background: #fff;
+  border: 1px solid #98a2b3;
+  border-radius: 4px;
+  color: #6c757d;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-categories-page__toolbar-button--filter {
+  width: 198px;
+}
+
+.admin-categories-page__toolbar-button--choose-action {
+  width: 214px;
+}
+
+.admin-categories-page__apply-button {
+  width: 58px;
+  height: 32px;
+  padding: 0 8px;
+  background: #414141;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-categories-page__toolbar-button:disabled,
+.admin-categories-page__apply-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.admin-categories-page__table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-categories-page__table {
+  width: 100%;
+  min-width: 960px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.admin-categories-page__table thead {
+  background: #f3f3f3;
+}
+
+.admin-categories-page__table th {
+  height: 48px;
+  padding: 0 20px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: #101828;
+  vertical-align: middle;
+}
+
+.admin-categories-page__table td {
+  height: 49px;
+  padding: 0 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #101828;
+  vertical-align: middle;
+}
+
+.admin-categories-page__table th:nth-child(1),
+.admin-categories-page__table td:nth-child(1) {
+  width: 52px;
+}
+
+.admin-categories-page__table th:nth-child(2),
+.admin-categories-page__table td:nth-child(2) {
+  width: 220px;
+}
+
+.admin-categories-page__table th:nth-child(3),
+.admin-categories-page__table td:nth-child(3) {
+  width: 140px;
+}
+
+.admin-categories-page__table th:nth-child(4),
+.admin-categories-page__table td:nth-child(4) {
+  width: 140px;
+}
+
+.admin-categories-page__table tbody tr:hover {
+  background: #fafafa;
+}
+
+.admin-categories-page__table input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.admin-categories-page__priority-input {
+  box-sizing: border-box;
+  width: 64px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid #98a2b3;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #101828;
+}
+
+.admin-categories-page__priority-input:focus {
+  border-color: #667085;
+}
+
+.admin-categories-page__sort-button {
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-categories-page__sort-button:disabled {
+  color: inherit;
+  cursor: default;
+}
+
+.admin-categories-page__switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #d9d9d9;
+  cursor: pointer;
+}
+
+.admin-categories-page__switch > span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.admin-categories-page__switch--active {
+  background: #171717;
+}
+
+.admin-categories-page__switch--active > span {
+  transform: translateX(18px);
+}
+
+.admin-categories-page__switch:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.admin-categories-page__edit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: #101828;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-categories-page__edit-chevron {
+  color: #98a2b3;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.admin-categories-page__description-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: #68717a;
+}
+
+.admin-categories-page__delete-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #98a2b3;
+}
+
+.admin-categories-page__delete-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.admin-categories-page__state-cell {
+  text-align: center;
+  color: #68717a;
+  padding: 32px 12px;
+}
+
+.admin-categories-page__error-cell {
+  text-align: center;
+  color: #d92d20;
+  padding: 32px 12px;
+}
+
+.admin-categories-page__retry-button {
+  height: 32px;
+  margin-left: 12px;
+  padding: 0 12px;
+  background: #414141;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-categories-page__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-top: 40px;
+}
+
+.admin-categories-page__pagination button {
+  height: 36px;
+  min-width: 36px;
+  padding: 0 10px;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  color: #414141;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-categories-page__pagination button + button {
+  border-left: none;
+}
+
+.admin-categories-page__pagination-active {
+  background: #414141 !important;
+  color: #fff !important;
+  border-color: #414141 !important;
+}
+
+.admin-categories-page__pagination button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.admin-categories-page__modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 110;
+}
+
+.admin-categories-page__modal {
+  box-sizing: border-box;
+  width: 420px;
+  max-width: 90vw;
+  padding: 28px;
+  background: #fff;
+  border-radius: 14px;
+}
+
+.admin-categories-page__modal h2 {
+  margin: 0 0 24px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #101828;
+}
+
+.admin-categories-page__modal-field {
+  margin-bottom: 18px;
+}
+
+.admin-categories-page__modal-field:last-of-type {
+  margin-bottom: 0;
+}
+
+.admin-categories-page__modal-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #101828;
+}
+
+.admin-categories-page__modal-field input,
+.admin-categories-page__modal-field select,
+.admin-categories-page__modal-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 14px;
+  border: 1px solid #98a2b3;
+  border-radius: 4px;
+  outline: none;
+  background: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  color: #101828;
+}
+
+.admin-categories-page__modal-field input,
+.admin-categories-page__modal-field select {
+  height: 38px;
+}
+
+.admin-categories-page__modal-field textarea {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  min-height: 72px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.admin-categories-page__modal-field input:focus,
+.admin-categories-page__modal-field select:focus,
+.admin-categories-page__modal-field textarea:focus {
+  border-color: #667085;
+}
+
+.admin-categories-page__modal-error {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: #d92d20;
+}
+
+.admin-categories-page__modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.admin-categories-page__modal-cancel-button,
+.admin-categories-page__modal-save-button {
+  width: 160px;
+  height: 46px;
+  border: none;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.admin-categories-page__modal-cancel-button {
+  background: #f5f5f5;
+  color: #101828;
+}
+
+.admin-categories-page__modal-save-button {
+  background: #171717;
+  color: #fff;
+}
+
+.admin-categories-page__modal-save-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

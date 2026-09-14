@@ -8,6 +8,7 @@ import ProtectedRoute from '../components/ProtectedRoute'
 import AccountPasswordPage from '../pages/AccountPasswordPage/AccountPasswordPage'
 import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
 import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
+import AdminCategoriesPage from '../pages/AdminCategoriesPage/AdminCategoriesPage'
 import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
 import AdminClientEditPage from '../pages/AdminClientEditPage/AdminClientEditPage'
 import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
@@ -263,6 +264,12 @@ export const router =
           path: 'establishments/:establishmentId/positions',
           element: (
             <AdminPositionsPage />
+          ),
+        },
+        {
+          path: 'establishments/:establishmentId/categories',
+          element: (
+            <AdminCategoriesPage />
           ),
         },
         {

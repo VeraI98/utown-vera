@@ -2,45 +2,30 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import AddCategoryModal from './AddCategoryModal'
-import './AdminPositionsPage.css'
+import './AdminCategoriesPage.css'
+import EditCategoryModal from './EditCategoryModal'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import {
-  activateDish,
-  deactivateDish,
-  deleteDish,
-  updateDish,
-} from '../../services/adminDishService'
-import { createCategory } from '../../services/categoryService'
-import { getDishesByRestaurant } from '../../services/dishService'
+  createCategory,
+  deleteCategory,
+  getCategoriesByRestaurant,
+  updateCategory,
+} from '../../services/categoryService'
 import { getEstablishmentById } from '../../services/establishmentService'
-import type { DishResponse } from '../../types/restaurant'
+import type { DishCategoryResponse } from '../../types/restaurant'
 
 const PAGE_SIZE = 10
 
-const SORTABLE_COLUMNS = [
-  'Positions',
-  'Priority',
-  'Price',
-  'Category',
-  'Put on hold',
-]
-
-function formatPrice(price: number) {
-  if (typeof price !== 'number') {
-    return '-'
-  }
-
-  return price.toLocaleString('en-US')
-}
-
-function AdminPositionsPage() {
+function AdminCategoriesPage() {
   const navigate = useNavigate()
   const { establishmentId } = useParams()
   const restaurantId = Number(establishmentId)
 
   const [establishmentName, setEstablishmentName] = useState('')
 
-  const [allDishes, setAllDishes] = useState<DishResponse[]>([])
+  const [allCategories, setAllCategories] = useState<DishCategoryResponse[]>(
+    [],
+  )
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -57,7 +42,10 @@ function AdminPositionsPage() {
   >({})
 
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false)
-  const [dishToDelete, setDishToDelete] = useState<DishResponse | null>(null)
+  const [editingCategory, setEditingCategory] =
+    useState<DishCategoryResponse | null>(null)
+  const [categoryToDelete, setCategoryToDelete] =
+    useState<DishCategoryResponse | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
 
@@ -90,7 +78,7 @@ function AdminPositionsPage() {
   useEffect(() => {
     let isMounted = true
 
-    const loadDishes = async () => {
+    const loadCategories = async () => {
       if (!restaurantId) {
         return
       }
@@ -101,24 +89,27 @@ function AdminPositionsPage() {
       }
 
       try {
-        const data = await getDishesByRestaurant(restaurantId, 0, 200)
+        const data = await getCategoriesByRestaurant(restaurantId, 0, 200)
 
         if (!isMounted) {
           return
         }
 
-        setAllDishes(data.content)
+        setAllCategories(data.content)
         setPriorityDrafts(
           Object.fromEntries(
-            data.content.map((dish) => [dish.id, String(dish.sort ?? 0)]),
+            data.content.map((category) => [
+              category.id,
+              String(category.sort ?? 0),
+            ]),
           ),
         )
       } catch (error) {
-        console.error('Failed to load positions:', error)
+        console.error('Failed to load categories:', error)
 
         if (isMounted) {
-          setAllDishes([])
-          setLoadError('Could not load the positions')
+          setAllCategories([])
+          setLoadError('Could not load the categories')
         }
       } finally {
         if (isMounted) {
@@ -127,32 +118,27 @@ function AdminPositionsPage() {
       }
     }
 
-    void loadDishes()
+    void loadCategories()
 
     return () => {
       isMounted = false
     }
   }, [restaurantId, reloadKey])
 
-  const filteredDishes = allDishes.filter((dish) => {
+  const filteredCategories = allCategories.filter((category) => {
     if (!search) {
       return true
     }
 
-    const term = search.toLowerCase()
-
-    return (
-      dish.title.toLowerCase().includes(term) ||
-      (dish.description || '').toLowerCase().includes(term)
-    )
+    return category.name.toLowerCase().includes(search.toLowerCase())
   })
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredDishes.length / PAGE_SIZE),
+    Math.ceil(filteredCategories.length / PAGE_SIZE),
   )
 
-  const dishes = filteredDishes.slice(
+  const categories = filteredCategories.slice(
     page * PAGE_SIZE,
     page * PAGE_SIZE + PAGE_SIZE,
   )
@@ -175,61 +161,47 @@ function AdminPositionsPage() {
   }
 
   const toggleSelectAll = () => {
-    if (selectedIds.length === dishes.length) {
+    if (selectedIds.length === categories.length) {
       setSelectedIds([])
     } else {
-      setSelectedIds(dishes.map((dish) => dish.id))
+      setSelectedIds(categories.map((category) => category.id))
     }
   }
 
-  const handlePriorityChange = (dishId: number, value: string) => {
+  const handlePriorityChange = (categoryId: number, value: string) => {
     setPriorityDrafts((current) => ({
       ...current,
-      [dishId]: value,
+      [categoryId]: value,
     }))
   }
 
-  const handlePriorityBlur = async (dish: DishResponse) => {
-    const draft = priorityDrafts[dish.id]
+  const handlePriorityBlur = async (category: DishCategoryResponse) => {
+    const draft = priorityDrafts[category.id]
     const parsedSort = Number(draft)
 
     if (draft === undefined || draft === '' || Number.isNaN(parsedSort)) {
       setPriorityDrafts((current) => ({
         ...current,
-        [dish.id]: String(dish.sort ?? 0),
+        [category.id]: String(category.sort ?? 0),
       }))
 
       return
     }
 
-    if (parsedSort === dish.sort) {
+    if (parsedSort === category.sort) {
       return
     }
 
     try {
-      await updateDish(dish.id, { sort: parsedSort })
+      await updateCategory(category.id, { sort: parsedSort })
       setReloadKey((current) => current + 1)
     } catch (error) {
       console.error('Failed to update priority:', error)
 
       setPriorityDrafts((current) => ({
         ...current,
-        [dish.id]: String(dish.sort ?? 0),
+        [category.id]: String(category.sort ?? 0),
       }))
-    }
-  }
-
-  const handleTogglePutOnHold = async (dish: DishResponse) => {
-    try {
-      if (dish.isActive) {
-        await deactivateDish(dish.id)
-      } else {
-        await activateDish(dish.id)
-      }
-
-      setReloadKey((current) => current + 1)
-    } catch (error) {
-      console.error('Failed to toggle position status:', error)
     }
   }
 
@@ -243,8 +215,19 @@ function AdminPositionsPage() {
     setReloadKey((current) => current + 1)
   }
 
+  const handleEditCategory = async (name: string) => {
+    if (!editingCategory) {
+      return
+    }
+
+    await updateCategory(editingCategory.id, { name })
+
+    setEditingCategory(null)
+    setReloadKey((current) => current + 1)
+  }
+
   const handleConfirmDelete = async () => {
-    if (!dishToDelete) {
+    if (!categoryToDelete) {
       return
     }
 
@@ -252,15 +235,15 @@ function AdminPositionsPage() {
     setDeleteError('')
 
     try {
-      await deleteDish(dishToDelete.id)
+      await deleteCategory(categoryToDelete.id)
 
-      setDishToDelete(null)
+      setCategoryToDelete(null)
       setSelectedIds([])
       setReloadKey((current) => current + 1)
     } catch (error) {
-      console.error('Failed to delete position:', error)
+      console.error('Failed to delete category:', error)
 
-      setDeleteError('Could not delete the position')
+      setDeleteError('Could not delete the category')
     } finally {
       setIsDeleting(false)
     }
@@ -271,25 +254,25 @@ function AdminPositionsPage() {
       return
     }
 
-    setDishToDelete(null)
+    setCategoryToDelete(null)
     setDeleteError('')
   }
 
   const canGoPrev = page > 0
   const canGoNext = page + 1 < totalPages
 
-  const showEmptyState = !isLoading && !loadError && dishes.length === 0
+  const showEmptyState = !isLoading && !loadError && categories.length === 0
 
   return (
-    <div className="admin-positions-page">
-      <div className="admin-positions-page__top-row">
-        <div className="admin-positions-page__title-block">
-          <div className="admin-positions-page__title-row">
-            <h1>Positions</h1>
+    <div className="admin-categories-page">
+      <div className="admin-categories-page__top-row">
+        <div className="admin-categories-page__title-block">
+          <div className="admin-categories-page__title-row">
+            <h1>Categories</h1>
 
             <button
               type="button"
-              className="admin-positions-page__title-button"
+              className="admin-categories-page__title-button"
               onClick={() =>
                 navigate(
                   `/admin/establishments/${restaurantId}/positions/add`,
@@ -316,7 +299,7 @@ function AdminPositionsPage() {
 
             <button
               type="button"
-              className="admin-positions-page__title-button"
+              className="admin-categories-page__title-button"
               onClick={() => setIsAddCategoryOpen(true)}
             >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -336,43 +319,38 @@ function AdminPositionsPage() {
               </svg>
               Add category
             </button>
-
-            <button
-              type="button"
-              className="admin-positions-page__title-button"
-              onClick={() =>
-                navigate(
-                  `/admin/establishments/${restaurantId}/categories`,
-                )
-              }
-            >
-              Categories
-            </button>
           </div>
 
-          <nav className="admin-positions-page__breadcrumb">
+          <nav className="admin-categories-page__breadcrumb">
             <span
-              className="admin-positions-page__breadcrumb-link"
+              className="admin-categories-page__breadcrumb-link"
               onClick={() => navigate('/admin/clients')}
             >
               Home
             </span>
             <span> / </span>
             <span
-              className="admin-positions-page__breadcrumb-link"
+              className="admin-categories-page__breadcrumb-link"
               onClick={() => navigate('/admin/establishments')}
             >
               Users / Establishments
             </span>
             <span> / </span>
-            <span>{establishmentName || 'Positions'}</span>
+            <span
+              className="admin-categories-page__breadcrumb-link"
+              onClick={() =>
+                navigate(`/admin/establishments/${restaurantId}/positions`)
+              }
+            >
+              Positions
+            </span>
           </nav>
         </div>
 
-        <div className="admin-positions-page__controls">
-          <div className="admin-positions-page__search-wrapper">
+        <div className="admin-categories-page__controls">
+          <div className="admin-categories-page__search-wrapper">
             <svg
-              className="admin-positions-page__search-icon"
+              className="admin-categories-page__search-icon"
               viewBox="0 0 20 20"
               fill="none"
               aria-hidden="true"
@@ -393,7 +371,7 @@ function AdminPositionsPage() {
             </svg>
 
             <input
-              className="admin-positions-page__search"
+              className="admin-categories-page__search"
               type="text"
               placeholder="Search"
               value={searchInput}
@@ -406,9 +384,9 @@ function AdminPositionsPage() {
             />
           </div>
 
-          <div className="admin-positions-page__toolbar">
+          <div className="admin-categories-page__toolbar">
             <button
-              className="admin-positions-page__toolbar-button admin-positions-page__toolbar-button--filter"
+              className="admin-categories-page__toolbar-button admin-categories-page__toolbar-button--filter"
               type="button"
               disabled
             >
@@ -416,7 +394,7 @@ function AdminPositionsPage() {
             </button>
 
             <button
-              className="admin-positions-page__toolbar-button admin-positions-page__toolbar-button--choose-action"
+              className="admin-categories-page__toolbar-button admin-categories-page__toolbar-button--choose-action"
               type="button"
               disabled
             >
@@ -424,7 +402,7 @@ function AdminPositionsPage() {
             </button>
 
             <button
-              className="admin-positions-page__apply-button"
+              className="admin-categories-page__apply-button"
               type="button"
               disabled
             >
@@ -434,43 +412,50 @@ function AdminPositionsPage() {
         </div>
       </div>
 
-      <div className="admin-positions-page__table-wrapper">
-        <table className="admin-positions-page__table">
+      <div className="admin-categories-page__table-wrapper">
+        <table className="admin-categories-page__table">
           <thead>
             <tr>
               <th>
                 <input
                   type="checkbox"
                   checked={
-                    selectedIds.length === dishes.length && dishes.length > 0
+                    selectedIds.length === categories.length &&
+                    categories.length > 0
                   }
                   onChange={toggleSelectAll}
                   aria-label="Select all"
                 />
               </th>
 
-              {SORTABLE_COLUMNS.map((column) => (
-                <th key={column}>
-                  <button
-                    className="admin-positions-page__sort-button"
-                    type="button"
-                    disabled
-                  >
-                    {column} <span aria-hidden="true">▾</span>
-                  </button>
-                </th>
-              ))}
+              <th>
+                <button
+                  className="admin-categories-page__sort-button"
+                  type="button"
+                  disabled
+                >
+                  Categories <span aria-hidden="true">▾</span>
+                </button>
+              </th>
+
+              <th>
+                <button
+                  className="admin-categories-page__sort-button"
+                  type="button"
+                  disabled
+                >
+                  Priority <span aria-hidden="true">▾</span>
+                </button>
+              </th>
 
               <th>Edit</th>
-              <th>Description</th>
-              <th />
             </tr>
           </thead>
 
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={9} className="admin-positions-page__state-cell">
+                <td colSpan={4} className="admin-categories-page__state-cell">
                   Loading...
                 </td>
               </tr>
@@ -478,10 +463,10 @@ function AdminPositionsPage() {
 
             {!isLoading && loadError && (
               <tr>
-                <td colSpan={9} className="admin-positions-page__error-cell">
+                <td colSpan={4} className="admin-categories-page__error-cell">
                   {loadError}
                   <button
-                    className="admin-positions-page__retry-button"
+                    className="admin-categories-page__retry-button"
                     type="button"
                     onClick={handleRetry}
                   >
@@ -493,98 +478,52 @@ function AdminPositionsPage() {
 
             {showEmptyState && (
               <tr>
-                <td colSpan={9} className="admin-positions-page__state-cell">
-                  No positions found.
+                <td colSpan={4} className="admin-categories-page__state-cell">
+                  No categories found.
                 </td>
               </tr>
             )}
 
             {!isLoading &&
               !loadError &&
-              dishes.map((dish) => (
-                <tr key={dish.id}>
+              categories.map((category) => (
+                <tr key={category.id}>
                   <td>
                     <input
                       type="checkbox"
-                      checked={selectedIds.includes(dish.id)}
-                      onChange={() => toggleSelected(dish.id)}
-                      aria-label={`Select ${dish.title}`}
+                      checked={selectedIds.includes(category.id)}
+                      onChange={() => toggleSelected(category.id)}
+                      aria-label={`Select ${category.name}`}
                     />
                   </td>
 
-                  <td>{dish.title}</td>
+                  <td>{category.name}</td>
 
                   <td>
                     <input
-                      className="admin-positions-page__priority-input"
+                      className="admin-categories-page__priority-input"
                       type="number"
-                      value={priorityDrafts[dish.id] ?? ''}
+                      value={priorityDrafts[category.id] ?? ''}
                       onChange={(event) =>
-                        handlePriorityChange(dish.id, event.target.value)
+                        handlePriorityChange(category.id, event.target.value)
                       }
-                      onBlur={() => handlePriorityBlur(dish)}
+                      onBlur={() => handlePriorityBlur(category)}
                     />
                   </td>
 
-                  <td>{formatPrice(dish.price)}</td>
-
-                  <td>{dish.categoryName || '-'}</td>
-
                   <td>
                     <button
+                      className="admin-categories-page__edit-link"
                       type="button"
-                      className={`admin-positions-page__switch${
-                        !dish.isActive
-                          ? ' admin-positions-page__switch--active'
-                          : ''
-                      }`}
-                      onClick={() => handleTogglePutOnHold(dish)}
-                      aria-label={`Put ${dish.title} on hold`}
-                    >
-                      <span />
-                    </button>
-                  </td>
-
-                  <td>
-                    <button
-                      className="admin-positions-page__edit-link"
-                      type="button"
-                      onClick={() =>
-                        navigate(
-                          `/admin/establishments/${restaurantId}/positions/${dish.id}/edit`,
-                        )
-                      }
+                      onClick={() => setEditingCategory(category)}
                     >
                       <span>Edit</span>
                       <span
-                        className="admin-positions-page__edit-chevron"
+                        className="admin-categories-page__edit-chevron"
                         aria-hidden="true"
                       >
                         ›
                       </span>
-                    </button>
-                  </td>
-
-                  <td className="admin-positions-page__description-cell">
-                    {dish.description || '-'}
-                  </td>
-
-                  <td>
-                    <button
-                      className="admin-positions-page__delete-button"
-                      type="button"
-                      aria-label={`Delete ${dish.title}`}
-                      onClick={() => setDishToDelete(dish)}
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path
-                          d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0-1 12a2 2 0 01-2 2H10a2 2 0 01-2-2L7 7"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
                     </button>
                   </td>
                 </tr>
@@ -593,7 +532,7 @@ function AdminPositionsPage() {
         </table>
       </div>
 
-      <div className="admin-positions-page__pagination">
+      <div className="admin-categories-page__pagination">
         <button
           type="button"
           disabled={!canGoPrev}
@@ -608,7 +547,7 @@ function AdminPositionsPage() {
             key={index}
             className={
               index === page
-                ? 'admin-positions-page__pagination-active'
+                ? 'admin-categories-page__pagination-active'
                 : undefined
             }
             onClick={() => setPage(index)}
@@ -633,9 +572,17 @@ function AdminPositionsPage() {
         />
       )}
 
-      {dishToDelete && (
+      {editingCategory && (
+        <EditCategoryModal
+          category={editingCategory}
+          onSave={handleEditCategory}
+          onCancel={() => setEditingCategory(null)}
+        />
+      )}
+
+      {categoryToDelete && (
         <ConfirmDeleteModal
-          title="Delete position?"
+          title="Delete category?"
           isDeleting={isDeleting}
           error={deleteError}
           onConfirm={handleConfirmDelete}
@@ -646,4 +593,4 @@ function AdminPositionsPage() {
   )
 }
 
-export default AdminPositionsPage
+export default AdminCategoriesPage
