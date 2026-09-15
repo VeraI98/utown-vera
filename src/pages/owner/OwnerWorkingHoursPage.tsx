@@ -4,12 +4,13 @@ import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../hooks/useAuth'
 
-import { getOwnerRestaurants } from '../../services/ownerRestaurantService'
-
 import {
   getOwnerOperatingModes,
   type OperatingModeResponse,
 } from '../../services/ownerOperatingHoursService'
+
+import { getOwnerRestaurants } from '../../services/ownerRestaurantService'
+import { logError } from '../../utils/logger'
 
 import './OwnerWorkingHoursPage.css'
 
@@ -98,9 +99,7 @@ function OwnerWorkingHoursPage() {
 
         if (!restaurant) {
           setErrorMessage('No restaurant found.')
-
           setIsLoading(false)
-
           return
         }
 
@@ -113,10 +112,11 @@ function OwnerWorkingHoursPage() {
         }
 
         setOperatingModes(modes)
-
         setErrorMessage('')
       })
       .catch((error: unknown) => {
+        logError('OwnerWorkingHoursPage: failed to load working hours', error)
+
         if (!isActive) {
           return
         }
@@ -146,7 +146,6 @@ function OwnerWorkingHoursPage() {
     const searchParams = new URLSearchParams()
 
     searchParams.set('restaurantId', String(restaurantId))
-
     searchParams.set('dayOfWeek', String(dayOfWeek))
 
     if (mode) {
@@ -185,7 +184,6 @@ function OwnerWorkingHoursPage() {
                 onClick={() => handleEditDay(day.dayOfWeek)}
               >
                 <span>{day.label}</span>
-
                 <span className="owner-working-hours-page__edit">Edit</span>
               </button>
             ))}

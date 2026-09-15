@@ -10,8 +10,8 @@ import {
 } from '../../services/ownerRestaurantService'
 
 import type { OwnerRestaurantStatus } from '../../services/ownerRestaurantService'
-
 import type { RestaurantResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 import './OwnerHomePage.css'
 
@@ -78,16 +78,16 @@ function OwnerHomePage() {
         }
 
         setRestaurant(restaurants[0] ?? null)
-
         setErrorMessage('')
       })
       .catch((error: unknown) => {
+        logError('OwnerHomePage: failed to load restaurant', error)
+
         if (!isActive) {
           return
         }
 
         setRestaurant(null)
-
         setErrorMessage(getErrorMessage(error))
       })
       .finally(() => {
@@ -136,6 +136,8 @@ function OwnerHomePage() {
 
       setRestaurant(restaurants[0] ?? null)
     } catch (error: unknown) {
+      logError('OwnerHomePage: failed to update restaurant status', error)
+
       setErrorMessage(getErrorMessage(error))
     } finally {
       setIsUpdatingStatus(false)
@@ -168,7 +170,6 @@ function OwnerHomePage() {
                 <section className="owner-home-page__suspend-card">
                   <div className="owner-home-page__suspend-text">
                     <h2>Suspend operations</h2>
-
                     <p>
                       Temporarily suspend the establishment&apos;s operations
                     </p>
@@ -238,7 +239,6 @@ function OwnerHomePage() {
                             ) : (
                               <>
                                 <span>{operatingMode.start ?? '--:--'} -</span>
-
                                 <span>{operatingMode.end ?? '--:--'}</span>
                               </>
                             )}

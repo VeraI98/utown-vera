@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-import { api } from './api'
-
 import type { PaginatedResponse } from '../types/restaurant'
+import { logError } from '../utils/logger'
+import { api } from './api'
 
 export interface RatingRequest {
   id?: number
@@ -56,6 +56,8 @@ export async function getMyRestaurantRating(
     if (axios.isAxiosError(error) && error.response?.status === 404) {
       return null
     }
+
+    logError('ratingService: failed to load current restaurant rating', error)
 
     throw error
   }

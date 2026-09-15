@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { createClient } from '../../services/clientService'
+import { logError } from '../../utils/logger'
 
 import './AdminClientAddPage.css'
 
@@ -11,15 +12,10 @@ function AdminClientAddPage() {
   const navigate = useNavigate()
 
   const [name, setName] = useState('')
-
   const [phoneNumber, setPhoneNumber] = useState('')
-
   const [city, setCity] = useState('')
-
   const [address, setAddress] = useState('')
-
   const [isSaving, setIsSaving] = useState(false)
-
   const [error, setError] = useState('')
 
   const handleCancel = () => {
@@ -32,7 +28,6 @@ function AdminClientAddPage() {
     }
 
     const trimmedName = name.trim()
-
     const normalizedPhone = phoneNumber.replace(/[\s()-]/g, '')
 
     if (!trimmedName) {
@@ -60,7 +55,9 @@ function AdminClientAddPage() {
       })
 
       navigate('/admin/clients')
-    } catch {
+    } catch (error) {
+      logError('AdminClientAddPage: failed to create client', error)
+
       setError('Could not create the client')
     } finally {
       setIsSaving(false)
@@ -73,15 +70,11 @@ function AdminClientAddPage() {
 
       <nav className="admin-client-add-page__breadcrumb">
         <span className="admin-client-add-page__breadcrumb-link">Home</span>
-
         <span> / </span>
-
         <span className="admin-client-add-page__breadcrumb-link">
           Users / Clients
         </span>
-
         <span> / </span>
-
         <span>Add</span>
       </nav>
 

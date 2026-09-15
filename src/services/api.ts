@@ -1,5 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
+import { logError } from '../utils/logger'
+
 const API_URL =
   import.meta.env.VITE_API_URL || 'https://utown-api.habsida.net/api'
 
@@ -46,7 +48,6 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-
   async (error: AxiosError) => {
     const originalRequest = error.config as RetryRequestConfig | undefined
 
@@ -62,7 +63,6 @@ api.interceptors.response.use(
 
     if (!refreshToken) {
       redirectToLogin()
-
       return Promise.reject(error)
     }
 
@@ -89,6 +89,8 @@ api.interceptors.response.use(
 
       return api(originalRequest)
     } catch (refreshError) {
+      logError('API: failed to refresh authentication token', refreshError)
+
       redirectToLogin()
 
       return Promise.reject(refreshError)

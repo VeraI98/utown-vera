@@ -5,6 +5,7 @@ import {
   getMyNotifications,
   type NotificationResponse,
 } from '../../services/notificationService'
+import { logError } from '../../utils/logger'
 
 import './OwnerNotificationsPage.css'
 
@@ -71,7 +72,6 @@ function isYesterday(notification: NotificationResponse): boolean {
   }
 
   const yesterday = new Date()
-
   yesterday.setDate(yesterday.getDate() - 1)
 
   return (
@@ -130,16 +130,16 @@ function OwnerNotificationsPage() {
         }
 
         setNotifications(response.content ?? [])
-
         setErrorMessage('')
       })
       .catch((error: unknown) => {
+        logError('OwnerNotificationsPage: failed to load notifications', error)
+
         if (!isActive) {
           return
         }
 
         setNotifications([])
-
         setErrorMessage(getErrorMessage(error))
       })
       .finally(() => {
@@ -159,7 +159,6 @@ function OwnerNotificationsPage() {
     () =>
       [...notifications].sort((firstNotification, secondNotification) => {
         const firstDate = getNotificationDate(firstNotification)
-
         const secondDate = getNotificationDate(secondNotification)
 
         return (secondDate?.getTime() ?? 0) - (firstDate?.getTime() ?? 0)

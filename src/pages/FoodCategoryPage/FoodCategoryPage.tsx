@@ -6,11 +6,10 @@ import backButtonIcon from '../../assets/food-menu/Back button.svg'
 import bellIcon from '../../assets/food-menu/bell.svg'
 import foodLogo from '../../assets/food-menu/food.svg'
 import utLogo from '../../assets/food-menu/ut.svg'
-
 import { getCategoryById } from '../../services/categoryService'
 import { getDishesByCategory } from '../../services/dishService'
-
 import type { DishResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 import './FoodCategoryPage.css'
 
@@ -71,7 +70,6 @@ function isValidImageUrl(imageUrl?: string | null): boolean {
 
 function DishImage({ src, alt }: DishImageProps) {
   const [hasError, setHasError] = useState(false)
-
   const canShowImage = isValidImageUrl(src) && !hasError
 
   if (!canShowImage) {
@@ -98,20 +96,15 @@ function DishImage({ src, alt }: DishImageProps) {
 
 function FoodCategoryPage() {
   const navigate = useNavigate()
-
   const { categoryId } = useParams()
-
   const numericCategoryId = Number(categoryId)
 
   const isValidCategoryId =
     Number.isInteger(numericCategoryId) && numericCategoryId > 0
 
   const [dishes, setDishes] = useState<DishResponse[]>([])
-
   const [categoryName, setCategoryName] = useState('Category')
-
   const [isLoading, setIsLoading] = useState(true)
-
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
@@ -145,19 +138,19 @@ function FoodCategoryPage() {
         )
 
         setDishes(activeDishes)
-
         setErrorMessage('')
 
         if (activeDishes.length > 0 && activeDishes[0].categoryName) {
           setCategoryName(activeDishes[0].categoryName)
         }
       } catch (error) {
+        logError('FoodCategoryPage: failed to load category dishes', error)
+
         if (!isMounted) {
           return
         }
 
         setDishes([])
-
         setErrorMessage(getErrorMessage(error))
       } finally {
         if (isMounted) {
@@ -215,7 +208,6 @@ function FoodCategoryPage() {
 
           <div className="food-category-logo" aria-label="UT Food">
             <img src={utLogo} alt="UT" />
-
             <img src={foodLogo} alt="Food" />
           </div>
 
@@ -241,7 +233,6 @@ function FoodCategoryPage() {
           {isLoading ? (
             <div className="food-category-loading" role="status">
               <div className="food-category-spinner" aria-hidden="true" />
-
               <p>Loading dishes...</p>
             </div>
           ) : dishes.length > 0 ? (
@@ -260,7 +251,6 @@ function FoodCategoryPage() {
                   <div className="food-category-dish-info">
                     <div className="food-category-dish-top">
                       <h2>{dish.title}</h2>
-
                       <strong>{formatPrice(dish.price)}</strong>
                     </div>
 

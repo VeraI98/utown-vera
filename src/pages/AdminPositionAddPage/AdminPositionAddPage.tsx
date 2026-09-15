@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import './AdminPositionAddPage.css'
 import {
   createDish,
   createDishOption,
@@ -10,6 +9,9 @@ import {
 import { getCategoriesByRestaurant } from '../../services/categoryService'
 import { uploadFile } from '../../services/fileService'
 import type { DishCategoryResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
+
+import './AdminPositionAddPage.css'
 
 const OPTION_ROWS = 7
 
@@ -64,7 +66,10 @@ function AdminPositionAddPage() {
           }
         }
       } catch (categoriesError) {
-        console.error('Failed to load categories:', categoriesError)
+        logError(
+          'AdminPositionAddPage: failed to load categories',
+          categoriesError,
+        )
       }
     }
 
@@ -162,7 +167,7 @@ function AdminPositionAddPage() {
             })),
           })
         } catch (optionsError) {
-          console.error('Failed to save options:', optionsError)
+          logError('AdminPositionAddPage: failed to save options', optionsError)
         }
       }
 
@@ -170,12 +175,17 @@ function AdminPositionAddPage() {
         try {
           await deactivateDish(dish.id)
         } catch (holdError) {
-          console.error('Failed to put dish on hold:', holdError)
+          logError(
+            'AdminPositionAddPage: failed to put dish on hold',
+            holdError,
+          )
         }
       }
 
       navigate(`/admin/establishments/${restaurantId}/positions`)
-    } catch {
+    } catch (submitError) {
+      logError('AdminPositionAddPage: failed to add position', submitError)
+
       setError('Не удалось добавить позицию. Попробуйте ещё раз')
     } finally {
       setIsSubmitting(false)
@@ -185,6 +195,7 @@ function AdminPositionAddPage() {
   return (
     <div className="admin-position-add-page">
       <h1>Add Position</h1>
+
       <p className="admin-position-add-page__breadcrumb">
         <span
           className="admin-position-add-page__breadcrumb-link"
@@ -225,7 +236,9 @@ function AdminPositionAddPage() {
               </svg>
             )}
           </button>
+
           <div className="admin-position-add-page__photo-fill" />
+
           <input
             ref={fileInputRef}
             type="file"
@@ -237,6 +250,7 @@ function AdminPositionAddPage() {
 
         <div className="admin-position-add-page__field">
           <label>Position Name</label>
+
           <input
             type="text"
             value={title}
@@ -247,6 +261,7 @@ function AdminPositionAddPage() {
 
         <div className="admin-position-add-page__field">
           <label>Description</label>
+
           <textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
@@ -256,6 +271,7 @@ function AdminPositionAddPage() {
 
         <div className="admin-position-add-page__field">
           <label>Price</label>
+
           <input
             type="number"
             min="0"
@@ -267,6 +283,7 @@ function AdminPositionAddPage() {
 
         <div className="admin-position-add-page__field">
           <label>Category</label>
+
           <select
             value={categoryId}
             onChange={(event) => setCategoryId(event.target.value)}
@@ -285,6 +302,7 @@ function AdminPositionAddPage() {
 
         <div className="admin-position-add-page__field">
           <label>Priority</label>
+
           <input
             type="number"
             min="0"
@@ -309,6 +327,7 @@ function AdminPositionAddPage() {
                 }
                 placeholder={`Option ${index + 1}`}
               />
+
               <input
                 className="admin-position-add-page__option-price"
                 type="number"
@@ -327,6 +346,7 @@ function AdminPositionAddPage() {
           <div className="admin-position-add-page__hold-row">
             <div className="admin-position-add-page__hold-text">
               <label>Put on Hold</label>
+
               <p className="admin-position-add-page__hold-hint">
                 The dish remains on the menu but is unavailable for order
               </p>
@@ -357,6 +377,7 @@ function AdminPositionAddPage() {
           >
             Cancel
           </button>
+
           <button
             type="submit"
             className="admin-position-add-page__save-button"

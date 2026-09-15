@@ -7,16 +7,14 @@ import bellIcon from '../../assets/restaurant page/bell.svg'
 import deleteButtonIcon from '../../assets/restaurant page/Delete button.svg'
 import foodLogo from '../../assets/restaurant page/food.svg'
 import utLogo from '../../assets/restaurant page/ut.svg'
-
 import {
   getMyCart,
   removeCartItem,
   updateCartItemQuantity,
 } from '../../services/cartService'
-
 import { getRestaurantById } from '../../services/restaurantService'
-
 import type { CartItemResponse, CartResponse } from '../../types/cart'
+import { logError } from '../../utils/logger'
 
 import './OrderPage.css'
 
@@ -163,13 +161,20 @@ function OrderPage() {
           }
 
           setMinimumOrderAmount(restaurant.minOrderAmount)
-        } catch {
+        } catch (error) {
+          logError(
+            'OrderPage: failed to load restaurant minimum order amount',
+            error,
+          )
+
           if (isActive) {
             setMinimumOrderAmount(0)
           }
         }
       })
       .catch((error) => {
+        logError('OrderPage: failed to load cart', error)
+
         if (!isActive) {
           return
         }
@@ -243,12 +248,19 @@ function OrderPage() {
         }
 
         setMinimumOrderAmount(restaurant.minOrderAmount)
-      } catch {
+      } catch (error) {
+        logError(
+          'OrderPage: failed to reload restaurant minimum order amount',
+          error,
+        )
+
         if (isMountedRef.current) {
           setMinimumOrderAmount(0)
         }
       }
     } catch (error) {
+      logError('OrderPage: failed to reload cart', error)
+
       if (!isMountedRef.current) {
         return
       }
@@ -287,6 +299,8 @@ function OrderPage() {
 
       setCart(updatedCart)
     } catch (error) {
+      logError('OrderPage: failed to update cart item quantity', error)
+
       if (isMountedRef.current) {
         setErrorMessage(getErrorMessage(error))
       }
@@ -334,6 +348,8 @@ function OrderPage() {
         setMinimumOrderAmount(0)
       }
     } catch (error) {
+      logError('OrderPage: failed to remove cart item', error)
+
       if (isMountedRef.current) {
         setErrorMessage(getErrorMessage(error))
       }

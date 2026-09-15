@@ -9,6 +9,7 @@ import {
 } from '../../../services/ownerEditRestaurantService'
 
 import type { OwnerRestaurant } from '../../../services/ownerEditRestaurantService'
+import { logError } from '../../../utils/logger'
 
 import './OwnerEditRestaurantPage.css'
 
@@ -149,6 +150,8 @@ export default function OwnerEditRestaurantPage() {
         setErrorMessage('')
       })
       .catch((error: unknown) => {
+        logError('OwnerEditRestaurantPage: failed to load restaurant', error)
+
         if (!isActive) {
           return
         }
@@ -241,6 +244,8 @@ export default function OwnerEditRestaurantPage() {
 
       setSuccessMessage('Changes saved successfully')
     } catch (error: unknown) {
+      logError('OwnerEditRestaurantPage: failed to save restaurant', error)
+
       setErrorMessage(getErrorMessage(error))
     } finally {
       setIsSaving(false)

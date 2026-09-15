@@ -11,6 +11,7 @@ import {
   getMyNotifications,
   type NotificationResponse,
 } from '../../services/notificationService'
+import { logError } from '../../utils/logger'
 
 import './NotificationsPage.css'
 
@@ -21,7 +22,6 @@ interface NotificationGroup {
 
 const parseNotificationDate = (notification: NotificationResponse) => {
   const value = `${notification.date}T${notification.time || '00:00:00'}`
-
   const parsed = new Date(value)
 
   if (Number.isNaN(parsed.getTime())) {
@@ -85,9 +85,7 @@ function NotificationsPage() {
   const navigate = useNavigate()
 
   const [notifications, setNotifications] = useState<NotificationResponse[]>([])
-
   const [isLoading, setIsLoading] = useState(true)
-
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -102,15 +100,15 @@ function NotificationsPage() {
         }
 
         setNotifications(response.content ?? [])
-
         setError('')
-      } catch {
+      } catch (loadError) {
+        logError('NotificationsPage: failed to load notifications', loadError)
+
         if (!isMounted) {
           return
         }
 
         setNotifications([])
-
         setError('Failed to load notifications.')
       } finally {
         if (isMounted) {
@@ -129,7 +127,6 @@ function NotificationsPage() {
   const groups = useMemo<NotificationGroup[]>(() => {
     const sorted = [...notifications].sort((first, second) => {
       const firstDate = parseNotificationDate(first)
-
       const secondDate = parseNotificationDate(second)
 
       if (!firstDate || !secondDate) {
@@ -143,11 +140,9 @@ function NotificationsPage() {
 
     sorted.forEach((notification) => {
       const key = getDateKey(notification)
-
       const current = grouped.get(key) ?? []
 
       current.push(notification)
-
       grouped.set(key, current)
     })
 
@@ -194,7 +189,6 @@ function NotificationsPage() {
           {!isLoading && !error && groups.length === 0 && (
             <div className="notifications-empty">
               <strong>No notifications yet</strong>
-
               <p>Your notifications will appear here.</p>
             </div>
           )}
@@ -211,7 +205,6 @@ function NotificationsPage() {
                       {notification.title && (
                         <>
                           <strong>{notification.title}</strong>
-
                           <br />
                         </>
                       )}
@@ -234,19 +227,16 @@ function NotificationsPage() {
         >
           <Link className="bottom-nav-link" to="/">
             <img src={homeIcon} alt="" aria-hidden="true" />
-
             <span>Home</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/favorites">
             <img src={favoritesIcon} alt="" aria-hidden="true" />
-
             <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/profile">
             <img src={profileIcon} alt="" aria-hidden="true" />
-
             <span>Profile</span>
           </Link>
         </nav>

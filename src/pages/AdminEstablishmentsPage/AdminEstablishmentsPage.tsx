@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import './AdminEstablishmentsPage.css'
-import EstablishmentCardModal from './EstablishmentCardModal'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import {
   deleteEstablishment,
   getEstablishments,
 } from '../../services/establishmentService'
 import type { EstablishmentResponse } from '../../types/establishment'
+import { logError } from '../../utils/logger'
+
+import EstablishmentCardModal from './EstablishmentCardModal'
+
+import './AdminEstablishmentsPage.css'
 
 const PAGE_SIZE = 10
 
@@ -70,7 +73,10 @@ function AdminEstablishmentsPage() {
         setEstablishments(data.content)
         setTotalPages(data.totalPages)
       } catch (error) {
-        console.error('Failed to load establishments:', error)
+        logError(
+          'AdminEstablishmentsPage: failed to load establishments',
+          error,
+        )
 
         if (isMounted) {
           setEstablishments([])
@@ -115,7 +121,7 @@ function AdminEstablishmentsPage() {
       setSelectedIds([])
       setReloadKey((current) => current + 1)
     } catch (error) {
-      console.error('Failed to delete establishment:', error)
+      logError('AdminEstablishmentsPage: failed to delete establishment', error)
 
       setDeleteError('Could not delete the establishment')
     } finally {

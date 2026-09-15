@@ -1,30 +1,28 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import backButtonIcon from '../../assets/food-menu/Back button.svg'
-import bellIcon from '../../assets/food-menu/bell.svg'
 import coffeeImage from '../../assets/food-common/coffee.webp'
-import foodLogo from '../../assets/food-menu/food.svg'
-import iceCreamImage from '../../assets/food-menu/ice cream.jpg'
-import mapIcon from '../../assets/food-menu/map.svg'
 import panAsianImage from '../../assets/food-common/pan-asian.webp'
 import pizzaImage from '../../assets/food-common/pizza.webp'
 import saladsImage from '../../assets/food-common/salads.webp'
+import backButtonIcon from '../../assets/food-menu/Back button.svg'
+import bellIcon from '../../assets/food-menu/bell.svg'
+import foodLogo from '../../assets/food-menu/food.svg'
+import iceCreamImage from '../../assets/food-menu/ice cream.jpg'
+import mapIcon from '../../assets/food-menu/map.svg'
 import searchIcon from '../../assets/food-menu/search.svg'
 import utLogo from '../../assets/food-menu/ut.svg'
-
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
 
 import { getCategories } from '../../services/categoryService'
-
 import { getActiveRestaurants } from '../../services/restaurantService'
-
 import type {
   DishCategoryResponse,
   RestaurantResponse,
 } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 import './FoodPage.css'
 
@@ -131,7 +129,6 @@ function RestaurantSection({
               loading="lazy"
               onError={(event) => {
                 event.currentTarget.onerror = null
-
                 event.currentTarget.src = pizzaImage
               }}
             />
@@ -161,11 +158,8 @@ function FoodPage() {
   const navigate = useNavigate()
 
   const [categories, setCategories] = useState<DishCategoryResponse[]>([])
-
   const [restaurants, setRestaurants] = useState<RestaurantResponse[]>([])
-
   const [isLoading, setIsLoading] = useState(true)
-
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
@@ -195,14 +189,15 @@ function FoodPage() {
         )
 
         setErrorMessage('')
-      } catch {
+      } catch (error) {
+        logError('FoodPage: failed to load restaurants and categories', error)
+
         if (!isMounted) {
           return
         }
 
         setCategories([])
         setRestaurants([])
-
         setErrorMessage('Failed to load restaurants and categories.')
       } finally {
         if (isMounted) {
@@ -259,7 +254,6 @@ function FoodPage() {
 
           <div className="food-logo" aria-label="UT Food">
             <img src={utLogo} alt="UT" />
-
             <img src={foodLogo} alt="Food" />
           </div>
 
@@ -276,7 +270,6 @@ function FoodPage() {
         <div className="food-content">
           <div className="food-address" aria-label="Delivery area">
             <img src={mapIcon} alt="" aria-hidden="true" />
-
             <span>Delivery area</span>
           </div>
 
@@ -287,7 +280,6 @@ function FoodPage() {
             aria-label="Open food search"
           >
             <img src={searchIcon} alt="" aria-hidden="true" />
-
             <span>Search for cafes, restaurants and dishes</span>
           </button>
 
@@ -296,7 +288,6 @@ function FoodPage() {
 
             <div className="food-banner-text">
               <strong>Delicious coffee</strong>
-
               <span>Short promotional text -20% on everything</span>
             </div>
           </section>
@@ -323,7 +314,6 @@ function FoodPage() {
             {isLoading ? (
               <div className="food-loading" role="status">
                 <div className="food-loading-spinner" aria-hidden="true" />
-
                 <p>Loading categories...</p>
               </div>
             ) : categories.length === 0 ? (
@@ -349,14 +339,12 @@ function FoodPage() {
                         loading="lazy"
                         onError={(event) => {
                           event.currentTarget.onerror = null
-
                           event.currentTarget.src =
                             getCategoryFallbackImage(index)
                         }}
                       />
 
                       <strong>{category.name}</strong>
-
                       <span>{category.restaurantName || 'Food category'}</span>
                     </button>
                   )
@@ -391,19 +379,16 @@ function FoodPage() {
         <nav className="bottom-nav" aria-label="Main navigation">
           <Link className="bottom-nav-link active" to="/">
             <img src={homeIcon} alt="" aria-hidden="true" />
-
             <span>Home</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/favorites">
             <img src={favoritesIcon} alt="" aria-hidden="true" />
-
             <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/profile">
             <img src={profileIcon} alt="" aria-hidden="true" />
-
             <span>Profile</span>
           </Link>
         </nav>

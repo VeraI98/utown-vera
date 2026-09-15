@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import './EstablishmentCardModal.css'
 import { getRestaurantById } from '../../services/restaurantService'
 import type { EstablishmentResponse } from '../../types/establishment'
 import type { RestaurantOperatingMode } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
+
+import './EstablishmentCardModal.css'
 
 interface EstablishmentCardModalProps {
   establishment: EstablishmentResponse
@@ -40,9 +42,11 @@ function EstablishmentCardModal({
   onDelete,
 }: EstablishmentCardModalProps) {
   const navigate = useNavigate()
+
   const [operatingModes, setOperatingModes] = useState<
     RestaurantOperatingMode[]
   >([])
+
   const [isLoadingHours, setIsLoadingHours] = useState(true)
 
   useEffect(() => {
@@ -58,7 +62,10 @@ function EstablishmentCardModal({
 
         setOperatingModes(restaurant.operatingModes ?? [])
       } catch (error) {
-        console.error('Failed to load operating modes:', error)
+        logError(
+          'EstablishmentCardModal: failed to load operating modes',
+          error,
+        )
 
         if (isMounted) {
           setOperatingModes([])

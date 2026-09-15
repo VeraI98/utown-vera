@@ -11,6 +11,7 @@ import {
   updateOwnerOperatingMode,
 } from '../../services/ownerOperatingHoursService'
 import { getRestaurantById } from '../../services/restaurantService'
+import { logError } from '../../utils/logger'
 
 import './AdminEstablishmentEditPage.css'
 
@@ -140,10 +141,16 @@ function AdminEstablishmentEditPage() {
             )
           }
         } catch (hoursError) {
-          console.error('Failed to load operating modes:', hoursError)
+          logError(
+            'AdminEstablishmentEditPage: failed to load operating modes',
+            hoursError,
+          )
         }
       } catch (requestError) {
-        console.error('Failed to load establishment:', requestError)
+        logError(
+          'AdminEstablishmentEditPage: failed to load establishment',
+          requestError,
+        )
 
         if (isMounted) {
           setLoadError('Could not load the establishment')
@@ -266,13 +273,23 @@ function AdminEstablishmentEditPage() {
           } else {
             await createOwnerOperatingMode(Number(establishmentId), payload)
           }
-        } catch {
+        } catch (hoursError) {
+          logError(
+            `AdminEstablishmentEditPage: failed to save operating mode for day ${day.dayOfWeek}`,
+            hoursError,
+          )
+
           continue
         }
       }
 
       navigate('/admin/establishments')
-    } catch {
+    } catch (submitError) {
+      logError(
+        'AdminEstablishmentEditPage: failed to save establishment changes',
+        submitError,
+      )
+
       setError('Не удалось сохранить изменения. Попробуйте ещё раз')
     } finally {
       setIsSubmitting(false)

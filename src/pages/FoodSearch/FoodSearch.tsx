@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import cuisineAreaImage from '../../assets/food-common/local-cuisine.webp'
 import backButtonIcon from '../../assets/search/Back button.svg'
 import bellIcon from '../../assets/search/bell.svg'
-import cuisineAreaImage from '../../assets/food-common/local-cuisine.webp'
 import filterIcon from '../../assets/search/filter.svg'
 import foodLogo from '../../assets/search/food.svg'
 import mapIcon from '../../assets/search/map.svg'
@@ -11,17 +11,16 @@ import searchIcon from '../../assets/search/search.svg'
 import utLogo from '../../assets/search/ut.svg'
 
 import { searchDishes } from '../../services/dishService'
-
 import {
   searchRestaurants,
   searchRestaurantsAdvanced,
 } from '../../services/restaurantService'
-
 import type {
   DishResponse,
   RestaurantResponse,
   RestaurantStatus,
 } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 import './FoodSearch.css'
 
@@ -237,6 +236,11 @@ function FoodSearch() {
 
           setRestaurants(activeRestaurants)
         } else {
+          logError(
+            'FoodSearch: failed to search restaurants',
+            restaurantsResult.reason,
+          )
+
           setRestaurants([])
         }
 
@@ -247,6 +251,8 @@ function FoodSearch() {
 
           setDishes(activeDishes)
         } else {
+          logError('FoodSearch: failed to search dishes', dishesResult.reason)
+
           setDishes([])
         }
 
@@ -256,7 +262,9 @@ function FoodSearch() {
         ) {
           setErrorMessage('Failed to search.')
         }
-      } catch {
+      } catch (error) {
+        logError('FoodSearch: failed to perform search', error)
+
         if (!isMounted) {
           return
         }

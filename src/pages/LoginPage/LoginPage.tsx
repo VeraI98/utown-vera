@@ -1,24 +1,19 @@
 import { useState, type FormEvent } from 'react'
-
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 
-import { useAuth } from '../../hooks/useAuth'
-
 import logo from '../../assets/ut-business-logo.svg'
+import { useAuth } from '../../hooks/useAuth'
+import { logError } from '../../utils/logger'
 
 import './LoginPage.css'
 
 function LoginPage() {
   const navigate = useNavigate()
-
   const { login, isAuthenticated } = useAuth()
 
   const [username, setUsername] = useState('')
-
   const [password, setPassword] = useState('')
-
   const [error, setError] = useState('')
-
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (isAuthenticated) {
@@ -53,7 +48,9 @@ function LoginPage() {
       navigate('/', {
         replace: true,
       })
-    } catch {
+    } catch (loginError) {
+      logError('LoginPage: failed to log in', loginError)
+
       setError('Invalid username or password.')
     } finally {
       setIsSubmitting(false)
@@ -74,7 +71,6 @@ function LoginPage() {
               value={username}
               onChange={(event) => {
                 setUsername(event.target.value)
-
                 setError('')
               }}
               placeholder="Username or Phone Number"
@@ -92,7 +88,6 @@ function LoginPage() {
               value={password}
               onChange={(event) => {
                 setPassword(event.target.value)
-
                 setError('')
               }}
               placeholder="Password"
@@ -123,9 +118,7 @@ function LoginPage() {
 
         <div className="login-footer">
           <p>To register an establishment,</p>
-
           <p>call the number:</p>
-
           <p>010 1234 56 78</p>
         </div>
 

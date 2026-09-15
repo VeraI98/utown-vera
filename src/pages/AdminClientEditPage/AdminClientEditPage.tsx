@@ -2,24 +2,20 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { getClientById, updateClient } from '../../services/clientService'
+import { logError } from '../../utils/logger'
 
 import './AdminClientEditPage.css'
 
 function AdminClientEditPage() {
   const navigate = useNavigate()
-
   const { clientId } = useParams()
 
   const [name, setName] = useState('')
-
   const [phoneNumber, setPhoneNumber] = useState('')
-
   const [city, setCity] = useState('')
-
   const [address, setAddress] = useState('')
 
   const [isLoading, setIsLoading] = useState(true)
-
   const [isSaving, setIsSaving] = useState(false)
 
   const [error, setError] = useState('')
@@ -47,15 +43,13 @@ function AdminClientEditPage() {
         }
 
         setName(client.fullName)
-
         setPhoneNumber(client.username)
-
         setCity(client.city ?? '')
-
         setAddress(client.address ?? '')
-
         setError('')
-      } catch {
+      } catch (loadError) {
+        logError('AdminClientEditPage: failed to load client', loadError)
+
         if (isMounted) {
           setError('Could not load the client')
         }
@@ -83,7 +77,6 @@ function AdminClientEditPage() {
     }
 
     const parsedClientId = Number(clientId)
-
     const trimmedName = name.trim()
 
     if (!clientId || !Number.isFinite(parsedClientId)) {
@@ -107,7 +100,9 @@ function AdminClientEditPage() {
       })
 
       navigate('/admin/clients')
-    } catch {
+    } catch (saveError) {
+      logError('AdminClientEditPage: failed to save client changes', saveError)
+
       setError('Could not save the changes')
     } finally {
       setIsSaving(false)
@@ -120,15 +115,11 @@ function AdminClientEditPage() {
 
       <nav className="admin-client-edit-page__breadcrumb">
         <span className="admin-client-edit-page__breadcrumb-link">Home</span>
-
         <span> / </span>
-
         <span className="admin-client-edit-page__breadcrumb-link">
           Users / Clients
         </span>
-
         <span> / </span>
-
         <span>Edit</span>
       </nav>
 

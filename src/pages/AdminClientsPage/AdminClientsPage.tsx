@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import { deleteClient, getClients } from '../../services/clientService'
 import type { ClientResponse } from '../../types/client'
+import { logError } from '../../utils/logger'
 
 import ClientCardModal from './ClientCardModal'
 
@@ -75,7 +76,9 @@ function AdminClientsPage() {
         setTotalPages(data.totalPages)
 
         setSelectedIds([])
-      } catch {
+      } catch (error) {
+        logError('AdminClientsPage: failed to load clients', error)
+
         if (isMounted) {
           setClients([])
           setTotalPages(0)
@@ -131,7 +134,7 @@ function AdminClientsPage() {
       setSelectedIds([])
       setReloadKey((current) => current + 1)
     } catch (error) {
-      console.error('Failed to delete client:', error)
+      logError('AdminClientsPage: failed to delete client', error)
 
       setDeleteError('Could not delete the client')
     } finally {

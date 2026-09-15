@@ -18,6 +18,7 @@ import {
 } from '../../services/ratingService'
 
 import type { OrderResponse } from '../../types/cart'
+import { logError } from '../../utils/logger'
 
 import './OrderRatingPage.css'
 
@@ -52,7 +53,6 @@ function normalizeStatus(status?: string): string {
 
 function isOrderDelivered(order: OrderResponse): boolean {
   const status = normalizeStatus(order.status)
-
   const deliveryStatus = normalizeStatus(order.deliveryStatus)
 
   return status === 'DELIVERED' || deliveryStatus === 'DELIVERED'
@@ -60,7 +60,6 @@ function isOrderDelivered(order: OrderResponse): boolean {
 
 function OrderRatingPage() {
   const navigate = useNavigate()
-
   const { orderId } = useParams()
 
   const [order, setOrder] = useState<OrderResponse | null>(null)
@@ -141,6 +140,8 @@ function OrderRatingPage() {
         }
       })
       .catch((error) => {
+        logError('OrderRatingPage: failed to load order or rating', error)
+
         if (!isMounted) {
           return
         }
@@ -247,6 +248,8 @@ function OrderRatingPage() {
 
       setSuccessMessage(existingRating ? 'Rating updated!' : 'Rating saved!')
     } catch (error) {
+      logError('OrderRatingPage: failed to save rating', error)
+
       setErrorMessage(getErrorMessage(error))
     } finally {
       setIsSubmitting(false)
@@ -354,7 +357,6 @@ function OrderRatingPage() {
                 style={
                   {
                     '--rating-percent': `${ratingPercent}%`,
-
                     '--rating-mask': `url("${ratingStarsIcon}")`,
                   } as CSSProperties
                 }

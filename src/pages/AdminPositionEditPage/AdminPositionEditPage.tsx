@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import './AdminPositionEditPage.css'
 import {
   activateDish,
   createDishOption,
@@ -14,6 +13,9 @@ import { getCategoriesByRestaurant } from '../../services/categoryService'
 import { getDishById } from '../../services/dishService'
 import { uploadFile } from '../../services/fileService'
 import type { DishCategoryResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
+
+import './AdminPositionEditPage.css'
 
 const OPTION_ROWS = 7
 
@@ -68,7 +70,10 @@ function AdminPositionEditPage() {
           setCategories(data.content)
         }
       } catch (categoriesError) {
-        console.error('Failed to load categories:', categoriesError)
+        logError(
+          'AdminPositionEditPage: failed to load categories',
+          categoriesError,
+        )
       }
     }
 
@@ -122,7 +127,7 @@ function AdminPositionEditPage() {
           )
         }
       } catch (requestError) {
-        console.error('Failed to load position:', requestError)
+        logError('AdminPositionEditPage: failed to load position', requestError)
 
         if (isMounted) {
           setLoadError('Could not load the position')
@@ -240,7 +245,7 @@ function AdminPositionEditPage() {
           await deleteDishOption(dishId, existingOptionId)
         }
       } catch (optionsError) {
-        console.error('Failed to save options:', optionsError)
+        logError('AdminPositionEditPage: failed to save options', optionsError)
       }
 
       try {
@@ -250,11 +255,19 @@ function AdminPositionEditPage() {
           await activateDish(dishId)
         }
       } catch (holdError) {
-        console.error('Failed to update hold status:', holdError)
+        logError(
+          'AdminPositionEditPage: failed to update hold status',
+          holdError,
+        )
       }
 
       navigate(`/admin/establishments/${restaurantId}/positions`)
-    } catch {
+    } catch (submitError) {
+      logError(
+        'AdminPositionEditPage: failed to save position changes',
+        submitError,
+      )
+
       setError('Не удалось сохранить изменения. Попробуйте ещё раз')
     } finally {
       setIsSubmitting(false)
@@ -282,6 +295,7 @@ function AdminPositionEditPage() {
   return (
     <div className="admin-position-edit-page">
       <h1>Edit Position</h1>
+
       <p className="admin-position-edit-page__breadcrumb">
         <span
           className="admin-position-edit-page__breadcrumb-link"
@@ -322,7 +336,9 @@ function AdminPositionEditPage() {
               </svg>
             )}
           </button>
+
           <div className="admin-position-edit-page__photo-fill" />
+
           <input
             ref={fileInputRef}
             type="file"
@@ -334,6 +350,7 @@ function AdminPositionEditPage() {
 
         <div className="admin-position-edit-page__field">
           <label>Position Name</label>
+
           <input
             type="text"
             value={title}
@@ -343,6 +360,7 @@ function AdminPositionEditPage() {
 
         <div className="admin-position-edit-page__field">
           <label>Description</label>
+
           <textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
@@ -351,6 +369,7 @@ function AdminPositionEditPage() {
 
         <div className="admin-position-edit-page__field">
           <label>Price</label>
+
           <input
             type="number"
             min="0"
@@ -361,6 +380,7 @@ function AdminPositionEditPage() {
 
         <div className="admin-position-edit-page__field">
           <label>Category</label>
+
           <select
             value={categoryId}
             onChange={(event) => setCategoryId(event.target.value)}
@@ -379,6 +399,7 @@ function AdminPositionEditPage() {
 
         <div className="admin-position-edit-page__field">
           <label>Priority</label>
+
           <input
             type="number"
             min="0"
@@ -403,6 +424,7 @@ function AdminPositionEditPage() {
                 }
                 placeholder={`Option ${index + 1}`}
               />
+
               <input
                 className="admin-position-edit-page__option-price"
                 type="number"
@@ -421,6 +443,7 @@ function AdminPositionEditPage() {
           <div className="admin-position-edit-page__hold-row">
             <div className="admin-position-edit-page__hold-text">
               <label>Put on Hold</label>
+
               <p className="admin-position-edit-page__hold-hint">
                 The dish remains on the menu but is unavailable for order.
               </p>
@@ -451,6 +474,7 @@ function AdminPositionEditPage() {
           >
             Cancel
           </button>
+
           <button
             type="submit"
             className="admin-position-edit-page__save-button"

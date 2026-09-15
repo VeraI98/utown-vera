@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { logError } from '../../utils/logger'
+
 interface AddCategoryModalProps {
   onSave: (name: string) => Promise<void>
   onCancel: () => void
@@ -23,7 +25,9 @@ function AddCategoryModal({ onSave, onCancel }: AddCategoryModalProps) {
 
     try {
       await onSave(trimmedName)
-    } catch {
+    } catch (saveError) {
+      logError('AddCategoryModal: failed to add category', saveError)
+
       setError('Could not add the category')
     } finally {
       setIsSaving(false)
@@ -40,6 +44,7 @@ function AddCategoryModal({ onSave, onCancel }: AddCategoryModalProps) {
 
         <div className="admin-positions-page__modal-field">
           <label htmlFor="category-name">Name</label>
+
           <input
             id="category-name"
             type="text"
@@ -60,6 +65,7 @@ function AddCategoryModal({ onSave, onCancel }: AddCategoryModalProps) {
           >
             Cancel
           </button>
+
           <button
             type="button"
             className="admin-positions-page__modal-save-button"

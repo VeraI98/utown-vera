@@ -3,11 +3,11 @@ import { useEffect, useState, type ReactNode } from 'react'
 import type { AuthResponse, LoginData, RegisterData, User } from '../types/auth'
 
 import { api } from '../services/api'
-
 import {
   login as loginRequest,
   register as registerRequest,
 } from '../services/authService'
+import { logError } from '../utils/logger'
 
 import { AuthContext } from './auth-context'
 
@@ -27,9 +27,7 @@ function clearStoredAuthData() {
 
 function saveAuthData(response: AuthResponse) {
   localStorage.setItem(TOKEN_KEY, response.token)
-
   localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken)
-
   localStorage.setItem(USER_KEY, JSON.stringify(response.user))
 }
 
@@ -42,15 +40,17 @@ function getStoredUser(): User | null {
 
   try {
     return JSON.parse(savedUser) as User
-  } catch {
+  } catch (error) {
+    logError('AuthProvider: failed to parse stored user data', error)
+
     clearStoredAuthData()
+
     return null
   }
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(getStoredUser)
-
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -61,6 +61,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         clearStoredAuthData()
         setUser(null)
         setIsLoading(false)
+
         return
       }
 
@@ -68,9 +69,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const { data } = await api.get<User>('/users/profile')
 
         localStorage.setItem(USER_KEY, JSON.stringify(data))
-
         setUser(data)
-      } catch {
+      } catch (error) {
+        logError('AuthProvider: failed to check authentication', error)
+
         clearStoredAuthData()
         setUser(null)
       } finally {
@@ -102,7 +104,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const updateUser = (updatedUser: User) => {
     localStorage.setItem(USER_KEY, JSON.stringify(updatedUser))
-
     setUser(updatedUser)
   }
 

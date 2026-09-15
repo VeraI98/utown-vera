@@ -12,6 +12,7 @@ import type {
   OperatingModeRequest,
   OperatingModeResponse,
 } from '../../../services/ownerOperatingHoursService'
+import { logError } from '../../../utils/logger'
 
 import './OwnerWorkingHoursEditPage.css'
 
@@ -48,15 +49,12 @@ function getErrorMessage(error: unknown): string {
 
 function OwnerWorkingHoursEditPage() {
   const navigate = useNavigate()
-
   const [searchParams] = useSearchParams()
 
   const restaurantId = Number(searchParams.get('restaurantId'))
-
   const dayOfWeek = Number(searchParams.get('dayOfWeek'))
 
   const modeIdParam = searchParams.get('modeId')
-
   const modeId = modeIdParam !== null ? Number(modeIdParam) : null
 
   const dayName = DAY_NAMES[dayOfWeek] ?? 'Working hours'
@@ -65,13 +63,10 @@ function OwnerWorkingHoursEditPage() {
     useState<OperatingModeResponse | null>(null)
 
   const [startTime, setStartTime] = useState('09:00')
-
   const [endTime, setEndTime] = useState('22:00')
-
   const [dayOff, setDayOff] = useState(false)
 
   const [isLoading, setIsLoading] = useState(true)
-
   const [isSaving, setIsSaving] = useState(false)
 
   const [errorMessage, setErrorMessage] = useState('')
@@ -109,15 +104,18 @@ function OwnerWorkingHoursEditPage() {
 
         if (mode) {
           setStartTime(mode.start ?? '09:00')
-
           setEndTime(mode.end ?? '22:00')
-
           setDayOff(mode.dayOff)
         }
 
         setErrorMessage('')
       })
       .catch((error: unknown) => {
+        logError(
+          'OwnerWorkingHoursEditPage: failed to load operating modes',
+          error,
+        )
+
         if (!isActive) {
           return
         }
@@ -179,6 +177,8 @@ function OwnerWorkingHoursEditPage() {
         replace: true,
       })
     } catch (error) {
+      logError('OwnerWorkingHoursEditPage: failed to save working hours', error)
+
       setErrorMessage(getErrorMessage(error))
     } finally {
       setIsSaving(false)

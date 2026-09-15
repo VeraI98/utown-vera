@@ -12,16 +12,12 @@ import utLogo from '../../assets/order/ut.svg'
 import warningIcon from '../../assets/order/warning.svg'
 
 import { useAuth } from '../../hooks/useAuth'
-
 import { getMyAddresses } from '../../services/addressService'
-
 import { checkoutMyCart, getMyCart } from '../../services/cartService'
-
 import { getRestaurantById } from '../../services/restaurantService'
-
 import type { AddressResponse } from '../../types/address'
-
 import type { CartResponse } from '../../types/cart'
+import { logError } from '../../utils/logger'
 
 import './OrderPaymentPage.css'
 
@@ -89,13 +85,10 @@ function findDeliveryAddress(
 
 function OrderPaymentPage() {
   const navigate = useNavigate()
-
   const location = useLocation()
-
   const { user } = useAuth()
 
   const locationState = location.state as OrderPaymentPageState | null
-
   const createdAddress = locationState?.createdAddress ?? null
 
   const [cart, setCart] = useState<CartResponse | null>(null)
@@ -130,12 +123,10 @@ function OrderPaymentPage() {
         }
 
         setCart(currentCart)
-
         setErrorMessage('')
 
         if (createdAddress) {
           setDefaultAddress(createdAddress)
-
           setAddressError('')
         } else {
           try {
@@ -153,10 +144,11 @@ function OrderPaymentPage() {
             setDefaultAddress(selectedAddress)
 
             setAddressError(selectedAddress ? '' : 'No delivery address found.')
-          } catch {
+          } catch (error) {
+            logError('OrderPaymentPage: failed to load addresses', error)
+
             if (isMounted) {
               setDefaultAddress(null)
-
               setAddressError('No delivery address found.')
             }
           }
@@ -166,7 +158,6 @@ function OrderPaymentPage() {
 
         if (!restaurantId) {
           setMinimumOrderAmount(0)
-
           setDeliveryTimeText('Delivery time unavailable')
 
           return
@@ -186,14 +177,17 @@ function OrderPaymentPage() {
               ? restaurant.deliveryTime
               : 'Delivery time unavailable',
           )
-        } catch {
+        } catch (error) {
+          logError('OrderPaymentPage: failed to load restaurant details', error)
+
           if (isMounted) {
             setMinimumOrderAmount(0)
-
             setDeliveryTimeText('Delivery time unavailable')
           }
         }
       } catch (error) {
+        logError('OrderPaymentPage: failed to load payment page data', error)
+
         if (!isMounted) {
           return
         }
@@ -293,8 +287,9 @@ function OrderPaymentPage() {
         },
       })
     } catch (error) {
-      setErrorMessage(getErrorMessage(error))
+      logError('OrderPaymentPage: failed to place order', error)
 
+      setErrorMessage(getErrorMessage(error))
       setIsSending(false)
     }
   }
@@ -327,7 +322,6 @@ function OrderPaymentPage() {
 
         <div className="order-payment-page__logo" aria-label="UT Food">
           <img src={utLogo} alt="UT" />
-
           <img src={foodLogo} alt="Food" />
         </div>
 

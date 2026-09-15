@@ -1,28 +1,23 @@
 import { useEffect, useState, type FormEvent } from 'react'
-
 import { Link, useNavigate } from 'react-router-dom'
-
-import { useAuth } from '../../hooks/useAuth'
-
-import { getMyAddresses } from '../../services/addressService'
-
-import { updateProfile } from '../../services/authService'
-
-import type { AddressResponse } from '../../types/address'
 
 import arrowAddressIcon from '../../assets/icon account/arrow-address.svg'
 import backButtonBlackIcon from '../../assets/icon account/Back Button black.svg'
 import logoGradient from '../../assets/icon account/logo gradient.svg'
-
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
+
+import { useAuth } from '../../hooks/useAuth'
+import { getMyAddresses } from '../../services/addressService'
+import { updateProfile } from '../../services/authService'
+import type { AddressResponse } from '../../types/address'
+import { logError } from '../../utils/logger'
 
 import './PersonalInformationPage.css'
 
 function PersonalInformationPage() {
   const navigate = useNavigate()
-
   const { user, updateUser } = useAuth()
 
   const [name, setName] = useState(user?.fullName || '')
@@ -53,12 +48,10 @@ function PersonalInformationPage() {
         }
 
         setAddresses(response)
-
         setAddressesError('')
 
         if (response.length === 0) {
           setSelectedAddressId(null)
-
           return
         }
 
@@ -68,21 +61,20 @@ function PersonalInformationPage() {
 
         if (defaultAddressExists && user?.defaultAddress != null) {
           setSelectedAddressId(user.defaultAddress)
-
           return
         }
 
         setSelectedAddressId(response[0].id)
       })
-      .catch(() => {
+      .catch((error) => {
+        logError('PersonalInformationPage: failed to load addresses', error)
+
         if (!isActive) {
           return
         }
 
         setAddresses([])
-
         setSelectedAddressId(null)
-
         setAddressesError('Failed to load addresses.')
       })
       .finally(() => {
@@ -112,7 +104,6 @@ function PersonalInformationPage() {
 
     if (!trimmedName) {
       setError('Enter your name.')
-
       return
     }
 
@@ -121,14 +112,18 @@ function PersonalInformationPage() {
     try {
       const updatedUser = await updateProfile({
         fullName: trimmedName,
-
         defaultAddress: selectedAddressId,
       })
 
       updateUser(updatedUser)
 
       navigate('/account')
-    } catch {
+    } catch (error) {
+      logError(
+        'PersonalInformationPage: failed to update personal information',
+        error,
+      )
+
       setError('Failed to update personal information.')
     } finally {
       setIsSubmitting(false)
@@ -165,7 +160,6 @@ function PersonalInformationPage() {
                 disabled={isSubmitting}
                 onChange={(event) => {
                   setName(event.target.value)
-
                   setError('')
                 }}
                 placeholder="Name"
@@ -262,19 +256,16 @@ function PersonalInformationPage() {
         >
           <Link className="bottom-nav-link" to="/">
             <img src={homeIcon} alt="" aria-hidden="true" />
-
             <span>Home</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/favorites">
             <img src={favoritesIcon} alt="" aria-hidden="true" />
-
             <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link active" to="/profile">
             <img src={profileIcon} alt="" aria-hidden="true" />
-
             <span>Profile</span>
           </Link>
         </nav>

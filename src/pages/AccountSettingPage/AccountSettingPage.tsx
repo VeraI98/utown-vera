@@ -1,17 +1,17 @@
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useAuth } from '../../hooks/useAuth'
-import { deleteProfile } from '../../services/authService'
-
 import arrowIcon from '../../assets/icon account/arrow.svg'
 import avatarIcon from '../../assets/icon account/Avatar pic.svg'
 import backButtonIcon from '../../assets/icon account/Back Button.svg'
 import logoWhite from '../../assets/icon account/logo white.svg'
-
 import bellIcon from '../../assets/icons main pages/bell-color.svg'
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
+
+import { useAuth } from '../../hooks/useAuth'
+import { deleteProfile } from '../../services/authService'
+import { logError } from '../../utils/logger'
 
 import './AccountSettingPage.css'
 
@@ -46,7 +46,9 @@ function AccountSettingPage() {
       navigate('/login', {
         replace: true,
       })
-    } catch {
+    } catch (error) {
+      logError('AccountSettingPage: failed to delete account', error)
+
       window.alert(
         'Failed to delete account. Please check your password and try again.',
       )
@@ -100,13 +102,11 @@ function AccountSettingPage() {
               to="/account/personal-information"
             >
               <span>Edit Personal Information</span>
-
               <img src={arrowIcon} alt="" aria-hidden="true" />
             </Link>
 
             <Link className="account-menu-link" to="/account/password">
               <span>Password</span>
-
               <img src={arrowIcon} alt="" aria-hidden="true" />
             </Link>
           </nav>

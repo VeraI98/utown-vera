@@ -1,19 +1,19 @@
-import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
+import localCuisineImage from '../../assets/food-common/local-cuisine.webp'
 import bellIcon from '../../assets/icons main pages/bell-color.svg'
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
-import localCuisineImage from '../../assets/food-common/local-cuisine.webp'
 import logo from '../../assets/icons main pages/logo.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
 
 import {
   getFavoriteRestaurants,
   removeRestaurantFromFavorites,
+  type FavoriteRestaurantResponse,
 } from '../../services/favoriteRestaurantService'
-
-import type { FavoriteRestaurantResponse } from '../../services/favoriteRestaurantService'
+import { logError } from '../../utils/logger'
 
 import './FavoritesPage.css'
 
@@ -87,11 +87,8 @@ function FavoritesPage() {
   const navigate = useNavigate()
 
   const [favorites, setFavorites] = useState<FavoriteRestaurantResponse[]>([])
-
   const [isLoading, setIsLoading] = useState(true)
-
   const [errorMessage, setErrorMessage] = useState('')
-
   const [removingRestaurantId, setRemovingRestaurantId] = useState<
     number | null
   >(null)
@@ -108,15 +105,15 @@ function FavoritesPage() {
         }
 
         setFavorites(data ?? [])
-
         setErrorMessage('')
-      } catch {
+      } catch (error) {
+        logError('FavoritesPage: failed to load favorites', error)
+
         if (!isMounted) {
           return
         }
 
         setFavorites([])
-
         setErrorMessage('Failed to load favorites.')
       } finally {
         if (isMounted) {
@@ -138,7 +135,6 @@ function FavoritesPage() {
     }
 
     setRemovingRestaurantId(restaurantId)
-
     setErrorMessage('')
 
     try {
@@ -151,7 +147,12 @@ function FavoritesPage() {
             favorite.restaurant?.id !== restaurantId,
         ),
       )
-    } catch {
+    } catch (error) {
+      logError(
+        'FavoritesPage: failed to remove restaurant from favorites',
+        error,
+      )
+
       setErrorMessage('Failed to remove restaurant from favorites.')
     } finally {
       setRemovingRestaurantId(null)
@@ -200,7 +201,6 @@ function FavoritesPage() {
             {isLoading && (
               <div className="favorites-state">
                 <div className="favorites-spinner" aria-hidden="true" />
-
                 <p>Loading favorites...</p>
               </div>
             )}
@@ -249,7 +249,6 @@ function FavoritesPage() {
                           alt={restaurant.title}
                           onError={(event) => {
                             event.currentTarget.onerror = null
-
                             event.currentTarget.src = localCuisineImage
                           }}
                         />
@@ -296,19 +295,16 @@ function FavoritesPage() {
         <nav className="bottom-nav" aria-label="Main navigation">
           <Link className="bottom-nav-link" to="/">
             <img src={homeIcon} alt="" aria-hidden="true" />
-
             <span>Home</span>
           </Link>
 
           <Link className="bottom-nav-link active" to="/favorites">
             <img src={favoritesIcon} alt="" aria-hidden="true" />
-
             <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/profile">
             <img src={profileIcon} alt="" aria-hidden="true" />
-
             <span>Profile</span>
           </Link>
         </nav>

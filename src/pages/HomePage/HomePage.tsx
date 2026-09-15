@@ -1,25 +1,24 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useAuth } from '../../hooks/useAuth'
-
-import { getMyOrders } from '../../services/orderService'
-import { getActiveRestaurants } from '../../services/restaurantService'
-
-import adOneImage from '../../assets/icons main pages/Ad 1.svg'
-import adTwoImage from '../../assets/icons main pages/Ad 2.svg'
+import adOneImage from '../../assets/food-common/ad-1.webp'
+import adTwoImage from '../../assets/food-common/ad-2.webp'
+import localCuisineImage from '../../assets/food-common/local-cuisine.webp'
 import bellIcon from '../../assets/icons main pages/bell.svg'
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import foodDeliveryIcon from '../../assets/icons main pages/Food delivery icon.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import jobsIcon from '../../assets/icons main pages/Jobs icon.svg'
-import localCuisineImage from '../../assets/food-common/local-cuisine.webp'
 import logo from '../../assets/icons main pages/logo.svg'
 import mobileConnectionIcon from '../../assets/icons main pages/Mobile connection icon.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
 import servicesIcon from '../../assets/icons main pages/Services icon.svg'
 
+import { useAuth } from '../../hooks/useAuth'
+import { getMyOrders } from '../../services/orderService'
+import { getActiveRestaurants } from '../../services/restaurantService'
 import type { RestaurantResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 import './HomePage.css'
 
@@ -143,7 +142,9 @@ function HomePage() {
         })
 
         setActiveOrdersCount(activeOrders.length)
-      } catch {
+      } catch (error) {
+        logError('HomePage: failed to load active orders', error)
+
         if (isMounted) {
           setActiveOrdersCount(0)
         }
@@ -175,7 +176,9 @@ function HomePage() {
         )
 
         setRestaurantsError('')
-      } catch {
+      } catch (error) {
+        logError('HomePage: failed to load restaurants', error)
+
         if (!isMounted) {
           return
         }
@@ -381,19 +384,16 @@ function HomePage() {
         <nav className="bottom-nav" aria-label="Main navigation">
           <Link className="bottom-nav-link active" to="/">
             <img src={homeIcon} alt="" aria-hidden="true" />
-
             <span>Home</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/favorites">
             <img src={favoritesIcon} alt="" aria-hidden="true" />
-
             <span>Favorites</span>
           </Link>
 
           <Link className="bottom-nav-link" to="/profile">
             <img src={profileIcon} alt="" aria-hidden="true" />
-
             <span>Profile</span>
           </Link>
         </nav>

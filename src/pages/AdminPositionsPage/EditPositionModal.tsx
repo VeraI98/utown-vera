@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import type { DishCategoryResponse, DishResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 interface EditPositionModalProps {
   dish: DishResponse
@@ -56,7 +57,9 @@ function EditPositionModal({
         price: parsedPrice,
         dishCategoryId: Number(categoryId),
       })
-    } catch {
+    } catch (saveError) {
+      logError('EditPositionModal: failed to save position changes', saveError)
+
       setError('Could not save the changes')
     } finally {
       setIsSaving(false)
@@ -73,6 +76,7 @@ function EditPositionModal({
 
         <div className="admin-positions-page__modal-field">
           <label htmlFor="edit-position-title">Name</label>
+
           <input
             id="edit-position-title"
             type="text"
@@ -83,6 +87,7 @@ function EditPositionModal({
 
         <div className="admin-positions-page__modal-field">
           <label htmlFor="edit-position-description">Description</label>
+
           <textarea
             id="edit-position-description"
             value={description}
@@ -92,6 +97,7 @@ function EditPositionModal({
 
         <div className="admin-positions-page__modal-field">
           <label htmlFor="edit-position-price">Price</label>
+
           <input
             id="edit-position-price"
             type="number"
@@ -103,6 +109,7 @@ function EditPositionModal({
 
         <div className="admin-positions-page__modal-field">
           <label htmlFor="edit-position-category">Category</label>
+
           <select
             id="edit-position-category"
             value={categoryId}
@@ -127,6 +134,7 @@ function EditPositionModal({
           >
             Cancel
           </button>
+
           <button
             type="button"
             className="admin-positions-page__modal-save-button"

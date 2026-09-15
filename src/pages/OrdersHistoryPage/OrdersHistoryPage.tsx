@@ -8,8 +8,8 @@ import foodLogo from '../../assets/order/food.svg'
 import utLogo from '../../assets/order/ut.svg'
 
 import { getMyOrders } from '../../services/orderService'
-
 import type { OrderResponse } from '../../types/cart'
+import { logError } from '../../utils/logger'
 
 import './OrdersHistoryPage.css'
 
@@ -148,6 +148,8 @@ function OrdersHistoryPage() {
 
       setErrorMessage('')
     } catch (error) {
+      logError('OrdersHistoryPage: failed to refresh orders', error)
+
       setErrorMessage(getErrorMessage(error))
     } finally {
       setIsLoading(false)
@@ -168,6 +170,8 @@ function OrdersHistoryPage() {
         setErrorMessage('')
       })
       .catch((error) => {
+        logError('OrdersHistoryPage: failed to load orders', error)
+
         if (!isMounted) {
           return
         }

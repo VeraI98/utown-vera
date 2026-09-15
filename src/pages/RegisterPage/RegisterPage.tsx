@@ -2,11 +2,11 @@ import axios from 'axios'
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 
-import { useAuth } from '../../hooks/useAuth'
-
 import arrowLeftIcon from '../../assets/icons/arrow-left.svg'
-import phoneIcon from '../../assets/icons/phone.svg'
 import lockIcon from '../../assets/icons/lock.svg'
+import phoneIcon from '../../assets/icons/phone.svg'
+import { useAuth } from '../../hooks/useAuth'
+import { logError } from '../../utils/logger'
 
 import './RegisterPage.css'
 
@@ -33,17 +33,12 @@ function getRegistrationErrorMessage(error: unknown): string {
 
 function RegisterPage() {
   const navigate = useNavigate()
-
   const { register, isAuthenticated } = useAuth()
 
   const [phoneNumber, setPhoneNumber] = useState('')
-
   const [password, setPassword] = useState('')
-
   const [repeatPassword, setRepeatPassword] = useState('')
-
   const [error, setError] = useState('')
-
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (isAuthenticated) {
@@ -58,32 +53,27 @@ function RegisterPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
     setError('')
 
     const normalizedPhone = phoneNumber.replace(/\D/g, '')
 
     if (!normalizedPhone) {
       setError('Enter your phone number.')
-
       return
     }
 
     if (normalizedPhone.length < 8) {
       setError('Enter a valid phone number.')
-
       return
     }
 
     if (password.length < 6) {
       setError('Password must contain at least 6 characters.')
-
       return
     }
 
     if (password !== repeatPassword) {
       setError('Passwords do not match.')
-
       return
     }
 
@@ -92,13 +82,9 @@ function RegisterPage() {
     try {
       await register({
         username: normalizedPhone,
-
         password,
-
         firstName: 'UTown',
-
         lastName: 'Client',
-
         role: 'CLIENT',
       })
 
@@ -106,6 +92,8 @@ function RegisterPage() {
         replace: true,
       })
     } catch (submitError) {
+      logError('RegisterPage: failed to register user', submitError)
+
       setError(getRegistrationErrorMessage(submitError))
     } finally {
       setIsSubmitting(false)
@@ -151,7 +139,6 @@ function RegisterPage() {
                 value={phoneNumber}
                 onChange={(event) => {
                   setPhoneNumber(event.target.value)
-
                   clearError()
                 }}
                 placeholder="Enter your phone number without dashes"
@@ -182,7 +169,6 @@ function RegisterPage() {
                 value={password}
                 onChange={(event) => {
                   setPassword(event.target.value)
-
                   clearError()
                 }}
                 placeholder="Enter your password"
@@ -216,7 +202,6 @@ function RegisterPage() {
                 value={repeatPassword}
                 onChange={(event) => {
                   setRepeatPassword(event.target.value)
-
                   clearError()
                 }}
                 placeholder="Repeat your password"

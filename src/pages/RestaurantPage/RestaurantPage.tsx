@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/restaurant page/Back button.svg'
-import backgroundImage from '../../assets/restaurant page/Background.svg'
+import backgroundImage from '../../assets/food-common/background.webp'
 import bellIcon from '../../assets/restaurant page/bell.svg'
 import categoriesDrinksImage from '../../assets/food-common/pan-asian.webp'
 import categoriesPizzaImage from '../../assets/food-common/pizza.webp'
@@ -42,8 +42,8 @@ import {
 } from '../../services/restaurantService'
 
 import type { CartResponse } from '../../types/cart'
-
 import type { DishResponse, RestaurantResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 import CartConflictModal from './CartConflictModal'
 import ProductModal from './ProductModal'
@@ -230,7 +230,9 @@ function RestaurantPage() {
           dishesData.content.filter((dish) => dish.isActive && !dish.isDeleted),
         )
       })
-      .catch(() => {
+      .catch((error) => {
+        logError('RestaurantPage: failed to load restaurant data', error)
+
         if (!isActive) {
           return
         }
@@ -273,7 +275,12 @@ function RestaurantPage() {
 
         setFavoriteError('')
       })
-      .catch(() => {
+      .catch((error) => {
+        logError(
+          'RestaurantPage: failed to load favorite restaurant state',
+          error,
+        )
+
         if (!isActive) {
           return
         }
@@ -308,7 +315,9 @@ function RestaurantPage() {
 
         setMyRating(currentRestaurantRating)
       })
-      .catch(() => {
+      .catch((error) => {
+        logError('RestaurantPage: failed to load my restaurant rating', error)
+
         if (!isActive) {
           return
         }
@@ -339,7 +348,9 @@ function RestaurantPage() {
 
         setCart(currentCart)
       })
-      .catch(() => {
+      .catch((error) => {
+        logError('RestaurantPage: failed to load cart', error)
+
         if (!isActive) {
           return
         }
@@ -460,7 +471,9 @@ function RestaurantPage() {
       setCartError('')
 
       await addProductToCart(product, quantity, elementIds)
-    } catch {
+    } catch (error) {
+      logError('RestaurantPage: failed to add item to cart', error)
+
       setCartError('Failed to add the item to your cart. Please try again.')
     } finally {
       setIsAddingToCart(false)
@@ -494,7 +507,9 @@ function RestaurantPage() {
       )
 
       setPendingCartItem(null)
-    } catch {
+    } catch (error) {
+      logError('RestaurantPage: failed to replace cart', error)
+
       setCartError('Failed to start a new cart. Please try again.')
     } finally {
       setIsAddingToCart(false)
@@ -520,7 +535,12 @@ function RestaurantPage() {
       } else {
         await addRestaurantToFavorites(parsedRestaurantId)
       }
-    } catch {
+    } catch (error) {
+      logError(
+        'RestaurantPage: failed to update favorite restaurant state',
+        error,
+      )
+
       setIsFavorite(previousValue)
 
       setFavoriteError(

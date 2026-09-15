@@ -11,8 +11,8 @@ import preparingImage from '../../assets/waiting order/Item quantity.svg'
 import utLogo from '../../assets/waiting order/ut.svg'
 
 import { getOrderById } from '../../services/orderService'
-
 import type { OrderResponse } from '../../types/cart'
+import { logError } from '../../utils/logger'
 
 import './OrderStatusPage.css'
 
@@ -189,6 +189,8 @@ function OrderStatusPage() {
 
         setErrorMessage('')
       } catch (error) {
+        logError('OrderStatusPage: failed to refresh order status', error)
+
         setErrorMessage(getErrorMessage(error))
       } finally {
         requestInProgressRef.current = false
@@ -221,6 +223,8 @@ function OrderStatusPage() {
 
         setErrorMessage('')
       } catch (error) {
+        logError('OrderStatusPage: failed to load order status', error)
+
         if (!isActive) {
           return
         }

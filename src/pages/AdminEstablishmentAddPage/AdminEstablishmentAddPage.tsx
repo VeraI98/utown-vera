@@ -1,9 +1,10 @@
-import { useNavigate } from 'react-router-dom'
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { createEstablishment } from '../../services/establishmentService'
 import { uploadFile } from '../../services/fileService'
 import { createOwnerOperatingMode } from '../../services/ownerOperatingHoursService'
+import { logError } from '../../utils/logger'
 
 import './AdminEstablishmentAddPage.css'
 
@@ -186,13 +187,23 @@ function AdminEstablishmentAddPage() {
             end: day.dayOff ? null : day.end,
             dayOff: day.dayOff,
           })
-        } catch {
+        } catch (operatingModeError) {
+          logError(
+            `AdminEstablishmentAddPage: failed to create operating mode for day ${day.dayOfWeek}`,
+            operatingModeError,
+          )
+
           continue
         }
       }
 
       navigate('/admin/establishments')
-    } catch {
+    } catch (submitError) {
+      logError(
+        'AdminEstablishmentAddPage: failed to create establishment',
+        submitError,
+      )
+
       setError('Не удалось создать заведение. Попробуйте ещё раз')
     } finally {
       setIsSubmitting(false)
@@ -202,6 +213,7 @@ function AdminEstablishmentAddPage() {
   return (
     <div className="admin-establishment-add-page">
       <h1>Add new establishment</h1>
+
       <p className="admin-establishment-add-page__breadcrumb">
         <span
           className="admin-establishment-add-page__breadcrumb-link"
@@ -236,7 +248,9 @@ function AdminEstablishmentAddPage() {
               </svg>
             )}
           </button>
+
           <div className="admin-establishment-add-page__photo-fill" />
+
           <input
             ref={fileInputRef}
             type="file"
@@ -292,9 +306,11 @@ function AdminEstablishmentAddPage() {
                     )
                   }
                 />
+
                 <span className="admin-establishment-add-page__hours-dash">
                   -
                 </span>
+
                 <input
                   type="time"
                   value={day.end}
@@ -390,6 +406,7 @@ function AdminEstablishmentAddPage() {
           >
             Cancel
           </button>
+
           <button
             type="submit"
             className="admin-establishment-add-page__add-button"

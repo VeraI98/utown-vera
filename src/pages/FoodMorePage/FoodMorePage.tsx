@@ -8,8 +8,8 @@ import mapIcon from '../../assets/food-menu/map.svg'
 import utLogo from '../../assets/food-menu/ut.svg'
 
 import { getRestaurants } from '../../services/restaurantService'
-
 import type { RestaurantResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 import './FoodMorePage.css'
 
@@ -35,9 +35,7 @@ function FoodMorePage({ title }: FoodMorePageProps) {
   const navigate = useNavigate()
 
   const [restaurants, setRestaurants] = useState<RestaurantResponse[]>([])
-
   const [isLoading, setIsLoading] = useState(true)
-
   const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
@@ -56,15 +54,15 @@ function FoodMorePage({ title }: FoodMorePageProps) {
         )
 
         setRestaurants(activeRestaurants)
-
         setErrorMessage('')
-      } catch {
+      } catch (error) {
+        logError('FoodMorePage: failed to load restaurants', error)
+
         if (!isMounted) {
           return
         }
 
         setRestaurants([])
-
         setErrorMessage('Failed to load restaurants.')
       } finally {
         if (isMounted) {
@@ -99,7 +97,6 @@ function FoodMorePage({ title }: FoodMorePageProps) {
 
           <div className="food-more-logo" aria-label="UT Food">
             <img src={utLogo} alt="UT" />
-
             <img src={foodLogo} alt="Food" />
           </div>
 
@@ -115,7 +112,6 @@ function FoodMorePage({ title }: FoodMorePageProps) {
 
         <div className="food-more-address">
           <img src={mapIcon} alt="" aria-hidden="true" />
-
           <span>Delivery restaurants</span>
         </div>
 
@@ -125,7 +121,6 @@ function FoodMorePage({ title }: FoodMorePageProps) {
           {isLoading && (
             <div className="food-more-state" role="status">
               <div className="food-more-spinner" aria-hidden="true" />
-
               <p>Loading restaurants...</p>
             </div>
           )}
@@ -175,9 +170,7 @@ function FoodMorePage({ title }: FoodMorePageProps) {
                                 'data-image-fallback',
                                 'true',
                               )
-
                               fallback.setAttribute('aria-hidden', 'true')
-
                               fallback.textContent = '🍽️'
 
                               parent.appendChild(fallback)
