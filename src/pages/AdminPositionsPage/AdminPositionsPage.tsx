@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import './AdminPositionsPage.css'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
+import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
+import { useToast } from '../../components/Toast/useToast'
 import {
   activateDish,
   deactivateDish,
@@ -12,6 +14,7 @@ import {
 import { getDishesByRestaurant } from '../../services/dishService'
 import { getEstablishmentById } from '../../services/establishmentService'
 import type { DishResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 const PAGE_SIZE = 10
 
@@ -33,6 +36,7 @@ function formatPrice(price: number) {
 
 function AdminPositionsPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { establishmentId } = useParams()
   const restaurantId = Number(establishmentId)
 
@@ -73,7 +77,7 @@ function AdminPositionsPage() {
           setEstablishmentName(establishment.title)
         }
       } catch (error) {
-        console.error('Failed to load establishment:', error)
+        logError('Failed to load establishment:', error)
       }
     }
 
@@ -111,7 +115,7 @@ function AdminPositionsPage() {
           ),
         )
       } catch (error) {
-        console.error('Failed to load positions:', error)
+        logError('Failed to load positions:', error)
 
         if (isMounted) {
           setAllDishes([])
@@ -207,7 +211,8 @@ function AdminPositionsPage() {
       await updateDish(dish.id, { sort: parsedSort })
       setReloadKey((current) => current + 1)
     } catch (error) {
-      console.error('Failed to update priority:', error)
+      logError('Failed to update priority:', error)
+      showToast('Не удалось сохранить изменение', 'error')
 
       setPriorityDrafts((current) => ({
         ...current,
@@ -226,7 +231,8 @@ function AdminPositionsPage() {
 
       setReloadKey((current) => current + 1)
     } catch (error) {
-      console.error('Failed to toggle position status:', error)
+      logError('Failed to toggle position status:', error)
+      showToast('Не удалось сохранить изменение', 'error')
     }
   }
 
@@ -244,9 +250,11 @@ function AdminPositionsPage() {
       setDishToDelete(null)
       setSelectedIds([])
       setReloadKey((current) => current + 1)
+      showToast('Позиция удалена', 'success')
     } catch (error) {
-      console.error('Failed to delete position:', error)
+      logError('Failed to delete position:', error)
 
+      showToast('Не удалось удалить позицию', 'error')
       setDeleteError('Could not delete the position')
     } finally {
       setIsDeleting(false)
@@ -459,13 +467,7 @@ function AdminPositionsPage() {
           </thead>
 
           <tbody>
-            {isLoading && (
-              <tr>
-                <td colSpan={9} className="admin-positions-page__state-cell">
-                  Loading...
-                </td>
-              </tr>
-            )}
+            {isLoading && <TableSkeleton columns={9} />}
 
             {!isLoading && loadError && (
               <tr>

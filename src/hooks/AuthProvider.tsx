@@ -18,6 +18,8 @@ import {
   register as registerRequest,
 } from '../services/authService'
 
+import { disconnectSocket } from '../sockets/socket'
+
 import { AuthContext } from './auth-context'
 
 interface AuthProviderProps {
@@ -141,6 +143,7 @@ export function AuthProvider({
 
   const logout = () => {
     clearStoredAuthData()
+    disconnectSocket()
     setUser(null)
   }
 

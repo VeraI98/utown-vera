@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { useToast } from '../../components/Toast/useToast'
 import { createClient } from '../../services/clientService'
+import { logError } from '../../utils/logger'
 
 import './AdminClientAddPage.css'
 
@@ -10,6 +12,7 @@ const PHONE_PATTERN = /^\+?[1-9]\d{1,14}$/
 
 function AdminClientAddPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -56,13 +59,15 @@ function AdminClientAddPage() {
         address: address.trim() || undefined,
       })
 
+      showToast('Клиент добавлен', 'success')
       navigate('/admin/clients')
     } catch (requestError) {
-      console.error(
+      logError(
         'Failed to create client:',
         requestError,
       )
 
+      showToast('Could not create the client', 'error')
       setError('Could not create the client')
     } finally {
       setIsSaving(false)

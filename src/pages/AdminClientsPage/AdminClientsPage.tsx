@@ -7,11 +7,14 @@ import { useNavigate } from 'react-router-dom'
 import './AdminClientsPage.css'
 import ClientCardModal from './ClientCardModal'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
+import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
+import { useToast } from '../../components/Toast/useToast'
 import {
   deleteClient,
   getClients,
 } from '../../services/clientService'
 import type { ClientResponse } from '../../types/client'
+import { logError } from '../../utils/logger'
 
 const PAGE_SIZE = 10
 
@@ -26,6 +29,7 @@ const SORTABLE_COLUMNS = [
 
 function AdminClientsPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [viewedClient, setViewedClient] =
@@ -71,7 +75,7 @@ function AdminClientsPage() {
         setClients(data.content)
         setTotalPages(data.totalPages)
       } catch (error) {
-        console.error(
+        logError(
           'Failed to load clients:',
           error,
         )
@@ -118,12 +122,14 @@ function AdminClientsPage() {
       setClientToDelete(null)
       setSelectedIds([])
       setReloadKey((current) => current + 1)
+      showToast('Клиент удалён', 'success')
     } catch (error) {
-      console.error(
+      logError(
         'Failed to delete client:',
         error,
       )
 
+      showToast('Не удалось удалить клиента', 'error')
       setDeleteError('Could not delete the client')
     } finally {
       setIsDeleting(false)
@@ -283,16 +289,7 @@ function AdminClientsPage() {
         </thead>
 
         <tbody>
-          {isLoading && (
-            <tr>
-              <td
-                colSpan={8}
-                className="admin-clients-page__state-cell"
-              >
-                Loading...
-              </td>
-            </tr>
-          )}
+          {isLoading && <TableSkeleton columns={8} />}
 
           {!isLoading && loadError && (
             <tr>

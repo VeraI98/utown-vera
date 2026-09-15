@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import './AdminOrdersPage.css'
+import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
 import { getAdminOrders } from '../../services/adminOrderService'
 import type { OrderResponse } from '../../types/cart'
+import { logError } from '../../utils/logger'
 
 const PAGE_SIZE = 10
 
@@ -73,7 +75,7 @@ function AdminOrdersPage() {
         setOrders(data.content)
         setTotalPages(Math.max(1, data.totalPages))
       } catch (error) {
-        console.error('Failed to load orders:', error)
+        logError('Failed to load orders:', error)
 
         if (isMounted) {
           setOrders([])
@@ -247,13 +249,7 @@ function AdminOrdersPage() {
           </thead>
 
           <tbody>
-            {isLoading && (
-              <tr>
-                <td colSpan={10} className="admin-orders-page__state-cell">
-                  Loading...
-                </td>
-              </tr>
-            )}
+            {isLoading && <TableSkeleton columns={10} />}
 
             {!isLoading && loadError && (
               <tr>

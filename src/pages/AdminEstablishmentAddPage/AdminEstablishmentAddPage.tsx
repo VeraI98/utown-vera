@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useRef, useState } from 'react'
 
+import { useToast } from '../../components/Toast/useToast'
 import {
   createEstablishment,
 } from '../../services/establishmentService'
@@ -40,6 +41,7 @@ const DEFAULT_HOURS: DayHours[] = [
 
 function AdminEstablishmentAddPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [photoFile, setPhotoFile] = useState<File | null>(null)
@@ -151,9 +153,10 @@ function AdminEstablishmentAddPage() {
         }
       }
 
+      showToast('Заведение добавлено', 'success')
       navigate('/admin/establishments')
     } catch {
-      setError('Не удалось создать заведение. Попробуйте ещё раз')
+      showToast('Не удалось создать заведение. Попробуйте ещё раз', 'error')
     } finally {
       setIsSubmitting(false)
     }

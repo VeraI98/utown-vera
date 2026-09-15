@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
+import Spinner from '../../components/Spinner/Spinner'
+import { useToast } from '../../components/Toast/useToast'
 import {
   getEstablishmentById,
   updateEstablishment,
@@ -12,6 +14,7 @@ import {
   updateOwnerOperatingMode,
 } from '../../services/ownerOperatingHoursService'
 import { getRestaurantById } from '../../services/restaurantService'
+import { logError } from '../../utils/logger'
 
 import './AdminEstablishmentEditPage.css'
 
@@ -58,6 +61,7 @@ function buildDefaultHours(): DayHours[] {
 
 function AdminEstablishmentEditPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { establishmentId } = useParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -143,13 +147,13 @@ function AdminEstablishmentEditPage() {
             )
           }
         } catch (hoursError) {
-          console.error(
+          logError(
             'Failed to load operating modes:',
             hoursError,
           )
         }
       } catch (requestError) {
-        console.error(
+        logError(
           'Failed to load establishment:',
           requestError,
         )
@@ -283,9 +287,10 @@ function AdminEstablishmentEditPage() {
         }
       }
 
+      showToast('Изменения сохранены', 'success')
       navigate('/admin/establishments')
     } catch {
-      setError('Не удалось сохранить изменения. Попробуйте ещё раз')
+      showToast('Не удалось сохранить изменения. Попробуйте ещё раз', 'error')
     } finally {
       setIsSubmitting(false)
     }
@@ -295,7 +300,7 @@ function AdminEstablishmentEditPage() {
     return (
       <div className="admin-establishment-edit-page">
         <h1>Edit establishment</h1>
-        <p className="admin-establishment-edit-page__loading">Loading...</p>
+        <Spinner />
       </div>
     )
   }

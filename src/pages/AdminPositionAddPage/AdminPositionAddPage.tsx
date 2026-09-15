@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import './AdminPositionAddPage.css'
+import { useToast } from '../../components/Toast/useToast'
 import {
   createDish,
   createDishOption,
@@ -12,6 +13,7 @@ import {
 } from '../../services/categoryService'
 import { uploadFile } from '../../services/fileService'
 import type { DishCategoryResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 const OPTION_ROWS = 7
 
@@ -29,6 +31,7 @@ function buildEmptyOptions(): OptionRow[] {
 
 function AdminPositionAddPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { establishmentId } = useParams()
   const restaurantId = Number(establishmentId)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -66,7 +69,7 @@ function AdminPositionAddPage() {
           }
         }
       } catch (categoriesError) {
-        console.error('Failed to load categories:', categoriesError)
+        logError('Failed to load categories:', categoriesError)
       }
     }
 
@@ -164,7 +167,7 @@ function AdminPositionAddPage() {
             })),
           })
         } catch (optionsError) {
-          console.error('Failed to save options:', optionsError)
+          logError('Failed to save options:', optionsError)
         }
       }
 
@@ -172,13 +175,14 @@ function AdminPositionAddPage() {
         try {
           await deactivateDish(dish.id)
         } catch (holdError) {
-          console.error('Failed to put dish on hold:', holdError)
+          logError('Failed to put dish on hold:', holdError)
         }
       }
 
+      showToast('Позиция добавлена', 'success')
       navigate(`/admin/establishments/${restaurantId}/positions`)
     } catch {
-      setError('Не удалось добавить позицию. Попробуйте ещё раз')
+      showToast('Не удалось добавить позицию. Попробуйте ещё раз', 'error')
     } finally {
       setIsSubmitting(false)
     }

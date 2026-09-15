@@ -7,11 +7,14 @@ import { useNavigate } from 'react-router-dom'
 import './AdminEstablishmentsPage.css'
 import EstablishmentCardModal from './EstablishmentCardModal'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
+import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
+import { useToast } from '../../components/Toast/useToast'
 import {
   deleteEstablishment,
   getEstablishments,
 } from '../../services/establishmentService'
 import type { EstablishmentResponse } from '../../types/establishment'
+import { logError } from '../../utils/logger'
 
 const PAGE_SIZE = 10
 
@@ -27,6 +30,7 @@ const SORTABLE_COLUMNS = [
 
 function AdminEstablishmentsPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [viewedEstablishment, setViewedEstablishment] =
     useState<EstablishmentResponse | null>(null)
@@ -73,7 +77,7 @@ function AdminEstablishmentsPage() {
         setEstablishments(data.content)
         setTotalPages(data.totalPages)
       } catch (error) {
-        console.error(
+        logError(
           'Failed to load establishments:',
           error,
         )
@@ -120,12 +124,14 @@ function AdminEstablishmentsPage() {
       setEstablishmentToDelete(null)
       setSelectedIds([])
       setReloadKey((current) => current + 1)
+      showToast('Заведение удалено', 'success')
     } catch (error) {
-      console.error(
+      logError(
         'Failed to delete establishment:',
         error,
       )
 
+      showToast('Не удалось удалить заведение', 'error')
       setDeleteError('Could not delete the establishment')
     } finally {
       setIsDeleting(false)
@@ -291,16 +297,7 @@ function AdminEstablishmentsPage() {
         </thead>
 
         <tbody>
-          {isLoading && (
-            <tr>
-              <td
-                colSpan={9}
-                className="admin-establishments-page__state-cell"
-              >
-                Loading...
-              </td>
-            </tr>
-          )}
+          {isLoading && <TableSkeleton columns={9} />}
 
           {!isLoading && loadError && (
             <tr>

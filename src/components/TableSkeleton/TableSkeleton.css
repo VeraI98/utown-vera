@@ -1,0 +1,25 @@
+.table-skeleton-row td {
+  padding: 12px 16px;
+}
+
+.table-skeleton-bar {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    #eeeeee 25%,
+    #e0e0e0 37%,
+    #eeeeee 63%
+  );
+  background-size: 400% 100%;
+  animation: table-skeleton-shimmer 1.4s ease infinite;
+}
+
+@keyframes table-skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}

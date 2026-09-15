@@ -5,6 +5,7 @@ import './EstablishmentCardModal.css'
 import { getRestaurantById } from '../../services/restaurantService'
 import type { EstablishmentResponse } from '../../types/establishment'
 import type { RestaurantOperatingMode } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 interface EstablishmentCardModalProps {
   establishment: EstablishmentResponse
@@ -60,7 +61,7 @@ function EstablishmentCardModal({
 
         setOperatingModes(restaurant.operatingModes ?? [])
       } catch (error) {
-        console.error(
+        logError(
           'Failed to load operating modes:',
           error,
         )

@@ -9,6 +9,7 @@ import {
   useNavigate,
 } from 'react-router-dom'
 
+import { useToast } from '../../components/Toast/useToast'
 import { useAuth } from '../../hooks/useAuth'
 
 import arrowLeftIcon from '../../assets/icons/arrow-left.svg'
@@ -48,6 +49,8 @@ function getRegistrationErrorMessage(
 function RegisterPage() {
   const navigate =
     useNavigate()
+
+  const { showToast } = useToast()
 
   const {
     register,
@@ -171,11 +174,12 @@ function RegisterPage() {
         },
       )
     } catch (submitError) {
-      setError(
-        getRegistrationErrorMessage(
-          submitError,
-        ),
+      const message = getRegistrationErrorMessage(
+        submitError,
       )
+
+      showToast(message, 'error')
+      setError(message)
     } finally {
       setIsSubmitting(false)
     }

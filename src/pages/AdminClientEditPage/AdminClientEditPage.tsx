@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
+import { useToast } from '../../components/Toast/useToast'
 import {
   getClientById,
   updateClient,
 } from '../../services/clientService'
+import { logError } from '../../utils/logger'
 
 import './AdminClientEditPage.css'
 
 function AdminClientEditPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { clientId } = useParams()
 
   const [name, setName] = useState('')
@@ -43,7 +46,7 @@ function AdminClientEditPage() {
         setCity(client.city)
         setAddress(client.address)
       } catch (requestError) {
-        console.error(
+        logError(
           'Failed to load client:',
           requestError,
         )
@@ -88,13 +91,15 @@ function AdminClientEditPage() {
         address: address.trim(),
       })
 
+      showToast('Изменения сохранены', 'success')
       navigate('/admin/clients')
     } catch (requestError) {
-      console.error(
+      logError(
         'Failed to update client:',
         requestError,
       )
 
+      showToast('Could not save the changes', 'error')
       setError('Could not save the changes')
     } finally {
       setIsSaving(false)

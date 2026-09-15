@@ -2,11 +2,13 @@ import { useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import './AdminCategoryAddPage.css'
+import { useToast } from '../../components/Toast/useToast'
 import { createCategory } from '../../services/categoryService'
 import { uploadFile } from '../../services/fileService'
 
 function AdminCategoryAddPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { establishmentId } = useParams()
   const restaurantId = Number(establishmentId)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -69,9 +71,10 @@ function AdminCategoryAddPage() {
         restaurantId,
       })
 
+      showToast('Категория добавлена', 'success')
       navigate(`/admin/establishments/${restaurantId}/categories`)
     } catch {
-      setError('Не удалось добавить категорию. Попробуйте ещё раз')
+      showToast('Не удалось добавить категорию. Попробуйте ещё раз', 'error')
     } finally {
       setIsSubmitting(false)
     }

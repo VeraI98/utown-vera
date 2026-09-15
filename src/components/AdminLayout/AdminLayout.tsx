@@ -6,6 +6,7 @@ import logo from '../../assets/admin-pages/Logo.png'
 import avatarIcon from '../../assets/admin-pages/Avatar.png'
 import addIcon from '../../assets/admin-pages/master.png'
 import settingsIcon from '../../assets/admin-pages/Icon-GearSix.png'
+import { useAdminOrderNotifications } from '../../sockets/useAdminOrderNotifications'
 
 interface AddMenuItem {
   label: string
@@ -27,6 +28,8 @@ function AdminLayout() {
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false)
   const [isUsersOpen, setIsUsersOpen] = useState(true)
   const [isAppOpen, setIsAppOpen] = useState(true)
+
+  useAdminOrderNotifications()
 
   useEffect(() => {
     window.scrollTo(0, 0)

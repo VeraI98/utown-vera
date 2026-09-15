@@ -9,6 +9,7 @@ import {
   useNavigate,
 } from 'react-router-dom'
 
+import { useToast } from '../../components/Toast/useToast'
 import { useAuth } from '../../hooks/useAuth'
 
 import logo from '../../assets/ut-business-logo.svg'
@@ -17,6 +18,7 @@ import './LoginPage.css'
 
 function LoginPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   const {
     login,
@@ -75,6 +77,11 @@ function LoginPage() {
         replace: true,
       })
     } catch {
+      showToast(
+        'Invalid username or password.',
+        'error',
+      )
+
       setError(
         'Invalid username or password.',
       )

@@ -53,6 +53,52 @@
   width: 100%;
 }
 
+.forgot-password-hint {
+  margin: 0 0 4px;
+
+  color: #666666;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+.reset-password-success {
+  margin: -6px 0 0;
+
+  color: #1d9e5f;
+
+  font-size: 13px;
+  line-height: 1.4;
+
+  text-align: center;
+}
+
+.reset-password-success-link {
+  display: flex;
+
+  width: 100%;
+  min-height: 52px;
+
+  margin-top: 16px;
+  padding: 0 16px;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: #3478f6;
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
 .form-field input {
   width: 100%;
   height: 52px;
