@@ -112,8 +112,17 @@ function AdminLayout() {
                   </NavLink>
                 </li>
 
-                <li className="admin-layout__sidebar-link">
-                  Orders
+                <li>
+                  <NavLink
+                    to="/admin/orders"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'admin-layout__sidebar-link admin-layout__sidebar-link--active'
+                        : 'admin-layout__sidebar-link'
+                    }
+                  >
+                    Orders
+                  </NavLink>
                 </li>
               </ul>
             )}

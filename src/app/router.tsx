@@ -16,6 +16,7 @@ import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
 import AdminEstablishmentAddPage from '../pages/AdminEstablishmentAddPage/AdminEstablishmentAddPage'
 import AdminEstablishmentEditPage from '../pages/AdminEstablishmentEditPage/AdminEstablishmentEditPage'
 import AdminEstablishmentsPage from '../pages/AdminEstablishmentsPage/AdminEstablishmentsPage'
+import AdminOrdersPage from '../pages/AdminOrdersPage/AdminOrdersPage'
 import AdminPositionAddPage from '../pages/AdminPositionAddPage/AdminPositionAddPage'
 import AdminPositionEditPage from '../pages/AdminPositionEditPage/AdminPositionEditPage'
 import AdminPositionsPage from '../pages/AdminPositionsPage/AdminPositionsPage'
@@ -277,6 +278,12 @@ export const router =
           path: 'establishments/:establishmentId/categories/add',
           element: (
             <AdminCategoryAddPage />
+          ),
+        },
+        {
+          path: 'orders',
+          element: (
+            <AdminOrdersPage />
           ),
         },
         {
