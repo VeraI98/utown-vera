@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import AddCategoryModal from './AddCategoryModal'
 import './AdminPositionsPage.css'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import {
@@ -10,7 +9,6 @@ import {
   deleteDish,
   updateDish,
 } from '../../services/adminDishService'
-import { createCategory } from '../../services/categoryService'
 import { getDishesByRestaurant } from '../../services/dishService'
 import { getEstablishmentById } from '../../services/establishmentService'
 import type { DishResponse } from '../../types/restaurant'
@@ -56,7 +54,6 @@ function AdminPositionsPage() {
     Record<number, string>
   >({})
 
-  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false)
   const [dishToDelete, setDishToDelete] = useState<DishResponse | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
@@ -233,16 +230,6 @@ function AdminPositionsPage() {
     }
   }
 
-  const handleAddCategory = async (name: string) => {
-    await createCategory({
-      name,
-      restaurantId,
-    })
-
-    setIsAddCategoryOpen(false)
-    setReloadKey((current) => current + 1)
-  }
-
   const handleConfirmDelete = async () => {
     if (!dishToDelete) {
       return
@@ -317,7 +304,11 @@ function AdminPositionsPage() {
             <button
               type="button"
               className="admin-positions-page__title-button"
-              onClick={() => setIsAddCategoryOpen(true)}
+              onClick={() =>
+                navigate(
+                  `/admin/establishments/${restaurantId}/categories/add`,
+                )
+              }
             >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle
@@ -625,13 +616,6 @@ function AdminPositionsPage() {
           Next
         </button>
       </div>
-
-      {isAddCategoryOpen && (
-        <AddCategoryModal
-          onSave={handleAddCategory}
-          onCancel={() => setIsAddCategoryOpen(false)}
-        />
-      )}
 
       {dishToDelete && (
         <ConfirmDeleteModal

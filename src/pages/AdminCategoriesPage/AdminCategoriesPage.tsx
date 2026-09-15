@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import AddCategoryModal from './AddCategoryModal'
 import './AdminCategoriesPage.css'
 import EditCategoryModal from './EditCategoryModal'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import {
-  createCategory,
   deleteCategory,
   getCategoriesByRestaurant,
   updateCategory,
@@ -41,7 +39,6 @@ function AdminCategoriesPage() {
     Record<number, string>
   >({})
 
-  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false)
   const [editingCategory, setEditingCategory] =
     useState<DishCategoryResponse | null>(null)
   const [categoryToDelete, setCategoryToDelete] =
@@ -205,16 +202,6 @@ function AdminCategoriesPage() {
     }
   }
 
-  const handleAddCategory = async (name: string) => {
-    await createCategory({
-      name,
-      restaurantId,
-    })
-
-    setIsAddCategoryOpen(false)
-    setReloadKey((current) => current + 1)
-  }
-
   const handleEditCategory = async (name: string) => {
     if (!editingCategory) {
       return
@@ -300,7 +287,11 @@ function AdminCategoriesPage() {
             <button
               type="button"
               className="admin-categories-page__title-button"
-              onClick={() => setIsAddCategoryOpen(true)}
+              onClick={() =>
+                navigate(
+                  `/admin/establishments/${restaurantId}/categories/add`,
+                )
+              }
             >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle
@@ -564,13 +555,6 @@ function AdminCategoriesPage() {
           Next
         </button>
       </div>
-
-      {isAddCategoryOpen && (
-        <AddCategoryModal
-          onSave={handleAddCategory}
-          onCancel={() => setIsAddCategoryOpen(false)}
-        />
-      )}
 
       {editingCategory && (
         <EditCategoryModal

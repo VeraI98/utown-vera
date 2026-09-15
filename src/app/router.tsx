@@ -9,6 +9,7 @@ import AccountPasswordPage from '../pages/AccountPasswordPage/AccountPasswordPag
 import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
 import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
 import AdminCategoriesPage from '../pages/AdminCategoriesPage/AdminCategoriesPage'
+import AdminCategoryAddPage from '../pages/AdminCategoryAddPage/AdminCategoryAddPage'
 import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
 import AdminClientEditPage from '../pages/AdminClientEditPage/AdminClientEditPage'
 import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
@@ -270,6 +271,12 @@ export const router =
           path: 'establishments/:establishmentId/categories',
           element: (
             <AdminCategoriesPage />
+          ),
+        },
+        {
+          path: 'establishments/:establishmentId/categories/add',
+          element: (
+            <AdminCategoryAddPage />
           ),
         },
         {
