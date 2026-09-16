@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import './AdminPositionEditPage.css'
 import Spinner from '../../components/Spinner/Spinner'
 import { useToast } from '../../components/Toast/useToast'
 import {
@@ -17,6 +16,8 @@ import { getDishById } from '../../services/dishService'
 import { uploadFile } from '../../services/fileService'
 import type { DishCategoryResponse } from '../../types/restaurant'
 import { logError } from '../../utils/logger'
+
+import './AdminPositionEditPage.css'
 
 const OPTION_ROWS = 7
 
@@ -49,9 +50,7 @@ function AdminPositionEditPage() {
   const [sort, setSort] = useState('1')
   const [options, setOptions] = useState<OptionRow[]>(buildEmptyOptions())
   const [putOnHold, setPutOnHold] = useState(false)
-  const [existingOptionId, setExistingOptionId] = useState<number | null>(
-    null,
-  )
+  const [existingOptionId, setExistingOptionId] = useState<number | null>(null)
 
   const [categories, setCategories] = useState<DishCategoryResponse[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -261,8 +260,10 @@ function AdminPositionEditPage() {
 
       showToast('Изменения сохранены', 'success')
       navigate(`/admin/establishments/${restaurantId}/positions`)
-    } catch {
+    } catch (submitError) {
+      logError('Failed to save position changes:', submitError)
       showToast('Не удалось сохранить изменения. Попробуйте ещё раз', 'error')
+      setError('Не удалось сохранить изменения. Попробуйте ещё раз')
     } finally {
       setIsSubmitting(false)
     }
@@ -289,6 +290,7 @@ function AdminPositionEditPage() {
   return (
     <div className="admin-position-edit-page">
       <h1>Edit Position</h1>
+
       <p className="admin-position-edit-page__breadcrumb">
         <span
           className="admin-position-edit-page__breadcrumb-link"
@@ -329,7 +331,9 @@ function AdminPositionEditPage() {
               </svg>
             )}
           </button>
+
           <div className="admin-position-edit-page__photo-fill" />
+
           <input
             ref={fileInputRef}
             type="file"
@@ -341,6 +345,7 @@ function AdminPositionEditPage() {
 
         <div className="admin-position-edit-page__field">
           <label>Position Name</label>
+
           <input
             type="text"
             value={title}
@@ -350,6 +355,7 @@ function AdminPositionEditPage() {
 
         <div className="admin-position-edit-page__field">
           <label>Description</label>
+
           <textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
@@ -358,6 +364,7 @@ function AdminPositionEditPage() {
 
         <div className="admin-position-edit-page__field">
           <label>Price</label>
+
           <input
             type="number"
             min="0"
@@ -368,6 +375,7 @@ function AdminPositionEditPage() {
 
         <div className="admin-position-edit-page__field">
           <label>Category</label>
+
           <select
             value={categoryId}
             onChange={(event) => setCategoryId(event.target.value)}
@@ -386,6 +394,7 @@ function AdminPositionEditPage() {
 
         <div className="admin-position-edit-page__field">
           <label>Priority</label>
+
           <input
             type="number"
             min="0"
@@ -410,6 +419,7 @@ function AdminPositionEditPage() {
                 }
                 placeholder={`Option ${index + 1}`}
               />
+
               <input
                 className="admin-position-edit-page__option-price"
                 type="number"
@@ -428,6 +438,7 @@ function AdminPositionEditPage() {
           <div className="admin-position-edit-page__hold-row">
             <div className="admin-position-edit-page__hold-text">
               <label>Put on Hold</label>
+
               <p className="admin-position-edit-page__hold-hint">
                 The dish remains on the menu but is unavailable for order.
               </p>
@@ -458,6 +469,7 @@ function AdminPositionEditPage() {
           >
             Cancel
           </button>
+
           <button
             type="submit"
             className="admin-position-edit-page__save-button"

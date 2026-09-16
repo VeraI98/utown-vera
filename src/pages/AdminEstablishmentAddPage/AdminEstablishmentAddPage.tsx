@@ -1,12 +1,11 @@
-import { useNavigate } from 'react-router-dom'
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { useToast } from '../../components/Toast/useToast'
-import {
-  createEstablishment,
-} from '../../services/establishmentService'
+import { createEstablishment } from '../../services/establishmentService'
 import { uploadFile } from '../../services/fileService'
 import { createOwnerOperatingMode } from '../../services/ownerOperatingHoursService'
+import { logError } from '../../utils/logger'
 
 import './AdminEstablishmentAddPage.css'
 
@@ -30,13 +29,55 @@ interface DayHours {
 }
 
 const DEFAULT_HOURS: DayHours[] = [
-  { dayOfWeek: 1, label: 'Monday', start: '09:00', end: '22:00', dayOff: false },
-  { dayOfWeek: 2, label: 'Tuesday', start: '09:00', end: '22:00', dayOff: true },
-  { dayOfWeek: 3, label: 'Wednesday', start: '09:00', end: '22:00', dayOff: false },
-  { dayOfWeek: 4, label: 'Thursday', start: '09:00', end: '22:00', dayOff: false },
-  { dayOfWeek: 5, label: 'Friday', start: '09:00', end: '22:00', dayOff: false },
-  { dayOfWeek: 6, label: 'Saturday', start: '09:00', end: '22:00', dayOff: false },
-  { dayOfWeek: 7, label: 'Sunday', start: '09:00', end: '22:00', dayOff: false },
+  {
+    dayOfWeek: 1,
+    label: 'Monday',
+    start: '09:00',
+    end: '22:00',
+    dayOff: false,
+  },
+  {
+    dayOfWeek: 2,
+    label: 'Tuesday',
+    start: '09:00',
+    end: '22:00',
+    dayOff: true,
+  },
+  {
+    dayOfWeek: 3,
+    label: 'Wednesday',
+    start: '09:00',
+    end: '22:00',
+    dayOff: false,
+  },
+  {
+    dayOfWeek: 4,
+    label: 'Thursday',
+    start: '09:00',
+    end: '22:00',
+    dayOff: false,
+  },
+  {
+    dayOfWeek: 5,
+    label: 'Friday',
+    start: '09:00',
+    end: '22:00',
+    dayOff: false,
+  },
+  {
+    dayOfWeek: 6,
+    label: 'Saturday',
+    start: '09:00',
+    end: '22:00',
+    dayOff: false,
+  },
+  {
+    dayOfWeek: 7,
+    label: 'Sunday',
+    start: '09:00',
+    end: '22:00',
+    dayOff: false,
+  },
 ]
 
 function AdminEstablishmentAddPage() {
@@ -148,15 +189,23 @@ function AdminEstablishmentAddPage() {
             end: day.dayOff ? null : day.end,
             dayOff: day.dayOff,
           })
-        } catch {
+        } catch (operatingModeError) {
+          logError(
+            `AdminEstablishmentAddPage: failed to create operating mode for day ${day.dayOfWeek}`,
+            operatingModeError,
+          )
+
           continue
         }
       }
 
       showToast('Заведение добавлено', 'success')
       navigate('/admin/establishments')
-    } catch {
+    } catch (submitError) {
+      logError('Failed to create establishment:', submitError)
+
       showToast('Не удалось создать заведение. Попробуйте ещё раз', 'error')
+      setError('Не удалось создать заведение. Попробуйте ещё раз')
     } finally {
       setIsSubmitting(false)
     }
@@ -165,6 +214,7 @@ function AdminEstablishmentAddPage() {
   return (
     <div className="admin-establishment-add-page">
       <h1>Add new establishment</h1>
+
       <p className="admin-establishment-add-page__breadcrumb">
         <span
           className="admin-establishment-add-page__breadcrumb-link"
@@ -175,7 +225,10 @@ function AdminEstablishmentAddPage() {
         / Add new establishment
       </p>
 
-      <form className="admin-establishment-add-page__card" onSubmit={handleSubmit}>
+      <form
+        className="admin-establishment-add-page__card"
+        onSubmit={handleSubmit}
+      >
         <div className="admin-establishment-add-page__photo">
           <button
             type="button"
@@ -196,7 +249,9 @@ function AdminEstablishmentAddPage() {
               </svg>
             )}
           </button>
+
           <div className="admin-establishment-add-page__photo-fill" />
+
           <input
             ref={fileInputRef}
             type="file"
@@ -231,8 +286,13 @@ function AdminEstablishmentAddPage() {
           </label>
 
           {hours.map((day) => (
-            <div className="admin-establishment-add-page__hours-row" key={day.dayOfWeek}>
-              <div className="admin-establishment-add-page__hours-day">{day.label}</div>
+            <div
+              className="admin-establishment-add-page__hours-row"
+              key={day.dayOfWeek}
+            >
+              <div className="admin-establishment-add-page__hours-day">
+                {day.label}
+              </div>
 
               <div className="admin-establishment-add-page__hours-controls">
                 <input
@@ -240,10 +300,18 @@ function AdminEstablishmentAddPage() {
                   value={day.start}
                   disabled={day.dayOff}
                   onChange={(event) =>
-                    handleHoursChange(day.dayOfWeek, 'start', event.target.value)
+                    handleHoursChange(
+                      day.dayOfWeek,
+                      'start',
+                      event.target.value,
+                    )
                   }
                 />
-                <span className="admin-establishment-add-page__hours-dash">-</span>
+
+                <span className="admin-establishment-add-page__hours-dash">
+                  -
+                </span>
+
                 <input
                   type="time"
                   value={day.end}
@@ -259,7 +327,11 @@ function AdminEstablishmentAddPage() {
                   type="checkbox"
                   checked={day.dayOff}
                   onChange={(event) =>
-                    handleHoursChange(day.dayOfWeek, 'dayOff', event.target.checked)
+                    handleHoursChange(
+                      day.dayOfWeek,
+                      'dayOff',
+                      event.target.checked,
+                    )
                   }
                 />
                 Day off
@@ -323,7 +395,9 @@ function AdminEstablishmentAddPage() {
           />
         </div>
 
-        {error && <p className="admin-establishment-add-page__error">{error}</p>}
+        {error && (
+          <p className="admin-establishment-add-page__error">{error}</p>
+        )}
 
         <div className="admin-establishment-add-page__actions">
           <button
@@ -333,6 +407,7 @@ function AdminEstablishmentAddPage() {
           >
             Cancel
           </button>
+
           <button
             type="submit"
             className="admin-establishment-add-page__add-button"

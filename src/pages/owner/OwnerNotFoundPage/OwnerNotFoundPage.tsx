@@ -1,6 +1,4 @@
-import {
-  useNavigate,
-} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import './OwnerNotFoundPage.css'
 
@@ -11,16 +9,9 @@ export default function OwnerNotFoundPage() {
     <div className="owner-not-found-page">
       <h1>Page not found</h1>
 
-      <p>
-        This owner page does not exist.
-      </p>
+      <p>This owner page does not exist.</p>
 
-      <button
-        type="button"
-        onClick={() =>
-          navigate('/owner')
-        }
-      >
+      <button type="button" onClick={() => navigate('/owner')}>
         Back to main screen
       </button>
     </div>

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import './AdminPositionsPage.css'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
 import { useToast } from '../../components/Toast/useToast'
@@ -15,6 +14,8 @@ import { getDishesByRestaurant } from '../../services/dishService'
 import { getEstablishmentById } from '../../services/establishmentService'
 import type { DishResponse } from '../../types/restaurant'
 import { logError } from '../../utils/logger'
+
+import './AdminPositionsPage.css'
 
 const PAGE_SIZE = 10
 
@@ -54,9 +55,9 @@ function AdminPositionsPage() {
 
   const [reloadKey, setReloadKey] = useState(0)
 
-  const [priorityDrafts, setPriorityDrafts] = useState<
-    Record<number, string>
-  >({})
+  const [priorityDrafts, setPriorityDrafts] = useState<Record<number, string>>(
+    {},
+  )
 
   const [dishToDelete, setDishToDelete] = useState<DishResponse | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -148,10 +149,7 @@ function AdminPositionsPage() {
     )
   })
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredDishes.length / PAGE_SIZE),
-  )
+  const totalPages = Math.max(1, Math.ceil(filteredDishes.length / PAGE_SIZE))
 
   const dishes = filteredDishes.slice(
     page * PAGE_SIZE,
@@ -286,9 +284,7 @@ function AdminPositionsPage() {
               type="button"
               className="admin-positions-page__title-button"
               onClick={() =>
-                navigate(
-                  `/admin/establishments/${restaurantId}/positions/add`,
-                )
+                navigate(`/admin/establishments/${restaurantId}/positions/add`)
               }
             >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">

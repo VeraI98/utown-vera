@@ -51,8 +51,7 @@ export interface CheckoutRequest {
   details: string
 }
 
-export type OrderItemResponse =
-  CartItemResponse
+export type OrderItemResponse = CartItemResponse
 
 export type OrderStatus =
   | 'PENDING'

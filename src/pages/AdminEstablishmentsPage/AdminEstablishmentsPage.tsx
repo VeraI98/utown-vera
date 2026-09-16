@@ -1,11 +1,6 @@
-import {
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import './AdminEstablishmentsPage.css'
-import EstablishmentCardModal from './EstablishmentCardModal'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
 import { useToast } from '../../components/Toast/useToast'
@@ -15,6 +10,10 @@ import {
 } from '../../services/establishmentService'
 import type { EstablishmentResponse } from '../../types/establishment'
 import { logError } from '../../utils/logger'
+
+import EstablishmentCardModal from './EstablishmentCardModal'
+
+import './AdminEstablishmentsPage.css'
 
 const PAGE_SIZE = 10
 
@@ -40,9 +39,9 @@ function AdminEstablishmentsPage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
 
-  const [establishments, setEstablishments] = useState<
-    EstablishmentResponse[]
-  >([])
+  const [establishments, setEstablishments] = useState<EstablishmentResponse[]>(
+    [],
+  )
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
 
@@ -77,10 +76,7 @@ function AdminEstablishmentsPage() {
         setEstablishments(data.content)
         setTotalPages(data.totalPages)
       } catch (error) {
-        logError(
-          'Failed to load establishments:',
-          error,
-        )
+        logError('Failed to load establishments:', error)
 
         if (isMounted) {
           setEstablishments([])
@@ -126,10 +122,7 @@ function AdminEstablishmentsPage() {
       setReloadKey((current) => current + 1)
       showToast('Заведение удалено', 'success')
     } catch (error) {
-      logError(
-        'Failed to delete establishment:',
-        error,
-      )
+      logError('Failed to delete establishment:', error)
 
       showToast('Не удалось удалить заведение', 'error')
       setDeleteError('Could not delete the establishment')
@@ -159,17 +152,14 @@ function AdminEstablishmentsPage() {
     if (selectedIds.length === establishments.length) {
       setSelectedIds([])
     } else {
-      setSelectedIds(
-        establishments.map((establishment) => establishment.id),
-      )
+      setSelectedIds(establishments.map((establishment) => establishment.id))
     }
   }
 
   const canGoPrev = page > 0
   const canGoNext = page + 1 < totalPages
 
-  const showEmptyState =
-    !isLoading && !loadError && establishments.length === 0
+  const showEmptyState = !isLoading && !loadError && establishments.length === 0
 
   return (
     <div className="admin-establishments-page">
@@ -218,9 +208,7 @@ function AdminEstablishmentsPage() {
               type="text"
               placeholder="Search"
               value={searchInput}
-              onChange={(event) =>
-                setSearchInput(event.target.value)
-              }
+              onChange={(event) => setSearchInput(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
                   handleSearchSubmit()
@@ -301,10 +289,7 @@ function AdminEstablishmentsPage() {
 
           {!isLoading && loadError && (
             <tr>
-              <td
-                colSpan={9}
-                className="admin-establishments-page__error-cell"
-              >
+              <td colSpan={9} className="admin-establishments-page__error-cell">
                 {loadError}
 
                 <button
@@ -320,10 +305,7 @@ function AdminEstablishmentsPage() {
 
           {showEmptyState && (
             <tr>
-              <td
-                colSpan={9}
-                className="admin-establishments-page__state-cell"
-              >
+              <td colSpan={9} className="admin-establishments-page__state-cell">
                 No establishments found.
               </td>
             </tr>
@@ -407,9 +389,7 @@ function AdminEstablishmentsPage() {
                     className="admin-establishments-page__eye-button"
                     type="button"
                     aria-label={`Preview ${establishment.title}`}
-                    onClick={() =>
-                      setViewedEstablishment(establishment)
-                    }
+                    onClick={() => setViewedEstablishment(establishment)}
                   >
                     <svg
                       className="admin-establishments-page__eye-icon"
@@ -443,36 +423,30 @@ function AdminEstablishmentsPage() {
         <button
           type="button"
           disabled={!canGoPrev}
-          onClick={() =>
-            setPage((current) => current - 1)
-          }
+          onClick={() => setPage((current) => current - 1)}
         >
           Prev
         </button>
 
-        {Array.from({ length: totalPages }).map(
-          (_, index) => (
-            <button
-              type="button"
-              key={index}
-              className={
-                index === page
-                  ? 'admin-establishments-page__pagination-active'
-                  : undefined
-              }
-              onClick={() => setPage(index)}
-            >
-              {index + 1}
-            </button>
-          ),
-        )}
+        {Array.from({ length: totalPages }).map((_, index) => (
+          <button
+            type="button"
+            key={index}
+            className={
+              index === page
+                ? 'admin-establishments-page__pagination-active'
+                : undefined
+            }
+            onClick={() => setPage(index)}
+          >
+            {index + 1}
+          </button>
+        ))}
 
         <button
           type="button"
           disabled={!canGoNext}
-          onClick={() =>
-            setPage((current) => current + 1)
-          }
+          onClick={() => setPage((current) => current + 1)}
         >
           Next
         </button>

@@ -1,20 +1,16 @@
-import {
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import './AdminClientsPage.css'
-import ClientCardModal from './ClientCardModal'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
 import { useToast } from '../../components/Toast/useToast'
-import {
-  deleteClient,
-  getClients,
-} from '../../services/clientService'
+import { deleteClient, getClients } from '../../services/clientService'
 import type { ClientResponse } from '../../types/client'
 import { logError } from '../../utils/logger'
+
+import ClientCardModal from './ClientCardModal'
+
+import './AdminClientsPage.css'
 
 const PAGE_SIZE = 10
 
@@ -32,22 +28,28 @@ function AdminClientsPage() {
   const { showToast } = useToast()
 
   const [selectedIds, setSelectedIds] = useState<number[]>([])
-  const [viewedClient, setViewedClient] =
-    useState<ClientResponse | null>(null)
 
-  const [clientToDelete, setClientToDelete] =
-    useState<ClientResponse | null>(null)
+  const [viewedClient, setViewedClient] = useState<ClientResponse | null>(null)
+
+  const [clientToDelete, setClientToDelete] = useState<ClientResponse | null>(
+    null,
+  )
+
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
 
   const [clients, setClients] = useState<ClientResponse[]>([])
+
   const [isLoading, setIsLoading] = useState(true)
+
   const [loadError, setLoadError] = useState('')
 
   const [page, setPage] = useState(0)
+
   const [totalPages, setTotalPages] = useState(0)
 
   const [searchInput, setSearchInput] = useState('')
+
   const [search, setSearch] = useState('')
 
   const [reloadKey, setReloadKey] = useState(0)
@@ -73,16 +75,18 @@ function AdminClientsPage() {
         }
 
         setClients(data.content)
+
         setTotalPages(data.totalPages)
+
+        setSelectedIds([])
       } catch (error) {
-        logError(
-          'Failed to load clients:',
-          error,
-        )
+        logError('Failed to load clients:', error)
 
         if (isMounted) {
           setClients([])
           setTotalPages(0)
+          setSelectedIds([])
+
           setLoadError('Could not load the clients')
         }
       } finally {
@@ -100,11 +104,21 @@ function AdminClientsPage() {
   }, [page, search, reloadKey])
 
   const handleSearchSubmit = () => {
+    if (isLoading) {
+      return
+    }
+
     setPage(0)
+    setSelectedIds([])
+
     setSearch(searchInput.trim())
   }
 
   const handleRetry = () => {
+    if (isLoading) {
+      return
+    }
+
     setReloadKey((current) => current + 1)
   }
 
@@ -124,10 +138,7 @@ function AdminClientsPage() {
       setReloadKey((current) => current + 1)
       showToast('Клиент удалён', 'success')
     } catch (error) {
-      logError(
-        'Failed to delete client:',
-        error,
-      )
+      logError('Failed to delete client:', error)
 
       showToast('Не удалось удалить клиента', 'error')
       setDeleteError('Could not delete the client')
@@ -166,10 +177,10 @@ function AdminClientsPage() {
   }
 
   const canGoPrev = page > 0
+
   const canGoNext = page + 1 < totalPages
 
-  const showEmptyState =
-    !isLoading && !loadError && clients.length === 0
+  const showEmptyState = !isLoading && !loadError && clients.length === 0
 
   return (
     <div className="admin-clients-page">
@@ -178,14 +189,14 @@ function AdminClientsPage() {
           <h1>Clients</h1>
 
           <nav className="admin-clients-page__breadcrumb">
-            <span className="admin-clients-page__breadcrumb-link">
-              Home
-            </span>
+            <span className="admin-clients-page__breadcrumb-link">Home</span>
+
             <span> / </span>
-            <span className="admin-clients-page__breadcrumb-link">
-              Users
-            </span>
+
+            <span className="admin-clients-page__breadcrumb-link">Users</span>
+
             <span> / </span>
+
             <span>Clients</span>
           </nav>
         </div>
@@ -205,6 +216,7 @@ function AdminClientsPage() {
                 stroke="#98a2b3"
                 strokeWidth="1.5"
               />
+
               <path
                 d="M17 17L13.7 13.7"
                 stroke="#98a2b3"
@@ -218,9 +230,8 @@ function AdminClientsPage() {
               type="text"
               placeholder="Search"
               value={searchInput}
-              onChange={(event) =>
-                setSearchInput(event.target.value)
-              }
+              disabled={isLoading}
+              onChange={(event) => setSearchInput(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
                   handleSearchSubmit()
@@ -264,9 +275,9 @@ function AdminClientsPage() {
               <input
                 type="checkbox"
                 checked={
-                  selectedIds.length === clients.length &&
-                  clients.length > 0
+                  selectedIds.length === clients.length && clients.length > 0
                 }
+                disabled={isLoading || clients.length === 0}
                 onChange={toggleSelectAll}
                 aria-label="Select all"
               />
@@ -293,10 +304,7 @@ function AdminClientsPage() {
 
           {!isLoading && loadError && (
             <tr>
-              <td
-                colSpan={8}
-                className="admin-clients-page__error-cell"
-              >
+              <td colSpan={8} className="admin-clients-page__error-cell">
                 {loadError}
 
                 <button
@@ -312,10 +320,7 @@ function AdminClientsPage() {
 
           {showEmptyState && (
             <tr>
-              <td
-                colSpan={8}
-                className="admin-clients-page__state-cell"
-              >
+              <td colSpan={8} className="admin-clients-page__state-cell">
                 No clients found.
               </td>
             </tr>
@@ -353,6 +358,7 @@ function AdminClientsPage() {
                     onClick={() => openClientCard(client)}
                   >
                     <span>View</span>
+
                     <span
                       className="admin-clients-page__view-chevron"
                       aria-hidden="true"
@@ -382,6 +388,7 @@ function AdminClientsPage() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
+
                       <circle
                         cx="12"
                         cy="12"
@@ -400,37 +407,34 @@ function AdminClientsPage() {
       <div className="admin-clients-page__pagination">
         <button
           type="button"
-          disabled={!canGoPrev}
-          onClick={() =>
-            setPage((current) => current - 1)
-          }
+          disabled={isLoading || !canGoPrev}
+          onClick={() => setPage((current) => current - 1)}
         >
           Prev
         </button>
 
-        {Array.from({ length: totalPages }).map(
-          (_, index) => (
-            <button
-              type="button"
-              key={index}
-              className={
-                index === page
-                  ? 'admin-clients-page__pagination-active'
-                  : undefined
-              }
-              onClick={() => setPage(index)}
-            >
-              {index + 1}
-            </button>
-          ),
-        )}
+        {Array.from({
+          length: totalPages,
+        }).map((_, index) => (
+          <button
+            type="button"
+            key={index}
+            className={
+              index === page
+                ? 'admin-clients-page__pagination-active'
+                : undefined
+            }
+            disabled={isLoading}
+            onClick={() => setPage(index)}
+          >
+            {index + 1}
+          </button>
+        ))}
 
         <button
           type="button"
-          disabled={!canGoNext}
-          onClick={() =>
-            setPage((current) => current + 1)
-          }
+          disabled={isLoading || !canGoNext}
+          onClick={() => setPage((current) => current + 1)}
         >
           Next
         </button>
@@ -450,6 +454,7 @@ function AdminClientsPage() {
             const clientId = viewedClient.id
 
             setViewedClient(null)
+
             navigate(`/admin/clients/${clientId}/edit`)
           }}
           onDelete={() => {

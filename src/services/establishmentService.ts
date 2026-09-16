@@ -1,10 +1,7 @@
 import { api } from './api'
 
 import type { EstablishmentResponse } from '../types/establishment'
-import type {
-  PaginatedResponse,
-  RestaurantResponse,
-} from '../types/restaurant'
+import type { PaginatedResponse, RestaurantResponse } from '../types/restaurant'
 
 export interface CreateEstablishmentAddress {
   city?: string
@@ -40,25 +37,20 @@ export interface GetEstablishmentsParams {
 export async function getEstablishments(
   params: GetEstablishmentsParams = {},
 ): Promise<PaginatedResponse<EstablishmentResponse>> {
-  const {
-    page = 0,
-    size = 10,
-    search,
-    city,
-    isActive,
-  } = params
+  const { page = 0, size = 10, search, city, isActive } = params
 
-  const { data } = await api.get<
-    PaginatedResponse<EstablishmentResponse>
-  >('/admin/restaurants', {
-    params: {
-      page,
-      size,
-      search,
-      city,
-      isActive,
+  const { data } = await api.get<PaginatedResponse<EstablishmentResponse>>(
+    '/admin/restaurants',
+    {
+      params: {
+        page,
+        size,
+        search,
+        city,
+        isActive,
+      },
     },
-  })
+  )
 
   return data
 }
@@ -66,10 +58,9 @@ export async function getEstablishments(
 export async function getEstablishmentById(
   establishmentId: number,
 ): Promise<EstablishmentResponse> {
-  const { data } =
-    await api.get<EstablishmentResponse>(
-      `/admin/restaurants/${establishmentId}`,
-    )
+  const { data } = await api.get<EstablishmentResponse>(
+    `/admin/restaurants/${establishmentId}`,
+  )
 
   return data
 }
@@ -77,9 +68,7 @@ export async function getEstablishmentById(
 export async function deleteEstablishment(
   establishmentId: number,
 ): Promise<void> {
-  await api.delete(
-    `/admin/restaurants/${establishmentId}`,
-  )
+  await api.delete(`/admin/restaurants/${establishmentId}`)
 }
 
 export async function createEstablishment(

@@ -2,10 +2,7 @@ import { useState } from 'react'
 
 import './RestaurantProductCard.css'
 
-import {
-  formatPrice,
-  type RestaurantProduct,
-} from './restaurantData'
+import { formatPrice, type RestaurantProduct } from './restaurantData'
 
 interface RestaurantProductCardProps {
   product: RestaurantProduct
@@ -20,9 +17,7 @@ const INVALID_IMAGE_VALUES = [
   'file uploaded successfully',
 ]
 
-function isValidImageUrl(
-  imageUrl?: string | null,
-): boolean {
+function isValidImageUrl(imageUrl?: string | null): boolean {
   if (!imageUrl) {
     return false
   }
@@ -33,9 +28,7 @@ function isValidImageUrl(
     return false
   }
 
-  return !INVALID_IMAGE_VALUES.includes(
-    value.toLowerCase(),
-  )
+  return !INVALID_IMAGE_VALUES.includes(value.toLowerCase())
 }
 
 function RestaurantProductCard({
@@ -43,28 +36,17 @@ function RestaurantProductCard({
   isSelected = false,
   onClick,
 }: RestaurantProductCardProps) {
-  const [
-    imageError,
-    setImageError,
-  ] = useState(false)
+  const [imageError, setImageError] = useState(false)
 
-  const hasImage =
-    isValidImageUrl(
-      product.image,
-    ) &&
-    !imageError
+  const hasImage = isValidImageUrl(product.image) && !imageError
 
   return (
     <button
       type="button"
       className={`restaurant-product-card ${
-        isSelected
-          ? 'restaurant-product-card--selected'
-          : ''
+        isSelected ? 'restaurant-product-card--selected' : ''
       }`}
-      onClick={() =>
-        onClick(product)
-      }
+      onClick={() => onClick(product)}
       aria-pressed={isSelected}
     >
       <div className="restaurant-product-card__content">
@@ -79,23 +61,16 @@ function RestaurantProductCard({
         )}
 
         <span className="restaurant-product-card__price">
-          {formatPrice(
-            product.price,
-          )}
+          {formatPrice(product.price)}
         </span>
       </div>
 
       {hasImage ? (
         <img
           className="restaurant-product-card__image"
-          src={
-            product.image ??
-            undefined
-          }
+          src={product.image ?? undefined}
           alt={product.name}
-          onError={() =>
-            setImageError(true)
-          }
+          onError={() => setImageError(true)}
         />
       ) : (
         <div

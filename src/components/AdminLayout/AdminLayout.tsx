@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import './AdminLayout.css'
+
 import logo from '../../assets/admin-pages/Logo.png'
 import avatarIcon from '../../assets/admin-pages/Avatar.png'
 import addIcon from '../../assets/admin-pages/master.png'
@@ -39,18 +40,11 @@ function AdminLayout() {
     <div className="admin-layout">
       <header className="admin-layout__header">
         <div className="admin-layout__logo-box">
-          <img
-            src={logo}
-            alt="UTOWN"
-            className="admin-layout__logo"
-          />
+          <img src={logo} alt="UTOWN" className="admin-layout__logo" />
         </div>
 
         <div className="admin-layout__header-gradient">
-          <button
-            className="admin-layout__admin-button"
-            type="button"
-          >
+          <button className="admin-layout__admin-button" type="button">
             <img
               src={avatarIcon}
               alt=""
@@ -98,9 +92,7 @@ function AdminLayout() {
                   </NavLink>
                 </li>
 
-                <li className="admin-layout__sidebar-link">
-                  Riders
-                </li>
+                <li className="admin-layout__sidebar-link">Riders</li>
 
                 <li>
                   <NavLink
@@ -152,13 +144,8 @@ function AdminLayout() {
 
             {isAppOpen && (
               <ul>
-                <li className="admin-layout__sidebar-link">
-                  Services
-                </li>
-
-                <li className="admin-layout__sidebar-link">
-                  Vacancies
-                </li>
+                <li className="admin-layout__sidebar-link">Services</li>
+                <li className="admin-layout__sidebar-link">Vacancies</li>
               </ul>
             )}
           </nav>
@@ -168,23 +155,15 @@ function AdminLayout() {
               <button
                 className="admin-layout__add-button"
                 type="button"
-                onClick={() =>
-                  setIsAddMenuOpen((current) => !current)
-                }
+                onClick={() => setIsAddMenuOpen((current) => !current)}
               >
-                <img
-                  src={addIcon}
-                  alt=""
-                  aria-hidden="true"
-                />
+                <img src={addIcon} alt="" aria-hidden="true" />
                 Add
               </button>
 
               {isAddMenuOpen && (
                 <div className="admin-layout__add-menu">
-                  <p className="admin-layout__add-menu-title">
-                    Add...
-                  </p>
+                  <p className="admin-layout__add-menu-title">Add...</p>
 
                   {ADD_MENU_ITEMS.map((item) => (
                     <button
@@ -215,11 +194,7 @@ function AdminLayout() {
                 type="button"
                 aria-label="Settings"
               >
-                <img
-                  src={settingsIcon}
-                  alt=""
-                  aria-hidden="true"
-                />
+                <img src={settingsIcon} alt="" aria-hidden="true" />
               </button>
             </div>
           </div>

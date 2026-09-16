@@ -1,31 +1,24 @@
-import {
-  useEffect,
-  useState,
-} from 'react'
-import {
-  Link,
-  useNavigate,
-} from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
-import { useAuth } from '../../hooks/useAuth'
-
-import { getMyOrders } from '../../services/orderService'
-import { getActiveRestaurants } from '../../services/restaurantService'
-
-import adOneImage from '../../assets/icons main pages/Ad 1.svg'
-import adTwoImage from '../../assets/icons main pages/Ad 2.svg'
+import adOneImage from '../../assets/food-common/ad-1.webp'
+import adTwoImage from '../../assets/food-common/ad-2.webp'
+import localCuisineImage from '../../assets/food-common/local-cuisine.webp'
 import bellIcon from '../../assets/icons main pages/bell.svg'
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import foodDeliveryIcon from '../../assets/icons main pages/Food delivery icon.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import jobsIcon from '../../assets/icons main pages/Jobs icon.svg'
-import localCuisineImage from '../../assets/icons main pages/Local cuisine.svg'
 import logo from '../../assets/icons main pages/logo.svg'
 import mobileConnectionIcon from '../../assets/icons main pages/Mobile connection icon.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
 import servicesIcon from '../../assets/icons main pages/Services icon.svg'
 
+import { useAuth } from '../../hooks/useAuth'
+import { getMyOrders } from '../../services/orderService'
+import { getActiveRestaurants } from '../../services/restaurantService'
 import type { RestaurantResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 import './HomePage.css'
 
@@ -82,9 +75,7 @@ const INVALID_IMAGE_VALUES = [
   'file uploaded successfully',
 ]
 
-function isValidImageUrl(
-  imageUrl?: string | null,
-): boolean {
+function isValidImageUrl(imageUrl?: string | null): boolean {
   if (!imageUrl) {
     return false
   }
@@ -95,14 +86,10 @@ function isValidImageUrl(
     return false
   }
 
-  return !INVALID_IMAGE_VALUES.includes(
-    value.toLowerCase(),
-  )
+  return !INVALID_IMAGE_VALUES.includes(value.toLowerCase())
 }
 
-function getRestaurantImage(
-  restaurant: RestaurantResponse,
-): string {
+function getRestaurantImage(restaurant: RestaurantResponse): string {
   if (isValidImageUrl(restaurant.imageUrl)) {
     return restaurant.imageUrl as string
   }
@@ -110,80 +97,53 @@ function getRestaurantImage(
   return localCuisineImage
 }
 
-function formatPrice(
-  price: number | null | undefined,
-): string {
-  if (
-    price === null ||
-    price === undefined ||
-    Number.isNaN(price)
-  ) {
+function formatPrice(price: number | null | undefined): string {
+  if (price === null || price === undefined || Number.isNaN(price)) {
     return '0'
   }
 
-  return price.toLocaleString(
-    'en-US',
-  )
+  return price.toLocaleString('en-US')
 }
 
 function HomePage() {
   const navigate = useNavigate()
+
   const { user } = useAuth()
 
-  const [
-    activeOrdersCount,
-    setActiveOrdersCount,
-  ] = useState(0)
+  const isClient = user?.roles.includes('CLIENT') ?? false
 
-  const [
-    restaurants,
-    setRestaurants,
-  ] = useState<RestaurantResponse[]>([])
+  const [activeOrdersCount, setActiveOrdersCount] = useState(0)
+
+  const [restaurants, setRestaurants] = useState<RestaurantResponse[]>([])
+
+  const [isRestaurantsLoading, setIsRestaurantsLoading] = useState(true)
+
+  const [restaurantsError, setRestaurantsError] = useState('')
 
   useEffect(() => {
+    if (!user || !isClient) {
+      return
+    }
+
     let isMounted = true
 
     const loadActiveOrders = async () => {
-      const isClient =
-        user?.roles.includes('CLIENT')
-
-      if (!user || !isClient) {
-        if (isMounted) {
-          setActiveOrdersCount(0)
-        }
-
-        return
-      }
-
       try {
-        const orders =
-          await getMyOrders()
+        const orders = await getMyOrders()
 
         if (!isMounted) {
           return
         }
 
-        const activeOrders = orders.filter(
-          (order) => {
-            const status =
-              order.status
-                ?.trim()
-                .toUpperCase() ?? ''
+        const activeOrders = orders.filter((order) => {
+          const status = order.status?.trim().toUpperCase() ?? ''
 
-            return ACTIVE_ORDER_STATUSES.includes(
-              status,
-            )
-          },
-        )
+          return ACTIVE_ORDER_STATUSES.includes(status)
+        })
 
-        setActiveOrdersCount(
-          activeOrders.length,
-        )
+        setActiveOrdersCount(activeOrders.length)
       } catch (error) {
-        console.error(
-          'Failed to load active orders:',
-          error,
-        )
+        logError('HomePage: failed to load active orders', error)
 
         if (isMounted) {
           setActiveOrdersCount(0)
@@ -196,15 +156,14 @@ function HomePage() {
     return () => {
       isMounted = false
     }
-  }, [user])
+  }, [user, isClient])
 
   useEffect(() => {
     let isMounted = true
 
     const loadRestaurants = async () => {
       try {
-        const data =
-          await getActiveRestaurants()
+        const data = await getActiveRestaurants()
 
         if (!isMounted) {
           return
@@ -212,21 +171,24 @@ function HomePage() {
 
         setRestaurants(
           data
-            .filter(
-              (restaurant) =>
-                restaurant.isActive !==
-                false,
-            )
+            .filter((restaurant) => restaurant.isActive !== false)
             .slice(0, 4),
         )
-      } catch (error) {
-        console.error(
-          'Failed to load home restaurants:',
-          error,
-        )
 
+        setRestaurantsError('')
+      } catch (error) {
+        logError('HomePage: failed to load restaurants', error)
+
+        if (!isMounted) {
+          return
+        }
+
+        setRestaurants([])
+
+        setRestaurantsError('Failed to load restaurants.')
+      } finally {
         if (isMounted) {
-          setRestaurants([])
+          setIsRestaurantsLoading(false)
         }
       }
     }
@@ -238,61 +200,45 @@ function HomePage() {
     }
   }, [])
 
+  const visibleActiveOrdersCount = isClient ? activeOrdersCount : 0
+
   return (
     <main className="home-page">
       <section className="home-screen">
         <header className="home-header">
           <div className="home-top-bar">
-            <img
-              className="home-logo-image"
-              src={logo}
-              alt="UT"
-            />
+            <img className="home-logo-image" src={logo} alt="UT" />
 
             <button
               className="home-notification-button"
               type="button"
-              onClick={() =>
-                navigate('/notifications')
-              }
+              onClick={() => navigate('/notifications')}
               aria-label="Notifications"
             >
-              <img
-                src={bellIcon}
-                alt=""
-                aria-hidden="true"
-              />
+              <img src={bellIcon} alt="" aria-hidden="true" />
             </button>
           </div>
         </header>
 
         <div className="home-content">
           <section className="home-greeting-section">
-            <h1>
-              Hello,{' '}
-              {user?.fullName ||
-                user?.username ||
-                'User'}
-              !
-            </h1>
+            <h1>Hello, {user?.fullName || user?.username || 'User'}!</h1>
 
             <div className="home-info-grid">
               <article className="weather-card">
-                <p className="weather-city">
-                  City name
-                </p>
+                <p className="weather-city">City name</p>
 
                 <div className="weather-main">
                   <span>+12°</span>
 
-                  <span className="weather-sun">
-                    ☼
-                  </span>
+                  <span className="weather-sun">☼</span>
                 </div>
 
                 <div className="weather-details">
                   <span>Sunny</span>
+
                   <span>↓ +10°</span>
+
                   <span>↑ +17°</span>
                 </div>
               </article>
@@ -300,40 +246,24 @@ function HomePage() {
               <button
                 className="active-orders-card"
                 type="button"
-                onClick={() =>
-                  navigate('/food/orders')
-                }
+                onClick={() => navigate('/food/orders')}
               >
-                <span className="active-orders-icon">
-                  🛒
-                </span>
+                <span className="active-orders-icon">🛒</span>
 
-                <span>
-                  Your active orders
-                </span>
+                <span>Your active orders</span>
 
-                {activeOrdersCount > 0 && (
+                {visibleActiveOrdersCount > 0 && (
                   <strong className="active-orders-count">
-                    {activeOrdersCount}
+                    {visibleActiveOrdersCount}
                   </strong>
                 )}
               </button>
             </div>
           </section>
 
-          <section
-            className="home-service-grid"
-            aria-label="Main services"
-          >
-            <Link
-              className="service-card service-food"
-              to="/food"
-            >
-              <img
-                src={foodDeliveryIcon}
-                alt=""
-                aria-hidden="true"
-              />
+          <section className="home-service-grid" aria-label="Main services">
+            <Link className="service-card service-food" to="/food">
+              <img src={foodDeliveryIcon} alt="" aria-hidden="true" />
 
               <span>Food delivery</span>
             </Link>
@@ -342,48 +272,25 @@ function HomePage() {
               className="service-card service-mobile"
               to="/mobile-connection"
             >
-              <img
-                src={mobileConnectionIcon}
-                alt=""
-                aria-hidden="true"
-              />
+              <img src={mobileConnectionIcon} alt="" aria-hidden="true" />
 
-              <span>
-                Mobile connection
-              </span>
+              <span>Mobile connection</span>
             </Link>
 
-            <Link
-              className="service-card service-services"
-              to="/services"
-            >
-              <img
-                src={servicesIcon}
-                alt=""
-                aria-hidden="true"
-              />
+            <Link className="service-card service-services" to="/services">
+              <img src={servicesIcon} alt="" aria-hidden="true" />
 
               <span>Services</span>
             </Link>
 
-            <Link
-              className="service-card service-jobs"
-              to="/jobs"
-            >
-              <img
-                src={jobsIcon}
-                alt=""
-                aria-hidden="true"
-              />
+            <Link className="service-card service-jobs" to="/jobs">
+              <img src={jobsIcon} alt="" aria-hidden="true" />
 
               <span>Jobs</span>
             </Link>
           </section>
 
-          <section
-            className="home-ad-section"
-            aria-label="Advertisements"
-          >
+          <section className="home-ad-section" aria-label="Advertisements">
             <div className="home-ad-list">
               {ads.map((ad, index) => (
                 <article
@@ -394,10 +301,7 @@ function HomePage() {
                   }
                   key={ad.id}
                 >
-                  <img
-                    src={ad.image}
-                    alt={ad.alt}
-                  />
+                  <img src={ad.image} alt={ad.alt} />
                 </article>
               ))}
             </div>
@@ -407,18 +311,28 @@ function HomePage() {
             <div className="section-header">
               <h2>Food delivery</h2>
 
-              <Link
-                className="section-more-link"
-                to="/food"
-              >
+              <Link className="section-more-link" to="/food">
                 More
               </Link>
             </div>
 
-            {restaurants.length > 0 ? (
-              <div className="restaurant-list">
-                {restaurants.map(
-                  (restaurant) => (
+            {isRestaurantsLoading && (
+              <p className="home-restaurants-empty" role="status">
+                Loading restaurants...
+              </p>
+            )}
+
+            {!isRestaurantsLoading && restaurantsError && (
+              <p className="home-restaurants-empty" role="alert">
+                {restaurantsError}
+              </p>
+            )}
+
+            {!isRestaurantsLoading &&
+              !restaurantsError &&
+              restaurants.length > 0 && (
+                <div className="restaurant-list">
+                  {restaurants.map((restaurant) => (
                     <Link
                       className="restaurant-card"
                       to={`/food/restaurants/${restaurant.id}`}
@@ -426,43 +340,26 @@ function HomePage() {
                     >
                       <img
                         className="restaurant-image"
-                        src={getRestaurantImage(
-                          restaurant,
-                        )}
-                        alt={
-                          restaurant.title
-                        }
+                        src={getRestaurantImage(restaurant)}
+                        alt={restaurant.title}
+                        loading="lazy"
                         onError={(event) => {
-                          event.currentTarget.onerror =
-                            null
+                          event.currentTarget.onerror = null
 
-                          event.currentTarget.src =
-                            localCuisineImage
+                          event.currentTarget.src = localCuisineImage
                         }}
                       />
 
                       <div className="restaurant-body">
-                        <h3>
-                          {
-                            restaurant.title
-                          }
-                        </h3>
+                        <h3>{restaurant.title}</h3>
 
-                        <p>
-                          {restaurant.category ||
-                            'Restaurant'}
-                        </p>
+                        <p>{restaurant.category || 'Restaurant'}</p>
 
                         <div className="restaurant-meta">
-                          <span>
-                            ♿
-                          </span>
+                          <span>♿</span>
 
                           <span>
-                            {formatPrice(
-                              restaurant.minOrderAmount,
-                            )}{' '}
-                            won
+                            {formatPrice(restaurant.minOrderAmount)} won
                             {restaurant.deliveryTime
                               ? ` · ${restaurant.deliveryTime}`
                               : ''}
@@ -470,57 +367,33 @@ function HomePage() {
                         </div>
                       </div>
                     </Link>
-                  ),
-                )}
-              </div>
-            ) : (
-              <p className="home-restaurants-empty">
-                No restaurants available.
-              </p>
-            )}
+                  ))}
+                </div>
+              )}
+
+            {!isRestaurantsLoading &&
+              !restaurantsError &&
+              restaurants.length === 0 && (
+                <p className="home-restaurants-empty">
+                  No restaurants available.
+                </p>
+              )}
           </section>
         </div>
 
-        <nav
-          className="bottom-nav"
-          aria-label="Main navigation"
-        >
-          <Link
-            className="bottom-nav-link active"
-            to="/"
-          >
-            <img
-              src={homeIcon}
-              alt=""
-              aria-hidden="true"
-            />
-
+        <nav className="bottom-nav" aria-label="Main navigation">
+          <Link className="bottom-nav-link active" to="/">
+            <img src={homeIcon} alt="" aria-hidden="true" />
             <span>Home</span>
           </Link>
 
-          <Link
-            className="bottom-nav-link"
-            to="/favorites"
-          >
-            <img
-              src={favoritesIcon}
-              alt=""
-              aria-hidden="true"
-            />
-
+          <Link className="bottom-nav-link" to="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
             <span>Favorites</span>
           </Link>
 
-          <Link
-            className="bottom-nav-link"
-            to="/profile"
-          >
-            <img
-              src={profileIcon}
-              alt=""
-              aria-hidden="true"
-            />
-
+          <Link className="bottom-nav-link" to="/profile">
+            <img src={profileIcon} alt="" aria-hidden="true" />
             <span>Profile</span>
           </Link>
         </nav>

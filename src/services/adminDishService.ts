@@ -36,25 +36,20 @@ export interface GetAdminDishesParams {
 export async function getAdminDishes(
   params: GetAdminDishesParams = {},
 ): Promise<PaginatedResponse<DishResponse>> {
-  const {
-    page = 0,
-    size = 10,
-    search,
-    category,
-    isActive,
-  } = params
+  const { page = 0, size = 10, search, category, isActive } = params
 
-  const { data } = await api.get<
-    PaginatedResponse<DishResponse>
-  >('/admin/dishes', {
-    params: {
-      page,
-      size,
-      search,
-      category,
-      isActive,
+  const { data } = await api.get<PaginatedResponse<DishResponse>>(
+    '/admin/dishes',
+    {
+      params: {
+        page,
+        size,
+        search,
+        category,
+        isActive,
+      },
     },
-  })
+  )
 
   return data
 }
@@ -62,10 +57,7 @@ export async function getAdminDishes(
 export async function createDish(
   request: CreateDishRequest,
 ): Promise<DishResponse> {
-  const { data } = await api.post<DishResponse>(
-    '/admin/dishes',
-    request,
-  )
+  const { data } = await api.post<DishResponse>('/admin/dishes', request)
 
   return data
 }
@@ -82,21 +74,15 @@ export async function updateDish(
   return data
 }
 
-export async function deleteDish(
-  dishId: number,
-): Promise<void> {
+export async function deleteDish(dishId: number): Promise<void> {
   await api.delete(`/admin/dishes/${dishId}`)
 }
 
-export async function activateDish(
-  dishId: number,
-): Promise<void> {
+export async function activateDish(dishId: number): Promise<void> {
   await api.patch(`/dishes/${dishId}/activate`)
 }
 
-export async function deactivateDish(
-  dishId: number,
-): Promise<void> {
+export async function deactivateDish(dishId: number): Promise<void> {
   await api.patch(`/dishes/${dishId}/deactivate`)
 }
 

@@ -2,10 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { useToast } from '../../components/Toast/useToast'
-import {
-  getClientById,
-  updateClient,
-} from '../../services/clientService'
+import { getClientById, updateClient } from '../../services/clientService'
 import { logError } from '../../utils/logger'
 
 import './AdminClientEditPage.css'
@@ -22,20 +19,26 @@ function AdminClientEditPage() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+
   const [error, setError] = useState('')
 
   useEffect(() => {
     let isMounted = true
 
     const loadClient = async () => {
-      if (!clientId) {
+      const parsedClientId = Number(clientId)
+
+      if (!clientId || !Number.isFinite(parsedClientId)) {
+        if (isMounted) {
+          setError('Invalid client ID')
+          setIsLoading(false)
+        }
+
         return
       }
 
       try {
-        const client = await getClientById(
-          Number(clientId),
-        )
+        const client = await getClientById(parsedClientId)
 
         if (!isMounted) {
           return
@@ -43,13 +46,11 @@ function AdminClientEditPage() {
 
         setName(client.fullName)
         setPhoneNumber(client.username)
-        setCity(client.city)
-        setAddress(client.address)
+        setCity(client.city ?? '')
+        setAddress(client.address ?? '')
+        setError('')
       } catch (requestError) {
-        logError(
-          'Failed to load client:',
-          requestError,
-        )
+        logError('Failed to load client:', requestError)
 
         if (isMounted) {
           setError('Could not load the client')
@@ -73,11 +74,20 @@ function AdminClientEditPage() {
   }
 
   const handleSave = async () => {
+    if (isSaving || isLoading) {
+      return
+    }
+
+    const parsedClientId = Number(clientId)
     const trimmedName = name.trim()
 
-    if (!clientId || !trimmedName) {
-      setError('Enter a name')
+    if (!clientId || !Number.isFinite(parsedClientId)) {
+      setError('Invalid client ID')
+      return
+    }
 
+    if (!trimmedName) {
+      setError('Enter a name')
       return
     }
 
@@ -85,7 +95,7 @@ function AdminClientEditPage() {
     setError('')
 
     try {
-      await updateClient(Number(clientId), {
+      await updateClient(parsedClientId, {
         fullName: trimmedName,
         city: city.trim(),
         address: address.trim(),
@@ -94,10 +104,7 @@ function AdminClientEditPage() {
       showToast('Изменения сохранены', 'success')
       navigate('/admin/clients')
     } catch (requestError) {
-      logError(
-        'Failed to update client:',
-        requestError,
-      )
+      logError('Failed to update client:', requestError)
 
       showToast('Could not save the changes', 'error')
       setError('Could not save the changes')
@@ -111,9 +118,7 @@ function AdminClientEditPage() {
       <h1>Edit client</h1>
 
       <nav className="admin-client-edit-page__breadcrumb">
-        <span className="admin-client-edit-page__breadcrumb-link">
-          Home
-        </span>
+        <span className="admin-client-edit-page__breadcrumb-link">Home</span>
         <span> / </span>
         <span className="admin-client-edit-page__breadcrumb-link">
           Users / Clients
@@ -125,56 +130,70 @@ function AdminClientEditPage() {
       <div className="admin-client-edit-page__card">
         <div className="admin-client-edit-page__field">
           <label htmlFor="client-name">Name</label>
+
           <input
             id="client-name"
             type="text"
             placeholder={isLoading ? 'Loading...' : 'Enter name'}
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            disabled={isLoading || isSaving}
+            onChange={(event) => {
+              setName(event.target.value)
+              setError('')
+            }}
           />
         </div>
 
         <div className="admin-client-edit-page__field">
           <label htmlFor="client-phone">Phone number</label>
-          <input
-            id="client-phone"
-            type="tel"
-            value={phoneNumber}
-            disabled
-          />
+
+          <input id="client-phone" type="tel" value={phoneNumber} disabled />
         </div>
 
         <div className="admin-client-edit-page__field">
           <label htmlFor="client-city">City</label>
+
           <input
             id="client-city"
             type="text"
             placeholder="Enter city"
             value={city}
-            onChange={(event) => setCity(event.target.value)}
+            disabled={isLoading || isSaving}
+            onChange={(event) => {
+              setCity(event.target.value)
+              setError('')
+            }}
           />
         </div>
 
         <div className="admin-client-edit-page__field">
           <label htmlFor="client-address">Delivery address</label>
+
           <input
             id="client-address"
             type="text"
             placeholder="Enter address"
             value={address}
-            onChange={(event) => setAddress(event.target.value)}
+            disabled={isLoading || isSaving}
+            onChange={(event) => {
+              setAddress(event.target.value)
+              setError('')
+            }}
           />
         </div>
       </div>
 
       {error && (
-        <p className="admin-client-edit-page__error">{error}</p>
+        <p className="admin-client-edit-page__error" role="alert">
+          {error}
+        </p>
       )}
 
       <div className="admin-client-edit-page__actions">
         <button
           type="button"
           className="admin-client-edit-page__cancel-button"
+          disabled={isSaving}
           onClick={handleCancel}
         >
           Cancel
@@ -184,7 +203,7 @@ function AdminClientEditPage() {
           type="button"
           className="admin-client-edit-page__save-button"
           disabled={isSaving || isLoading}
-          onClick={handleSave}
+          onClick={() => void handleSave()}
         >
           {isSaving ? 'Saving...' : 'Save'}
         </button>

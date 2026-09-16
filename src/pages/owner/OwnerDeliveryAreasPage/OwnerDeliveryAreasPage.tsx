@@ -1,9 +1,5 @@
-import {
-  useState,
-} from 'react'
-import {
-  useNavigate,
-} from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import './OwnerDeliveryAreasPage.css'
 
@@ -20,14 +16,8 @@ const AREAS = [
 export default function OwnerDeliveryAreasPage() {
   const navigate = useNavigate()
 
-  const [
-    selectedArea,
-    setSelectedArea,
-  ] = useState(
-    () =>
-      sessionStorage.getItem(
-        'ownerEditRestaurantArea',
-      ) ?? '',
+  const [selectedArea, setSelectedArea] = useState(
+    () => sessionStorage.getItem('ownerEditRestaurantArea') ?? '',
   )
 
   const handleSave = () => {
@@ -35,49 +25,32 @@ export default function OwnerDeliveryAreasPage() {
       return
     }
 
-    sessionStorage.setItem(
-      'ownerEditRestaurantArea',
-      selectedArea,
-    )
+    sessionStorage.setItem('ownerEditRestaurantArea', selectedArea)
 
-    navigate(
-      '/owner/restaurant/edit',
-      {
-        replace: true,
-      },
-    )
+    navigate('/owner/restaurant/edit', {
+      replace: true,
+    })
   }
 
   return (
     <main className="owner-delivery-areas-page">
       <section className="owner-delivery-areas-content">
-        <h1>
-          Select delivery areas
-        </h1>
+        <h1>Select delivery areas</h1>
 
         <div className="owner-delivery-areas-list">
           {AREAS.map((area) => (
-            <label
-              key={area}
-              className="owner-delivery-areas-option"
-            >
+            <label key={area} className="owner-delivery-areas-option">
               <input
                 type="radio"
                 name="delivery-area"
                 value={area}
-                checked={
-                  selectedArea === area
-                }
-                onChange={() =>
-                  setSelectedArea(area)
-                }
+                checked={selectedArea === area}
+                onChange={() => setSelectedArea(area)}
               />
 
               <span className="owner-delivery-areas-radio" />
 
-              <span className="owner-delivery-areas-name">
-                {area}
-              </span>
+              <span className="owner-delivery-areas-name">{area}</span>
             </label>
           ))}
         </div>
