@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import './EstablishmentCardModal.css'
 import { getRestaurantById } from '../../services/restaurantService'
 import type { EstablishmentResponse } from '../../types/establishment'
 import type { RestaurantOperatingMode } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
+
+import './EstablishmentCardModal.css'
 
 interface EstablishmentCardModalProps {
   establishment: EstablishmentResponse
@@ -40,9 +42,11 @@ function EstablishmentCardModal({
   onDelete,
 }: EstablishmentCardModalProps) {
   const navigate = useNavigate()
+
   const [operatingModes, setOperatingModes] = useState<
     RestaurantOperatingMode[]
   >([])
+
   const [isLoadingHours, setIsLoadingHours] = useState(true)
 
   useEffect(() => {
@@ -50,9 +54,7 @@ function EstablishmentCardModal({
 
     const loadOperatingModes = async () => {
       try {
-        const restaurant = await getRestaurantById(
-          establishment.id,
-        )
+        const restaurant = await getRestaurantById(establishment.id)
 
         if (!isMounted) {
           return
@@ -60,8 +62,8 @@ function EstablishmentCardModal({
 
         setOperatingModes(restaurant.operatingModes ?? [])
       } catch (error) {
-        console.error(
-          'Failed to load operating modes:',
+        logError(
+          'EstablishmentCardModal: failed to load operating modes',
           error,
         )
 
@@ -87,10 +89,7 @@ function EstablishmentCardModal({
   )
 
   return (
-    <div
-      className="establishment-card-modal__overlay"
-      onClick={onClose}
-    >
+    <div className="establishment-card-modal__overlay" onClick={onClose}>
       <div
         className="establishment-card-modal"
         onClick={(event) => event.stopPropagation()}
@@ -178,27 +177,21 @@ function EstablishmentCardModal({
         <div className="establishment-card-modal__body">
           <div className="establishment-card-modal__column">
             <div className="establishment-card-modal__field">
-              <p className="establishment-card-modal__label">
-                Description:
-              </p>
+              <p className="establishment-card-modal__label">Description:</p>
               <p className="establishment-card-modal__value">
                 {establishment.description || '-'}
               </p>
             </div>
 
             <div className="establishment-card-modal__field">
-              <p className="establishment-card-modal__label">
-                City:
-              </p>
+              <p className="establishment-card-modal__label">City:</p>
               <p className="establishment-card-modal__value">
                 {establishment.city || '-'}
               </p>
             </div>
 
             <div className="establishment-card-modal__field">
-              <p className="establishment-card-modal__label">
-                Delivery Areas:
-              </p>
+              <p className="establishment-card-modal__label">Delivery Areas:</p>
               <p className="establishment-card-modal__value">
                 {establishment.facilities || '-'}
               </p>
@@ -207,9 +200,7 @@ function EstablishmentCardModal({
 
           <div className="establishment-card-modal__column">
             <div className="establishment-card-modal__field">
-              <p className="establishment-card-modal__label">
-                Phone:
-              </p>
+              <p className="establishment-card-modal__label">Phone:</p>
               <p className="establishment-card-modal__value">
                 {establishment.phone || '-'}
               </p>
@@ -225,32 +216,24 @@ function EstablishmentCardModal({
             </div>
 
             <div className="establishment-card-modal__field">
-              <p className="establishment-card-modal__label">
-                Min. order:
-              </p>
+              <p className="establishment-card-modal__label">Min. order:</p>
               <p className="establishment-card-modal__value">
                 {formatAmount(establishment.minOrderAmount)}
               </p>
             </div>
 
             <div className="establishment-card-modal__field">
-              <p className="establishment-card-modal__label">
-                Orders:
-              </p>
+              <p className="establishment-card-modal__label">Orders:</p>
               <p className="establishment-card-modal__value">
                 {establishment.ordersCount ?? 0}
               </p>
             </div>
 
             <div className="establishment-card-modal__field">
-              <p className="establishment-card-modal__label">
-                Opening hours:
-              </p>
+              <p className="establishment-card-modal__label">Opening hours:</p>
 
               {isLoadingHours && (
-                <p className="establishment-card-modal__value">
-                  Loading...
-                </p>
+                <p className="establishment-card-modal__value">Loading...</p>
               )}
 
               {!isLoadingHours && sortedModes.length === 0 && (
@@ -258,10 +241,7 @@ function EstablishmentCardModal({
               )}
 
               {sortedModes.map((mode) => (
-                <p
-                  className="establishment-card-modal__value"
-                  key={mode.id}
-                >
+                <p className="establishment-card-modal__value" key={mode.id}>
                   {DAY_NAMES[mode.dayOfWeek - 1]}:{' '}
                   {mode.dayOff
                     ? 'Closed'

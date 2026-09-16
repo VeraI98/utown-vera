@@ -1,8 +1,4 @@
-import {
-  Link,
-  useNavigate,
-  useParams,
-} from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import backButton from '../../assets/icon info/Back Button.svg'
 import logoWhite from '../../assets/icon info/logo white.svg'
@@ -14,20 +10,14 @@ import profileIcon from '../../assets/icons main pages/Profile.svg'
 
 import './LegalPage.css'
 
-type LegalPageType =
-  | 'privacy-policy'
-  | 'terms-of-use'
-  | 'disclaimer'
+type LegalPageType = 'privacy-policy' | 'terms-of-use' | 'disclaimer'
 
 interface LegalContent {
   title: string
   text: string[]
 }
 
-const legalContent: Record<
-  LegalPageType,
-  LegalContent
-> = {
+const legalContent: Record<LegalPageType, LegalContent> = {
   'privacy-policy': {
     title: 'Privacy Policy',
     text: [
@@ -53,9 +43,7 @@ const legalContent: Record<
   },
 }
 
-function isLegalPageType(
-  value: string | undefined,
-): value is LegalPageType {
+function isLegalPageType(value: string | undefined): value is LegalPageType {
   return (
     value === 'privacy-policy' ||
     value === 'terms-of-use' ||
@@ -77,12 +65,7 @@ function LegalPage() {
           <div className="legal-not-found">
             <h1>Page not found</h1>
 
-            <button
-              type="button"
-              onClick={() =>
-                navigate('/information')
-              }
-            >
+            <button type="button" onClick={() => navigate('/information')}>
               Back to Information
             </button>
           </div>
@@ -91,8 +74,7 @@ function LegalPage() {
     )
   }
 
-  const content =
-    legalContent[type]
+  const content = legalContent[type]
 
   return (
     <main className="mobile-page legal-page">
@@ -101,53 +83,31 @@ function LegalPage() {
           <button
             className="legal-header-button"
             type="button"
-            onClick={() =>
-              navigate('/information')
-            }
+            onClick={() => navigate('/information')}
             aria-label="Go back to information"
           >
-            <img
-              src={backButton}
-              alt=""
-              aria-hidden="true"
-            />
+            <img src={backButton} alt="" aria-hidden="true" />
           </button>
 
-          <img
-            className="legal-logo"
-            src={logoWhite}
-            alt="UTOWN"
-          />
+          <img className="legal-logo" src={logoWhite} alt="UTOWN" />
 
           <button
             className="legal-header-button"
             type="button"
-            onClick={() =>
-              navigate('/notifications')
-            }
+            onClick={() => navigate('/notifications')}
             aria-label="Notifications"
           >
-            <img
-              src={bell}
-              alt=""
-              aria-hidden="true"
-            />
+            <img src={bell} alt="" aria-hidden="true" />
           </button>
         </header>
 
         <div className="legal-content">
-          <h1 className="legal-title">
-            {content.title}
-          </h1>
+          <h1 className="legal-title">{content.title}</h1>
 
           <div className="legal-text">
-            {content.text.map(
-              (paragraph) => (
-                <p key={paragraph}>
-                  {paragraph}
-                </p>
-              ),
-            )}
+            {content.text.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
         </div>
 
@@ -155,41 +115,20 @@ function LegalPage() {
           className="bottom-nav legal-bottom-nav"
           aria-label="Main navigation"
         >
-          <Link
-            className="bottom-nav-link"
-            to="/"
-          >
-            <img
-              src={homeIcon}
-              alt=""
-              aria-hidden="true"
-            />
+          <Link className="bottom-nav-link" to="/">
+            <img src={homeIcon} alt="" aria-hidden="true" />
 
             <span>Home</span>
           </Link>
 
-          <Link
-            className="bottom-nav-link"
-            to="/favorites"
-          >
-            <img
-              src={favoritesIcon}
-              alt=""
-              aria-hidden="true"
-            />
+          <Link className="bottom-nav-link" to="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
 
             <span>Favorites</span>
           </Link>
 
-          <Link
-            className="bottom-nav-link active"
-            to="/profile"
-          >
-            <img
-              src={profileIcon}
-              alt=""
-              aria-hidden="true"
-            />
+          <Link className="bottom-nav-link active" to="/profile">
+            <img src={profileIcon} alt="" aria-hidden="true" />
 
             <span>Profile</span>
           </Link>

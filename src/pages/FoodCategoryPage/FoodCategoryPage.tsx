@@ -6,11 +6,10 @@ import backButtonIcon from '../../assets/food-menu/Back button.svg'
 import bellIcon from '../../assets/food-menu/bell.svg'
 import foodLogo from '../../assets/food-menu/food.svg'
 import utLogo from '../../assets/food-menu/ut.svg'
-
 import { getCategoryById } from '../../services/categoryService'
 import { getDishesByCategory } from '../../services/dishService'
-
 import type { DishResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 import './FoodCategoryPage.css'
 
@@ -48,9 +47,7 @@ function formatPrice(price: number): string {
   return `${price.toLocaleString('en-US')} won`
 }
 
-function isValidImageUrl(
-  imageUrl?: string | null,
-): boolean {
+function isValidImageUrl(imageUrl?: string | null): boolean {
   if (!imageUrl) {
     return false
   }
@@ -68,20 +65,12 @@ function isValidImageUrl(
     'file uploaded successfully',
   ]
 
-  return !invalidValues.includes(
-    value.toLowerCase(),
-  )
+  return !invalidValues.includes(value.toLowerCase())
 }
 
-function DishImage({
-  src,
-  alt,
-}: DishImageProps) {
-  const [hasError, setHasError] =
-    useState(false)
-
-  const canShowImage =
-    isValidImageUrl(src) && !hasError
+function DishImage({ src, alt }: DishImageProps) {
+  const [hasError, setHasError] = useState(false)
+  const canShowImage = isValidImageUrl(src) && !hasError
 
   if (!canShowImage) {
     return (
@@ -108,24 +97,15 @@ function DishImage({
 function FoodCategoryPage() {
   const navigate = useNavigate()
   const { categoryId } = useParams()
-
   const numericCategoryId = Number(categoryId)
 
   const isValidCategoryId =
-    Number.isInteger(numericCategoryId) &&
-    numericCategoryId > 0
+    Number.isInteger(numericCategoryId) && numericCategoryId > 0
 
-  const [dishes, setDishes] =
-    useState<DishResponse[]>([])
-
-  const [categoryName, setCategoryName] =
-    useState('Category')
-
-  const [isLoading, setIsLoading] =
-    useState(true)
-
-  const [errorMessage, setErrorMessage] =
-    useState('')
+  const [dishes, setDishes] = useState<DishResponse[]>([])
+  const [categoryName, setCategoryName] = useState('Category')
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     if (!isValidCategoryId) {
@@ -136,75 +116,42 @@ function FoodCategoryPage() {
 
     const loadData = async () => {
       try {
-        const [
-          categoryResult,
-          dishesResult,
-        ] = await Promise.allSettled([
-          getCategoryById(
-            numericCategoryId,
-          ),
-
-          getDishesByCategory(
-            numericCategoryId,
-            0,
-            100,
-          ),
+        const [categoryResult, dishesResult] = await Promise.allSettled([
+          getCategoryById(numericCategoryId),
+          getDishesByCategory(numericCategoryId, 0, 100),
         ])
 
         if (!isMounted) {
           return
         }
 
-        if (
-          categoryResult.status ===
-          'fulfilled'
-        ) {
-          setCategoryName(
-            categoryResult.value.name ||
-              'Category',
-          )
+        if (categoryResult.status === 'fulfilled') {
+          setCategoryName(categoryResult.value.name || 'Category')
         }
 
-        if (
-          dishesResult.status ===
-          'rejected'
-        ) {
+        if (dishesResult.status === 'rejected') {
           throw dishesResult.reason
         }
 
-        const activeDishes = (
-          dishesResult.value.content ?? []
-        ).filter(
-          (dish) =>
-            dish.isActive !== false &&
-            dish.isDeleted !== true,
+        const activeDishes = (dishesResult.value.content ?? []).filter(
+          (dish) => dish.isActive !== false && dish.isDeleted !== true,
         )
 
         setDishes(activeDishes)
         setErrorMessage('')
 
-        if (
-          activeDishes.length > 0 &&
-          activeDishes[0].categoryName
-        ) {
-          setCategoryName(
-            activeDishes[0].categoryName,
-          )
+        if (activeDishes.length > 0 && activeDishes[0].categoryName) {
+          setCategoryName(activeDishes[0].categoryName)
         }
       } catch (error) {
+        logError('FoodCategoryPage: failed to load category dishes', error)
+
         if (!isMounted) {
           return
         }
 
-        console.error(
-          'Failed to load category dishes:',
-          error,
-        )
-
         setDishes([])
-        setErrorMessage(
-          getErrorMessage(error),
-        )
+        setErrorMessage(getErrorMessage(error))
       } finally {
         if (isMounted) {
           setIsLoading(false)
@@ -217,17 +164,10 @@ function FoodCategoryPage() {
     return () => {
       isMounted = false
     }
-  }, [
-    isValidCategoryId,
-    numericCategoryId,
-  ])
+  }, [isValidCategoryId, numericCategoryId])
 
-  const handleDishClick = (
-    dish: DishResponse,
-  ) => {
-    navigate(
-      `/food/restaurants/${dish.restaurantId}`,
-    )
+  const handleDishClick = (dish: DishResponse) => {
+    navigate(`/food/restaurants/${dish.restaurantId}`)
   }
 
   if (!isValidCategoryId) {
@@ -263,41 +203,21 @@ function FoodCategoryPage() {
             onClick={() => navigate('/food')}
             aria-label="Go back"
           >
-            <img
-              src={backButtonIcon}
-              alt=""
-              aria-hidden="true"
-            />
+            <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div
-            className="food-category-logo"
-            aria-label="UT Food"
-          >
-            <img
-              src={utLogo}
-              alt="UT"
-            />
-
-            <img
-              src={foodLogo}
-              alt="Food"
-            />
+          <div className="food-category-logo" aria-label="UT Food">
+            <img src={utLogo} alt="UT" />
+            <img src={foodLogo} alt="Food" />
           </div>
 
           <button
             className="food-category-header-button"
             type="button"
-            onClick={() =>
-              navigate('/notifications')
-            }
+            onClick={() => navigate('/notifications')}
             aria-label="Notifications"
           >
-            <img
-              src={bellIcon}
-              alt=""
-              aria-hidden="true"
-            />
+            <img src={bellIcon} alt="" aria-hidden="true" />
           </button>
         </header>
 
@@ -305,24 +225,14 @@ function FoodCategoryPage() {
           <h1>{categoryName}</h1>
 
           {errorMessage && (
-            <div
-              className="food-category-error"
-              role="alert"
-            >
+            <div className="food-category-error" role="alert">
               {errorMessage}
             </div>
           )}
 
           {isLoading ? (
-            <div
-              className="food-category-loading"
-              role="status"
-            >
-              <div
-                className="food-category-spinner"
-                aria-hidden="true"
-              />
-
+            <div className="food-category-loading" role="status">
+              <div className="food-category-spinner" aria-hidden="true" />
               <p>Loading dishes...</p>
             </div>
           ) : dishes.length > 0 ? (
@@ -332,26 +242,16 @@ function FoodCategoryPage() {
                   className="food-category-dish"
                   type="button"
                   key={dish.id}
-                  onClick={() =>
-                    handleDishClick(dish)
-                  }
+                  onClick={() => handleDishClick(dish)}
                 >
                   <div className="food-category-dish-image-wrapper">
-                    <DishImage
-                      src={dish.imageUrl}
-                      alt={dish.title}
-                    />
+                    <DishImage src={dish.imageUrl} alt={dish.title} />
                   </div>
 
                   <div className="food-category-dish-info">
                     <div className="food-category-dish-top">
                       <h2>{dish.title}</h2>
-
-                      <strong>
-                        {formatPrice(
-                          dish.price,
-                        )}
-                      </strong>
+                      <strong>{formatPrice(dish.price)}</strong>
                     </div>
 
                     {dish.description && (
@@ -370,10 +270,7 @@ function FoodCategoryPage() {
           ) : (
             !errorMessage && (
               <div className="food-category-empty">
-                <p>
-                  No dishes available in
-                  this category.
-                </p>
+                <p>No dishes available in this category.</p>
               </div>
             )
           )}

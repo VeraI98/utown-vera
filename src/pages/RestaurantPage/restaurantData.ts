@@ -1,6 +1,4 @@
-import type {
-  DishOption,
-} from '../../types/restaurant'
+import type { DishOption } from '../../types/restaurant'
 
 export interface RestaurantProduct {
   id: number
@@ -11,8 +9,6 @@ export interface RestaurantProduct {
   options?: DishOption[]
 }
 
-export function formatPrice(
-  price: number,
-): string {
+export function formatPrice(price: number): string {
   return `${price.toLocaleString('en-US')} won`
 }

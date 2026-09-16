@@ -1,14 +1,13 @@
 import { useState } from 'react'
 
+import { logError } from '../../utils/logger'
+
 interface AddCategoryModalProps {
   onSave: (name: string) => Promise<void>
   onCancel: () => void
 }
 
-function AddCategoryModal({
-  onSave,
-  onCancel,
-}: AddCategoryModalProps) {
+function AddCategoryModal({ onSave, onCancel }: AddCategoryModalProps) {
   const [name, setName] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
@@ -26,7 +25,9 @@ function AddCategoryModal({
 
     try {
       await onSave(trimmedName)
-    } catch {
+    } catch (saveError) {
+      logError('AddCategoryModal: failed to add category', saveError)
+
       setError('Could not add the category')
     } finally {
       setIsSaving(false)
@@ -34,10 +35,7 @@ function AddCategoryModal({
   }
 
   return (
-    <div
-      className="admin-positions-page__modal-overlay"
-      onClick={onCancel}
-    >
+    <div className="admin-positions-page__modal-overlay" onClick={onCancel}>
       <div
         className="admin-positions-page__modal"
         onClick={(event) => event.stopPropagation()}
@@ -46,6 +44,7 @@ function AddCategoryModal({
 
         <div className="admin-positions-page__modal-field">
           <label htmlFor="category-name">Name</label>
+
           <input
             id="category-name"
             type="text"
@@ -55,9 +54,7 @@ function AddCategoryModal({
           />
         </div>
 
-        {error && (
-          <p className="admin-positions-page__modal-error">{error}</p>
-        )}
+        {error && <p className="admin-positions-page__modal-error">{error}</p>}
 
         <div className="admin-positions-page__modal-actions">
           <button
@@ -68,6 +65,7 @@ function AddCategoryModal({
           >
             Cancel
           </button>
+
           <button
             type="button"
             className="admin-positions-page__modal-save-button"

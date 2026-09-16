@@ -8,10 +8,10 @@ import {
 import { uploadFile } from '../../services/fileService'
 import {
   createOwnerOperatingMode,
-  getOwnerOperatingModes,
   updateOwnerOperatingMode,
 } from '../../services/ownerOperatingHoursService'
 import { getRestaurantById } from '../../services/restaurantService'
+import { logError } from '../../utils/logger'
 
 import './AdminEstablishmentEditPage.css'
 
@@ -111,9 +111,7 @@ function AdminEstablishmentEditPage() {
         setPhotoPreview(establishment.imageUrl || null)
 
         try {
-          const restaurant = await getRestaurantById(
-            Number(establishmentId),
-          )
+          const restaurant = await getRestaurantById(Number(establishmentId))
 
           if (!isMounted) {
             return
@@ -143,14 +141,14 @@ function AdminEstablishmentEditPage() {
             )
           }
         } catch (hoursError) {
-          console.error(
-            'Failed to load operating modes:',
+          logError(
+            'AdminEstablishmentEditPage: failed to load operating modes',
             hoursError,
           )
         }
       } catch (requestError) {
-        console.error(
-          'Failed to load establishment:',
+        logError(
+          'AdminEstablishmentEditPage: failed to load establishment',
           requestError,
         )
 
@@ -273,18 +271,25 @@ function AdminEstablishmentEditPage() {
               payload,
             )
           } else {
-            await createOwnerOperatingMode(
-              Number(establishmentId),
-              payload,
-            )
+            await createOwnerOperatingMode(Number(establishmentId), payload)
           }
-        } catch {
+        } catch (hoursError) {
+          logError(
+            `AdminEstablishmentEditPage: failed to save operating mode for day ${day.dayOfWeek}`,
+            hoursError,
+          )
+
           continue
         }
       }
 
       navigate('/admin/establishments')
-    } catch {
+    } catch (submitError) {
+      logError(
+        'AdminEstablishmentEditPage: failed to save establishment changes',
+        submitError,
+      )
+
       setError('Не удалось сохранить изменения. Попробуйте ещё раз')
     } finally {
       setIsSubmitting(false)
@@ -322,7 +327,10 @@ function AdminEstablishmentEditPage() {
         / Edit
       </p>
 
-      <form className="admin-establishment-edit-page__card" onSubmit={handleSubmit}>
+      <form
+        className="admin-establishment-edit-page__card"
+        onSubmit={handleSubmit}
+      >
         <div className="admin-establishment-edit-page__photo">
           <button
             type="button"
@@ -378,8 +386,13 @@ function AdminEstablishmentEditPage() {
           </label>
 
           {hours.map((day) => (
-            <div className="admin-establishment-edit-page__hours-row" key={day.dayOfWeek}>
-              <div className="admin-establishment-edit-page__hours-day">{day.label}</div>
+            <div
+              className="admin-establishment-edit-page__hours-row"
+              key={day.dayOfWeek}
+            >
+              <div className="admin-establishment-edit-page__hours-day">
+                {day.label}
+              </div>
 
               <div className="admin-establishment-edit-page__hours-controls">
                 <input
@@ -387,10 +400,16 @@ function AdminEstablishmentEditPage() {
                   value={day.start}
                   disabled={day.dayOff}
                   onChange={(event) =>
-                    handleHoursChange(day.dayOfWeek, 'start', event.target.value)
+                    handleHoursChange(
+                      day.dayOfWeek,
+                      'start',
+                      event.target.value,
+                    )
                   }
                 />
-                <span className="admin-establishment-edit-page__hours-dash">-</span>
+                <span className="admin-establishment-edit-page__hours-dash">
+                  -
+                </span>
                 <input
                   type="time"
                   value={day.end}
@@ -406,7 +425,11 @@ function AdminEstablishmentEditPage() {
                   type="checkbox"
                   checked={day.dayOff}
                   onChange={(event) =>
-                    handleHoursChange(day.dayOfWeek, 'dayOff', event.target.checked)
+                    handleHoursChange(
+                      day.dayOfWeek,
+                      'dayOff',
+                      event.target.checked,
+                    )
                   }
                 />
                 Day off
@@ -470,7 +493,9 @@ function AdminEstablishmentEditPage() {
           />
         </div>
 
-        {error && <p className="admin-establishment-edit-page__error">{error}</p>}
+        {error && (
+          <p className="admin-establishment-edit-page__error">{error}</p>
+        )}
 
         <div className="admin-establishment-edit-page__actions">
           <button

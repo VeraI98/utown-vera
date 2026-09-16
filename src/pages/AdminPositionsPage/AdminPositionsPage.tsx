@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import AddCategoryModal from './AddCategoryModal'
-import './AdminPositionsPage.css'
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import {
   activateDish,
@@ -14,6 +12,11 @@ import { createCategory } from '../../services/categoryService'
 import { getDishesByRestaurant } from '../../services/dishService'
 import { getEstablishmentById } from '../../services/establishmentService'
 import type { DishResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
+
+import AddCategoryModal from './AddCategoryModal'
+
+import './AdminPositionsPage.css'
 
 const PAGE_SIZE = 10
 
@@ -52,9 +55,9 @@ function AdminPositionsPage() {
 
   const [reloadKey, setReloadKey] = useState(0)
 
-  const [priorityDrafts, setPriorityDrafts] = useState<
-    Record<number, string>
-  >({})
+  const [priorityDrafts, setPriorityDrafts] = useState<Record<number, string>>(
+    {},
+  )
 
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false)
   const [dishToDelete, setDishToDelete] = useState<DishResponse | null>(null)
@@ -76,7 +79,7 @@ function AdminPositionsPage() {
           setEstablishmentName(establishment.title)
         }
       } catch (error) {
-        console.error('Failed to load establishment:', error)
+        logError('AdminPositionsPage: failed to load establishment', error)
       }
     }
 
@@ -114,7 +117,7 @@ function AdminPositionsPage() {
           ),
         )
       } catch (error) {
-        console.error('Failed to load positions:', error)
+        logError('AdminPositionsPage: failed to load positions', error)
 
         if (isMounted) {
           setAllDishes([])
@@ -147,10 +150,7 @@ function AdminPositionsPage() {
     )
   })
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredDishes.length / PAGE_SIZE),
-  )
+  const totalPages = Math.max(1, Math.ceil(filteredDishes.length / PAGE_SIZE))
 
   const dishes = filteredDishes.slice(
     page * PAGE_SIZE,
@@ -210,7 +210,7 @@ function AdminPositionsPage() {
       await updateDish(dish.id, { sort: parsedSort })
       setReloadKey((current) => current + 1)
     } catch (error) {
-      console.error('Failed to update priority:', error)
+      logError('AdminPositionsPage: failed to update priority', error)
 
       setPriorityDrafts((current) => ({
         ...current,
@@ -229,7 +229,7 @@ function AdminPositionsPage() {
 
       setReloadKey((current) => current + 1)
     } catch (error) {
-      console.error('Failed to toggle position status:', error)
+      logError('AdminPositionsPage: failed to toggle position status', error)
     }
   }
 
@@ -258,7 +258,7 @@ function AdminPositionsPage() {
       setSelectedIds([])
       setReloadKey((current) => current + 1)
     } catch (error) {
-      console.error('Failed to delete position:', error)
+      logError('AdminPositionsPage: failed to delete position', error)
 
       setDeleteError('Could not delete the position')
     } finally {
@@ -291,9 +291,7 @@ function AdminPositionsPage() {
               type="button"
               className="admin-positions-page__title-button"
               onClick={() =>
-                navigate(
-                  `/admin/establishments/${restaurantId}/positions/add`,
-                )
+                navigate(`/admin/establishments/${restaurantId}/positions/add`)
               }
             >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">

@@ -47,15 +47,8 @@
 
   object-fit: contain;
 
-  filter:
-    brightness(0)
-    saturate(100%)
-    invert(51%)
-    sepia(87%)
-    saturate(2847%)
-    hue-rotate(204deg)
-    brightness(101%)
-    contrast(97%);
+  filter: brightness(0) saturate(100%) invert(51%) sepia(87%) saturate(2847%)
+    hue-rotate(204deg) brightness(101%) contrast(97%);
 }
 
 .favorites-notification-button,
@@ -175,8 +168,7 @@
 
   background: #ffffff;
 
-  box-shadow:
-    0 2px 8px rgb(0 0 0 / 8%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
 }
 
 .favorites-restaurant-main {
@@ -185,8 +177,7 @@
   width: 100%;
   min-width: 0;
 
-  grid-template-columns:
-    104px minmax(0, 1fr);
+  grid-template-columns: 104px minmax(0, 1fr);
 
   color: #000000;
 
@@ -278,8 +269,7 @@
   background: #ffffff;
   color: #8a7ed6;
 
-  box-shadow:
-    0 1px 5px rgb(0 0 0 / 12%);
+  box-shadow: 0 1px 5px rgb(0 0 0 / 12%);
 
   z-index: 2;
 }
@@ -298,9 +288,7 @@
   border-top-color: #8a7ed6;
   border-radius: 50%;
 
-  animation:
-    favorites-spin 0.7s linear
-    infinite;
+  animation: favorites-spin 0.7s linear infinite;
 }
 
 .favorites-state,
@@ -336,9 +324,7 @@
   border-top-color: #8a7ed6;
   border-radius: 50%;
 
-  animation:
-    favorites-spin 0.7s linear
-    infinite;
+  animation: favorites-spin 0.7s linear infinite;
 }
 
 .favorites-empty-link {
@@ -404,8 +390,7 @@
   }
 
   .favorites-restaurant-main {
-    grid-template-columns:
-      92px minmax(0, 1fr);
+    grid-template-columns: 92px minmax(0, 1fr);
   }
 
   .favorites-restaurant-image {

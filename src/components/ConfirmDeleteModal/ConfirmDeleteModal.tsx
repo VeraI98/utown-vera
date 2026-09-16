@@ -16,23 +16,14 @@ function ConfirmDeleteModal({
   onCancel,
 }: ConfirmDeleteModalProps) {
   return (
-    <div
-      className="confirm-delete-modal__overlay"
-      onClick={onCancel}
-    >
+    <div className="confirm-delete-modal__overlay" onClick={onCancel}>
       <div
         className="confirm-delete-modal"
         onClick={(event) => event.stopPropagation()}
       >
-        <h2 className="confirm-delete-modal__title">
-          {title}
-        </h2>
+        <h2 className="confirm-delete-modal__title">{title}</h2>
 
-        {error && (
-          <p className="confirm-delete-modal__error">
-            {error}
-          </p>
-        )}
+        {error && <p className="confirm-delete-modal__error">{error}</p>}
 
         <button
           className="confirm-delete-modal__delete-button"

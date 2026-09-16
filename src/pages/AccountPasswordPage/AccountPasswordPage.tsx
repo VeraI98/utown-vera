@@ -1,14 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { changePassword } from '../../services/authService'
-
 import backButtonBlackIcon from '../../assets/icon account/Back Button black.svg'
 import logoGradient from '../../assets/icon account/logo gradient.svg'
-
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
+
+import { changePassword } from '../../services/authService'
+import { logError } from '../../utils/logger'
 
 import './AccountPasswordPage.css'
 
@@ -23,6 +23,7 @@ function AccountPasswordPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
     setError('')
 
     if (!currentPassword) {
@@ -50,10 +51,10 @@ function AccountPasswordPage() {
       })
 
       navigate('/account')
-    } catch {
-      setError(
-        'Failed to change password. Please check your current password.',
-      )
+    } catch (error) {
+      logError('AccountPasswordPage: failed to change password', error)
+
+      setError('Failed to change password. Please check your current password.')
     } finally {
       setIsSubmitting(false)
     }
@@ -72,11 +73,7 @@ function AccountPasswordPage() {
             <img src={backButtonBlackIcon} alt="" aria-hidden="true" />
           </button>
 
-          <img
-            className="account-logo-gradient"
-            src={logoGradient}
-            alt="UT"
-          />
+          <img className="account-logo-gradient" src={logoGradient} alt="UT" />
         </header>
 
         <div className="account-form-content">

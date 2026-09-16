@@ -1,15 +1,6 @@
 import axios from 'axios'
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
-import {
-  useNavigate,
-  useParams,
-} from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import deliveredImage from '../../assets/waiting order/60999822 1.svg'
 import backButtonIcon from '../../assets/waiting order/Back button.svg'
@@ -19,13 +10,9 @@ import courierImage from '../../assets/waiting order/Illustration.svg'
 import preparingImage from '../../assets/waiting order/Item quantity.svg'
 import utLogo from '../../assets/waiting order/ut.svg'
 
-import {
-  getOrderById,
-} from '../../services/orderService'
-
-import type {
-  OrderResponse,
-} from '../../types/cart'
+import { getOrderById } from '../../services/orderService'
+import type { OrderResponse } from '../../types/cart'
+import { logError } from '../../utils/logger'
 
 import './OrderStatusPage.css'
 
@@ -34,41 +21,29 @@ interface StatusContent {
   imageAlt: string
   title: string
   message: string
-  phase:
-    | 'preparing'
-    | 'courier'
-    | 'delivered'
-    | 'cancelled'
+  phase: 'preparing' | 'courier' | 'delivered' | 'cancelled'
 }
 
 const POLLING_INTERVAL = 7000
 
-function getErrorMessage(
-  error: unknown,
-): string {
+function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
-    const responseData =
-      error.response?.data
+    const responseData = error.response?.data
 
     if (
       responseData &&
       typeof responseData === 'object' &&
       'message' in responseData &&
-      typeof responseData.message ===
-        'string'
+      typeof responseData.message === 'string'
     ) {
       return responseData.message
     }
 
-    if (
-      typeof responseData === 'string'
-    ) {
+    if (typeof responseData === 'string') {
       return responseData
     }
 
-    if (
-      error.response?.status === 404
-    ) {
+    if (error.response?.status === 404) {
       return 'Order not found.'
     }
   }
@@ -76,23 +51,12 @@ function getErrorMessage(
   return 'Failed to load order status. Please try again.'
 }
 
-function normalizeStatus(
-  status?: string,
-): string {
-  return (
-    status
-      ?.trim()
-      .toUpperCase() ?? ''
-  )
+function normalizeStatus(status?: string): string {
+  return status?.trim().toUpperCase() ?? ''
 }
 
-function getStatusContent(
-  order: OrderResponse,
-): StatusContent {
-  const orderStatus =
-    normalizeStatus(
-      order.status,
-    )
+function getStatusContent(order: OrderResponse): StatusContent {
+  const orderStatus = normalizeStatus(order.status)
 
   switch (orderStatus) {
     case 'PENDING':
@@ -109,8 +73,7 @@ function getStatusContent(
       return {
         image: preparingImage,
         imageAlt: 'Order confirmed',
-        title:
-          'Your order is confirmed',
+        title: 'Your order is confirmed',
         message:
           'The restaurant confirmed your order.\nPreparation will begin soon.',
         phase: 'preparing',
@@ -119,10 +82,8 @@ function getStatusContent(
     case 'PREPARING':
       return {
         image: preparingImage,
-        imageAlt:
-          'Restaurant preparing the order',
-        title:
-          'Your order is being prepared',
+        imageAlt: 'Restaurant preparing the order',
+        title: 'Your order is being prepared',
         message:
           'The restaurant is preparing your order.\nWe will update this page automatically.',
         phase: 'preparing',
@@ -141,10 +102,8 @@ function getStatusContent(
     case 'OUT_FOR_DELIVERY':
       return {
         image: courierImage,
-        imageAlt:
-          'Courier delivering the order',
-        title:
-          'The courier is on the way',
+        imageAlt: 'Courier delivering the order',
+        title: 'The courier is on the way',
         message:
           'The courier has picked up your order!\nYour order will arrive soon.',
         phase: 'courier',
@@ -193,97 +152,55 @@ function getStatusContent(
 }
 
 function OrderStatusPage() {
-  const navigate =
-    useNavigate()
+  const navigate = useNavigate()
 
-  const {
-    orderId,
-  } = useParams()
+  const { orderId } = useParams()
 
-  const [
-    order,
-    setOrder,
-  ] =
-    useState<OrderResponse | null>(
-      null,
-    )
+  const [order, setOrder] = useState<OrderResponse | null>(null)
 
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const [
-    isRefreshing,
-    setIsRefreshing,
-  ] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
-  const [
-    errorMessage,
-    setErrorMessage,
-  ] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const requestInProgressRef =
-    useRef(false)
+  const requestInProgressRef = useRef(false)
 
-  const numericOrderId =
-    Number(orderId)
+  const numericOrderId = Number(orderId)
 
-  const isValidOrderId =
-    Number.isInteger(
-      numericOrderId,
-    ) &&
-    numericOrderId > 0
+  const isValidOrderId = Number.isInteger(numericOrderId) && numericOrderId > 0
 
-  const loadOrder =
-    useCallback(
-      async (
-        initialLoad = false,
-      ) => {
-        if (
-          !isValidOrderId ||
-          requestInProgressRef.current
-        ) {
-          return
-        }
+  const loadOrder = useCallback(
+    async (initialLoad = false) => {
+      if (!isValidOrderId || requestInProgressRef.current) {
+        return
+      }
 
-        requestInProgressRef.current =
-          true
+      requestInProgressRef.current = true
 
-        if (!initialLoad) {
-          setIsRefreshing(true)
-        }
+      if (!initialLoad) {
+        setIsRefreshing(true)
+      }
 
-        try {
-          const currentOrder =
-            await getOrderById(
-              numericOrderId,
-            )
+      try {
+        const currentOrder = await getOrderById(numericOrderId)
 
-          setOrder(
-            currentOrder,
-          )
+        setOrder(currentOrder)
 
-          setErrorMessage('')
-        } catch (error) {
-          setErrorMessage(
-            getErrorMessage(
-              error,
-            ),
-          )
-        } finally {
-          requestInProgressRef.current =
-            false
+        setErrorMessage('')
+      } catch (error) {
+        logError('OrderStatusPage: failed to refresh order status', error)
 
-          setIsLoading(false)
-          setIsRefreshing(false)
-        }
-      },
-      [
-        isValidOrderId,
-        numericOrderId,
-      ],
-    )
+        setErrorMessage(getErrorMessage(error))
+      } finally {
+        requestInProgressRef.current = false
+
+        setIsLoading(false)
+        setIsRefreshing(false)
+      }
+    },
+    [isValidOrderId, numericOrderId],
+  )
 
   useEffect(() => {
     if (!isValidOrderId) {
@@ -292,148 +209,97 @@ function OrderStatusPage() {
 
     let isActive = true
 
-    const fetchInitialOrder =
-      async () => {
-        requestInProgressRef.current =
-          true
+    const fetchInitialOrder = async () => {
+      requestInProgressRef.current = true
 
-        try {
-          const currentOrder =
-            await getOrderById(
-              numericOrderId,
-            )
+      try {
+        const currentOrder = await getOrderById(numericOrderId)
 
-          if (!isActive) {
-            return
-          }
+        if (!isActive) {
+          return
+        }
 
-          setOrder(
-            currentOrder,
-          )
+        setOrder(currentOrder)
 
-          setErrorMessage('')
-        } catch (error) {
-          if (!isActive) {
-            return
-          }
+        setErrorMessage('')
+      } catch (error) {
+        logError('OrderStatusPage: failed to load order status', error)
 
-          setErrorMessage(
-            getErrorMessage(
-              error,
-            ),
-          )
-        } finally {
-          requestInProgressRef.current =
-            false
+        if (!isActive) {
+          return
+        }
 
-          if (isActive) {
-            setIsLoading(false)
-          }
+        setErrorMessage(getErrorMessage(error))
+      } finally {
+        requestInProgressRef.current = false
+
+        if (isActive) {
+          setIsLoading(false)
         }
       }
+    }
 
     void fetchInitialOrder()
 
     return () => {
       isActive = false
     }
-  }, [
-    isValidOrderId,
-    numericOrderId,
-  ])
+  }, [isValidOrderId, numericOrderId])
 
-  const currentStatus =
-    useMemo(
-      () =>
-        order
-          ? getStatusContent(
-              order,
-            )
-          : null,
-      [order],
-    )
+  const currentStatus = useMemo(
+    () => (order ? getStatusContent(order) : null),
+    [order],
+  )
 
   useEffect(() => {
     if (
       !isValidOrderId ||
       !currentStatus ||
-      currentStatus.phase ===
-        'delivered' ||
-      currentStatus.phase ===
-        'cancelled'
+      currentStatus.phase === 'delivered' ||
+      currentStatus.phase === 'cancelled'
     ) {
       return
     }
 
-    const pollingTimer =
-      window.setInterval(
-        () => {
-          void loadOrder()
-        },
-        POLLING_INTERVAL,
-      )
+    const pollingTimer = window.setInterval(() => {
+      void loadOrder()
+    }, POLLING_INTERVAL)
 
     return () => {
-      window.clearInterval(
-        pollingTimer,
-      )
+      window.clearInterval(pollingTimer)
     }
-  }, [
-    currentStatus,
-    isValidOrderId,
-    loadOrder,
-  ])
+  }, [currentStatus, isValidOrderId, loadOrder])
 
-  const handleHideStatus =
-    () => {
-      navigate(
-        '/food',
-        {
-          replace: true,
-        },
-      )
+  const handleHideStatus = () => {
+    navigate('/food', {
+      replace: true,
+    })
+  }
+
+  const handleRateOrder = () => {
+    if (!order || normalizeStatus(order.status) !== 'DELIVERED') {
+      return
     }
 
-  const handleRateOrder =
-    () => {
-      if (
-        !order ||
-        normalizeStatus(
-          order.status,
-        ) !== 'DELIVERED'
-      ) {
-        return
-      }
-
-      navigate(
-        `/food/order/${order.id}/rating`,
-        {
-          state: {
-            order,
-          },
-        },
-      )
-    }
+    navigate(`/food/order/${order.id}/rating`, {
+      state: {
+        order,
+      },
+    })
+  }
 
   if (!isValidOrderId) {
     return (
       <main className="order-status-page">
         <section className="order-status-page__sheet order-status-page__sheet--error">
-          <h1>
-            Invalid order
-          </h1>
+          <h1>Invalid order</h1>
 
-          <p>
-            The order ID in the
-            address is invalid.
-          </p>
+          <p>The order ID in the address is invalid.</p>
 
           <button
             className="order-status-page__support-button"
             type="button"
-            onClick={() =>
-              navigate('/food')
-            }
+            onClick={() => navigate('/food')}
           >
             Return to Food
           </button>
@@ -443,100 +309,52 @@ function OrderStatusPage() {
   }
 
   return (
-    <main
-      className="order-status-page"
-      aria-busy={
-        isLoading ||
-        isRefreshing
-      }
-    >
+    <main className="order-status-page" aria-busy={isLoading || isRefreshing}>
       <section className="order-status-page__hero">
         <header className="order-status-page__header">
           <button
             className="order-status-page__header-button"
             type="button"
-            onClick={() =>
-              navigate(-1)
-            }
+            onClick={() => navigate(-1)}
             aria-label="Go back"
           >
-            <img
-              src={backButtonIcon}
-              alt=""
-              aria-hidden="true"
-            />
+            <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div
-            className="order-status-page__logo"
-            aria-label="UT Food"
-          >
-            <img
-              src={utLogo}
-              alt="UT"
-            />
+          <div className="order-status-page__logo" aria-label="UT Food">
+            <img src={utLogo} alt="UT" />
 
-            <img
-              src={foodLogo}
-              alt="Food"
-            />
+            <img src={foodLogo} alt="Food" />
           </div>
 
           <button
             className="order-status-page__header-button"
             type="button"
-            onClick={() =>
-              navigate(
-                '/notifications',
-              )
-            }
+            onClick={() => navigate('/notifications')}
             aria-label="Notifications"
           >
-            <img
-              src={bellIcon}
-              alt=""
-              aria-hidden="true"
-            />
+            <img src={bellIcon} alt="" aria-hidden="true" />
           </button>
         </header>
 
         <div className="order-status-page__illustration">
           {isLoading ? (
-            <div
-              className="order-status-page__spinner"
-              aria-hidden="true"
-            />
+            <div className="order-status-page__spinner" aria-hidden="true" />
           ) : currentStatus ? (
-            <img
-              src={
-                currentStatus.image
-              }
-              alt={
-                currentStatus.imageAlt
-              }
-            />
+            <img src={currentStatus.image} alt={currentStatus.imageAlt} />
           ) : null}
         </div>
       </section>
 
       <section className="order-status-page__sheet">
         {errorMessage && (
-          <div
-            className="order-status-page__error"
-            role="alert"
-          >
-            <p>
-              {errorMessage}
-            </p>
+          <div className="order-status-page__error" role="alert">
+            <p>{errorMessage}</p>
 
             <button
               type="button"
-              onClick={() =>
-                void loadOrder()
-              }
-              disabled={
-                isRefreshing
-              }
+              onClick={() => void loadOrder()}
+              disabled={isRefreshing}
             >
               Try again
             </button>
@@ -544,136 +362,75 @@ function OrderStatusPage() {
         )}
 
         {isLoading ? (
-          <div
-            className="order-status-page__loading"
-            role="status"
-          >
-            Loading order
-            status...
+          <div className="order-status-page__loading" role="status">
+            Loading order status...
           </div>
-        ) : order &&
-          currentStatus ? (
+        ) : order && currentStatus ? (
           <>
             <div className="order-status-page__delivery-time">
-              {currentStatus.phase ===
-              'delivered' ? (
+              {currentStatus.phase === 'delivered' ? (
                 <>
-                  <strong>
-                    Delivered
-                  </strong>
+                  <strong>Delivered</strong>
 
-                  <span>
-                    order completed
-                  </span>
+                  <span>order completed</span>
                 </>
-              ) : currentStatus.phase ===
-                'cancelled' ? (
+              ) : currentStatus.phase === 'cancelled' ? (
                 <>
-                  <strong>
-                    Closed
-                  </strong>
+                  <strong>Closed</strong>
 
-                  <span>
-                    order is no
-                    longer active
-                  </span>
+                  <span>order is no longer active</span>
                 </>
               ) : order.deliveryTime ? (
                 <>
-                  <strong>
-                    {
-                      order.deliveryTime
-                    }
-                  </strong>
+                  <strong>{order.deliveryTime}</strong>
 
-                  <span>
-                    estimated
-                    delivery time
-                  </span>
+                  <span>estimated delivery time</span>
                 </>
               ) : (
                 <>
-                  <strong>
-                    Unavailable
-                  </strong>
+                  <strong>Unavailable</strong>
 
-                  <span>
-                    delivery time
-                    unavailable
-                  </span>
+                  <span>delivery time unavailable</span>
                 </>
               )}
             </div>
 
-            <h1>
-              {order.restaurantName ||
-                'Restaurant'}
-            </h1>
+            <h1>{order.restaurantName || 'Restaurant'}</h1>
 
-            <section
-              className="order-status-page__status"
-              aria-live="polite"
-            >
-              <h2>
-                {
-                  currentStatus.title
-                }
-              </h2>
+            <section className="order-status-page__status" aria-live="polite">
+              <h2>{currentStatus.title}</h2>
 
               <p>
-                {currentStatus.message
-                  .split('\n')
-                  .map(
-                    (
-                      line,
-                      index,
-                      lines,
-                    ) => (
-                      <span
-                        key={`${line}-${index}`}
-                      >
-                        {line}
+                {currentStatus.message.split('\n').map((line, index, lines) => (
+                  <span key={`${line}-${index}`}>
+                    {line}
 
-                        {index <
-                          lines.length -
-                            1 && (
-                          <br />
-                        )}
-                      </span>
-                    ),
-                  )}
+                    {index < lines.length - 1 && <br />}
+                  </span>
+                ))}
               </p>
 
               {isRefreshing && (
                 <span className="order-status-page__refreshing">
-                  Updating
-                  status...
+                  Updating status...
                 </span>
               )}
 
-              {currentStatus.phase ===
-                'delivered' && (
+              {currentStatus.phase === 'delivered' && (
                 <button
                   className="order-status-page__rating-button"
                   type="button"
-                  onClick={
-                    handleRateOrder
-                  }
+                  onClick={handleRateOrder}
                 >
                   Rate order
                 </button>
               )}
 
-              {currentStatus.phase !==
-                'delivered' && (
+              {currentStatus.phase !== 'delivered' && (
                 <button
                   className="order-status-page__support-button"
                   type="button"
-                  onClick={() =>
-                    navigate(
-                      '/contact-support',
-                    )
-                  }
+                  onClick={() => navigate('/contact-support')}
                 >
                   Contact support
                 </button>
@@ -686,9 +443,7 @@ function OrderStatusPage() {
           <button
             className="order-status-page__hide-button"
             type="button"
-            onClick={
-              handleHideStatus
-            }
+            onClick={handleHideStatus}
           >
             Hide order status
           </button>

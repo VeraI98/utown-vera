@@ -1,11 +1,5 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
-import {
-  useNavigate,
-} from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../../hooks/useAuth'
 
@@ -14,16 +8,12 @@ import {
   updateOwnerRestaurant,
 } from '../../../services/ownerEditRestaurantService'
 
-import type {
-  OwnerRestaurant,
-} from '../../../services/ownerEditRestaurantService'
+import type { OwnerRestaurant } from '../../../services/ownerEditRestaurantService'
+import { logError } from '../../../utils/logger'
 
 import './OwnerEditRestaurantPage.css'
 
-const DAY_NAMES: Record<
-  number,
-  string
-> = {
+const DAY_NAMES: Record<number, string> = {
   1: 'Mon',
   2: 'Tue',
   3: 'Wed',
@@ -33,14 +23,8 @@ const DAY_NAMES: Record<
   7: 'Sun',
 }
 
-function getErrorMessage(
-  error: unknown,
-): string {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'response' in error
-  ) {
+function getErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
     const response = (
       error as {
         response?: {
@@ -59,37 +43,23 @@ function getErrorMessage(
   return 'Something went wrong'
 }
 
-function formatOpeningHours(
-  restaurant: OwnerRestaurant,
-): string[] {
-  const modes = [
-    ...(restaurant.operatingModes ??
-      []),
-  ].sort(
-    (first, second) =>
-      first.dayOfWeek -
-      second.dayOfWeek,
+function formatOpeningHours(restaurant: OwnerRestaurant): string[] {
+  const modes = [...(restaurant.operatingModes ?? [])].sort(
+    (first, second) => first.dayOfWeek - second.dayOfWeek,
   )
 
   if (modes.length === 0) {
-    return [
-      'Working hours are not specified',
-    ]
+    return ['Working hours are not specified']
   }
 
   return modes.map((mode) => {
-    const day =
-      DAY_NAMES[mode.dayOfWeek] ??
-      `Day ${mode.dayOfWeek}`
+    const day = DAY_NAMES[mode.dayOfWeek] ?? `Day ${mode.dayOfWeek}`
 
     if (mode.dayOff) {
       return `${day}: Day off`
     }
 
-    if (
-      !mode.start ||
-      !mode.end
-    ) {
+    if (!mode.start || !mode.end) {
       return `${day}: Not specified`
     }
 
@@ -102,82 +72,35 @@ export default function OwnerEditRestaurantPage() {
 
   const { user } = useAuth()
 
-  const userId = Number(
-    user?.id,
+  const userId = Number(user?.id)
+
+  const [restaurant, setRestaurant] = useState<OwnerRestaurant | null>(null)
+
+  const [title, setTitle] = useState('')
+
+  const [description, setDescription] = useState('')
+
+  const [imageUrl, setImageUrl] = useState('')
+
+  const [minOrderAmount, setMinOrderAmount] = useState('')
+
+  const [category, setCategory] = useState('')
+
+  const [city, setCity] = useState(
+    () => sessionStorage.getItem('ownerEditRestaurantCity') ?? '',
   )
 
-  const [
-    restaurant,
-    setRestaurant,
-  ] =
-    useState<OwnerRestaurant | null>(
-      null,
-    )
-
-  const [
-    title,
-    setTitle,
-  ] = useState('')
-
-  const [
-    description,
-    setDescription,
-  ] = useState('')
-
-  const [
-    imageUrl,
-    setImageUrl,
-  ] = useState('')
-
-  const [
-    minOrderAmount,
-    setMinOrderAmount,
-  ] = useState('')
-
-  const [
-    category,
-    setCategory,
-  ] = useState('')
-
-  const [
-    city,
-    setCity,
-  ] = useState(
-    () =>
-      sessionStorage.getItem(
-        'ownerEditRestaurantCity',
-      ) ?? '',
+  const [area, setArea] = useState(
+    () => sessionStorage.getItem('ownerEditRestaurantArea') ?? '',
   )
 
-  const [
-    area,
-    setArea,
-  ] = useState(
-    () =>
-      sessionStorage.getItem(
-        'ownerEditRestaurantArea',
-      ) ?? '',
-  )
+  const [isLoading, setIsLoading] = useState(true)
 
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
 
-  const [
-    isSaving,
-    setIsSaving,
-  ] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const [
-    errorMessage,
-    setErrorMessage,
-  ] = useState('')
-
-  const [
-    successMessage,
-    setSuccessMessage,
-  ] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
   useEffect(() => {
     if (!userId) {
@@ -186,92 +109,57 @@ export default function OwnerEditRestaurantPage() {
 
     let isActive = true
 
-    getOwnerRestaurants(
-      userId,
-    )
+    getOwnerRestaurants(userId)
       .then((restaurants) => {
         if (!isActive) {
           return
         }
 
-        const firstRestaurant =
-          restaurants[0] ??
-          null
+        const firstRestaurant = restaurants[0] ?? null
 
-        setRestaurant(
-          firstRestaurant,
-        )
+        setRestaurant(firstRestaurant)
 
         if (!firstRestaurant) {
-          setErrorMessage(
-            'Restaurant was not found',
-          )
+          setErrorMessage('Restaurant was not found')
 
           return
         }
 
-        setTitle(
-          firstRestaurant.title ??
-            '',
-        )
+        setTitle(firstRestaurant.title ?? '')
 
-        setDescription(
-          firstRestaurant.description ??
-            '',
-        )
+        setDescription(firstRestaurant.description ?? '')
 
-        setImageUrl(
-          firstRestaurant.imageUrl ??
-            '',
-        )
+        setImageUrl(firstRestaurant.imageUrl ?? '')
 
-        setMinOrderAmount(
-          String(
-            firstRestaurant.minOrderAmount ??
-              '',
-          ),
-        )
+        setMinOrderAmount(String(firstRestaurant.minOrderAmount ?? ''))
 
-        setCategory(
-          firstRestaurant.category ??
-            '',
-        )
+        setCategory(firstRestaurant.category ?? '')
 
         setCity(
-          sessionStorage.getItem(
-            'ownerEditRestaurantCity',
-          ) ??
-            firstRestaurant.address
-              ?.city ??
+          sessionStorage.getItem('ownerEditRestaurantCity') ??
+            firstRestaurant.address?.city ??
             '',
         )
 
         setArea(
-          sessionStorage.getItem(
-            'ownerEditRestaurantArea',
-          ) ??
-            firstRestaurant.address
-              ?.area ??
+          sessionStorage.getItem('ownerEditRestaurantArea') ??
+            firstRestaurant.address?.area ??
             '',
         )
 
         setErrorMessage('')
       })
-      .catch(
-        (error: unknown) => {
-          if (!isActive) {
-            return
-          }
+      .catch((error: unknown) => {
+        logError('OwnerEditRestaurantPage: failed to load restaurant', error)
 
-          setRestaurant(null)
+        if (!isActive) {
+          return
+        }
 
-          setErrorMessage(
-            getErrorMessage(
-              error,
-            ),
-          )
-        },
-      )
+        setRestaurant(null)
+
+        setErrorMessage(getErrorMessage(error))
+      })
       .finally(() => {
         if (!isActive) {
           return
@@ -285,16 +173,13 @@ export default function OwnerEditRestaurantPage() {
     }
   }, [userId])
 
-  const openingHours =
-    useMemo(() => {
-      if (!restaurant) {
-        return []
-      }
+  const openingHours = useMemo(() => {
+    if (!restaurant) {
+      return []
+    }
 
-      return formatOpeningHours(
-        restaurant,
-      )
-    }, [restaurant])
+    return formatOpeningHours(restaurant)
+  }, [restaurant])
 
   const isSaveDisabled =
     isSaving ||
@@ -306,136 +191,89 @@ export default function OwnerEditRestaurantPage() {
     !area.trim() ||
     !minOrderAmount.trim()
 
-  const handleSave =
-    async () => {
-      if (
-        !restaurant ||
-        isSaveDisabled
-      ) {
-        return
-      }
-
-      const parsedMinOrderAmount =
-        Number(
-          minOrderAmount,
-        )
-
-      if (
-        !Number.isFinite(
-          parsedMinOrderAmount,
-        ) ||
-        parsedMinOrderAmount < 0
-      ) {
-        setErrorMessage(
-          'Minimum order must be a valid number',
-        )
-
-        return
-      }
-
-      setIsSaving(true)
-      setErrorMessage('')
-      setSuccessMessage('')
-
-      try {
-        const updatedRestaurant:
-          OwnerRestaurant = {
-          ...restaurant,
-
-          title:
-            title.trim(),
-
-          description:
-            description.trim(),
-
-          imageUrl:
-            imageUrl.trim(),
-
-          minOrderAmount:
-            parsedMinOrderAmount,
-
-          category:
-            category.trim(),
-
-          address: {
-            ...restaurant.address,
-
-            city:
-              city.trim(),
-
-            area:
-              area.trim(),
-          },
-        }
-
-        const response =
-          await updateOwnerRestaurant(
-            restaurant.id,
-            updatedRestaurant,
-          )
-
-        setRestaurant(
-          response,
-        )
-
-        sessionStorage.removeItem(
-          'ownerEditRestaurantCity',
-        )
-
-        sessionStorage.removeItem(
-          'ownerEditRestaurantArea',
-        )
-
-        setSuccessMessage(
-          'Changes saved successfully',
-        )
-      } catch (
-        error: unknown
-      ) {
-        setErrorMessage(
-          getErrorMessage(
-            error,
-          ),
-        )
-      } finally {
-        setIsSaving(false)
-      }
+  const handleSave = async () => {
+    if (!restaurant || isSaveDisabled) {
+      return
     }
 
-  const handleCityClick =
-    () => {
-      if (!restaurant) {
-        return
+    const parsedMinOrderAmount = Number(minOrderAmount)
+
+    if (!Number.isFinite(parsedMinOrderAmount) || parsedMinOrderAmount < 0) {
+      setErrorMessage('Minimum order must be a valid number')
+
+      return
+    }
+
+    setIsSaving(true)
+    setErrorMessage('')
+    setSuccessMessage('')
+
+    try {
+      const updatedRestaurant: OwnerRestaurant = {
+        ...restaurant,
+
+        title: title.trim(),
+
+        description: description.trim(),
+
+        imageUrl: imageUrl.trim(),
+
+        minOrderAmount: parsedMinOrderAmount,
+
+        category: category.trim(),
+
+        address: {
+          ...restaurant.address,
+
+          city: city.trim(),
+
+          area: area.trim(),
+        },
       }
 
-      sessionStorage.setItem(
-        'ownerEditRestaurantCity',
-        city,
+      const response = await updateOwnerRestaurant(
+        restaurant.id,
+        updatedRestaurant,
       )
 
-      sessionStorage.setItem(
-        'ownerEditRestaurantArea',
-        area,
-      )
+      setRestaurant(response)
 
-      navigate(
-        `/owner/restaurant/edit/city?restaurantId=${restaurant.id}`,
-      )
+      sessionStorage.removeItem('ownerEditRestaurantCity')
+
+      sessionStorage.removeItem('ownerEditRestaurantArea')
+
+      setSuccessMessage('Changes saved successfully')
+    } catch (error: unknown) {
+      logError('OwnerEditRestaurantPage: failed to save restaurant', error)
+
+      setErrorMessage(getErrorMessage(error))
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCityClick = () => {
+    if (!restaurant) {
+      return
     }
 
-  const handleDeleteClick =
-    () => {
-      setErrorMessage(
-        'Restaurant deletion is not available for restaurant owners',
-      )
-    }
+    sessionStorage.setItem('ownerEditRestaurantCity', city)
+
+    sessionStorage.setItem('ownerEditRestaurantArea', area)
+
+    navigate(`/owner/restaurant/edit/city?restaurantId=${restaurant.id}`)
+  }
+
+  const handleDeleteClick = () => {
+    setErrorMessage(
+      'Restaurant deletion is not available for restaurant owners',
+    )
+  }
 
   if (isLoading) {
     return (
       <main className="owner-edit-restaurant-page">
-        <div className="owner-edit-restaurant-loading">
-          Loading...
-        </div>
+        <div className="owner-edit-restaurant-loading">Loading...</div>
       </main>
     )
   }
@@ -443,9 +281,7 @@ export default function OwnerEditRestaurantPage() {
   return (
     <main className="owner-edit-restaurant-page">
       <section className="owner-edit-restaurant-content">
-        <h1>
-          Establishment
-        </h1>
+        <h1>Establishment</h1>
 
         {errorMessage && (
           <p className="owner-edit-restaurant-message owner-edit-restaurant-message-error">
@@ -460,145 +296,92 @@ export default function OwnerEditRestaurantPage() {
         )}
 
         <div className="owner-edit-restaurant-field">
-          <label htmlFor="restaurant-name">
-            Name
-          </label>
+          <label htmlFor="restaurant-name">Name</label>
 
           <input
             id="restaurant-name"
             type="text"
             value={title}
-            onChange={(event) =>
-              setTitle(
-                event.target.value,
-              )
-            }
+            onChange={(event) => setTitle(event.target.value)}
           />
         </div>
 
         <div className="owner-edit-restaurant-field">
-          <label htmlFor="restaurant-description">
-            Description
-          </label>
+          <label htmlFor="restaurant-description">Description</label>
 
           <textarea
             id="restaurant-description"
-            value={
-              description
-            }
-            onChange={(event) =>
-              setDescription(
-                event.target.value,
-              )
-            }
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
           />
         </div>
 
         <div className="owner-edit-restaurant-field">
-          <label htmlFor="restaurant-image">
-            Image of establishment
-          </label>
+          <label htmlFor="restaurant-image">Image of establishment</label>
 
           <input
             id="restaurant-image"
             type="text"
             value={imageUrl}
             placeholder="Image URL"
-            onChange={(event) =>
-              setImageUrl(
-                event.target.value,
-              )
-            }
+            onChange={(event) => setImageUrl(event.target.value)}
           />
         </div>
 
         <div className="owner-edit-restaurant-field">
-          <span className="owner-edit-restaurant-label">
-            Opening hours
-          </span>
+          <span className="owner-edit-restaurant-label">Opening hours</span>
 
           <div className="owner-edit-restaurant-hours">
-            {openingHours.map(
-              (
-                openingHour,
-              ) => (
-                <div
-                  key={
-                    openingHour
-                  }
-                  className="owner-edit-restaurant-hours-row"
-                >
-                  {
-                    openingHour
-                  }
-                </div>
-              ),
-            )}
+            {openingHours.map((openingHour) => (
+              <div
+                key={openingHour}
+                className="owner-edit-restaurant-hours-row"
+              >
+                {openingHour}
+              </div>
+            ))}
           </div>
         </div>
 
         <div className="owner-edit-restaurant-field">
-          <label htmlFor="restaurant-min-order">
-            Minimum order
-          </label>
+          <label htmlFor="restaurant-min-order">Minimum order</label>
 
           <input
             id="restaurant-min-order"
             type="number"
             min="0"
             step="0.01"
-            value={
-              minOrderAmount
-            }
-            onChange={(event) =>
-              setMinOrderAmount(
-                event.target.value,
-              )
-            }
+            value={minOrderAmount}
+            onChange={(event) => setMinOrderAmount(event.target.value)}
           />
         </div>
 
         <div className="owner-edit-restaurant-field">
-          <label htmlFor="restaurant-category">
-            Category of
-            establishment
-          </label>
+          <label htmlFor="restaurant-category">Category of establishment</label>
 
           <input
             id="restaurant-category"
             type="text"
             value={category}
-            onChange={(event) =>
-              setCategory(
-                event.target.value,
-              )
-            }
+            onChange={(event) => setCategory(event.target.value)}
           />
         </div>
 
         <div className="owner-edit-restaurant-field">
-          <span className="owner-edit-restaurant-label">
-            Delivery area
-          </span>
+          <span className="owner-edit-restaurant-label">Delivery area</span>
 
           <button
             type="button"
             className="owner-edit-restaurant-select"
-            onClick={
-              handleCityClick
-            }
+            onClick={handleCityClick}
           >
             <span>
               {city && area
                 ? `${city}, ${area}`
-                : city ||
-                  area ||
-                  'Select delivery area'}
+                : city || area || 'Select delivery area'}
             </span>
 
-            <span className="owner-edit-restaurant-chevron">
-              ›
-            </span>
+            <span className="owner-edit-restaurant-chevron">›</span>
           </button>
         </div>
       </section>
@@ -607,24 +390,16 @@ export default function OwnerEditRestaurantPage() {
         <button
           type="button"
           className="owner-edit-restaurant-save"
-          disabled={
-            isSaveDisabled
-          }
-          onClick={
-            handleSave
-          }
+          disabled={isSaveDisabled}
+          onClick={handleSave}
         >
-          {isSaving
-            ? 'Saving...'
-            : 'Save changes'}
+          {isSaving ? 'Saving...' : 'Save changes'}
         </button>
 
         <button
           type="button"
           className="owner-edit-restaurant-delete"
-          onClick={
-            handleDeleteClick
-          }
+          onClick={handleDeleteClick}
         >
           Delete
         </button>

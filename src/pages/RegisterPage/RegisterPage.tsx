@@ -1,43 +1,29 @@
 import axios from 'axios'
-import {
-  useState,
-  type FormEvent,
-} from 'react'
-import {
-  Link,
-  Navigate,
-  useNavigate,
-} from 'react-router-dom'
-
-import { useAuth } from '../../hooks/useAuth'
+import { useState, type FormEvent } from 'react'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 
 import arrowLeftIcon from '../../assets/icons/arrow-left.svg'
-import phoneIcon from '../../assets/icons/phone.svg'
 import lockIcon from '../../assets/icons/lock.svg'
+import phoneIcon from '../../assets/icons/phone.svg'
+import { useAuth } from '../../hooks/useAuth'
+import { logError } from '../../utils/logger'
 
 import './RegisterPage.css'
 
-function getRegistrationErrorMessage(
-  error: unknown,
-): string {
+function getRegistrationErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
-    const responseData =
-      error.response?.data
+    const responseData = error.response?.data
 
     if (
       responseData &&
       typeof responseData === 'object' &&
       'message' in responseData &&
-      typeof responseData.message ===
-        'string'
+      typeof responseData.message === 'string'
     ) {
       return responseData.message
     }
 
-    if (
-      typeof responseData === 'string' &&
-      responseData.trim()
-    ) {
+    if (typeof responseData === 'string' && responseData.trim()) {
       return responseData
     }
   }
@@ -46,46 +32,17 @@ function getRegistrationErrorMessage(
 }
 
 function RegisterPage() {
-  const navigate =
-    useNavigate()
+  const navigate = useNavigate()
+  const { register, isAuthenticated } = useAuth()
 
-  const {
-    register,
-    isAuthenticated,
-  } = useAuth()
-
-  const [
-    phoneNumber,
-    setPhoneNumber,
-  ] = useState('')
-
-  const [
-    password,
-    setPassword,
-  ] = useState('')
-
-  const [
-    repeatPassword,
-    setRepeatPassword,
-  ] = useState('')
-
-  const [
-    error,
-    setError,
-  ] = useState('')
-
-  const [
-    isSubmitting,
-    setIsSubmitting,
-  ] = useState(false)
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [password, setPassword] = useState('')
+  const [repeatPassword, setRepeatPassword] = useState('')
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (isAuthenticated) {
-    return (
-      <Navigate
-        to="/profile"
-        replace
-      />
-    )
+    return <Navigate to="/profile" replace />
   }
 
   const clearError = () => {
@@ -94,54 +51,29 @@ function RegisterPage() {
     }
   }
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
     setError('')
 
-    const normalizedPhone =
-      phoneNumber.replace(
-        /\D/g,
-        '',
-      )
+    const normalizedPhone = phoneNumber.replace(/\D/g, '')
 
     if (!normalizedPhone) {
-      setError(
-        'Enter your phone number.',
-      )
-
+      setError('Enter your phone number.')
       return
     }
 
-    if (
-      normalizedPhone.length < 8
-    ) {
-      setError(
-        'Enter a valid phone number.',
-      )
-
+    if (normalizedPhone.length < 8) {
+      setError('Enter a valid phone number.')
       return
     }
 
-    if (
-      password.length < 6
-    ) {
-      setError(
-        'Password must contain at least 6 characters.',
-      )
-
+    if (password.length < 6) {
+      setError('Password must contain at least 6 characters.')
       return
     }
 
-    if (
-      password !== repeatPassword
-    ) {
-      setError(
-        'Passwords do not match.',
-      )
-
+    if (password !== repeatPassword) {
+      setError('Passwords do not match.')
       return
     }
 
@@ -149,33 +81,20 @@ function RegisterPage() {
 
     try {
       await register({
-        username:
-          normalizedPhone,
-
+        username: normalizedPhone,
         password,
-
-        firstName:
-          'UTown',
-
-        lastName:
-          'Client',
-
-        role:
-          'CLIENT',
+        firstName: 'UTown',
+        lastName: 'Client',
+        role: 'CLIENT',
       })
 
-      navigate(
-        '/profile',
-        {
-          replace: true,
-        },
-      )
+      navigate('/profile', {
+        replace: true,
+      })
     } catch (submitError) {
-      setError(
-        getRegistrationErrorMessage(
-          submitError,
-        ),
-      )
+      logError('RegisterPage: failed to register user', submitError)
+
+      setError(getRegistrationErrorMessage(submitError))
     } finally {
       setIsSubmitting(false)
     }
@@ -187,40 +106,21 @@ function RegisterPage() {
         <button
           className="register-back-button"
           type="button"
-          onClick={() =>
-            navigate(
-              '/login',
-            )
-          }
+          onClick={() => navigate('/login')}
           aria-label="Go back to login"
         >
-          <img
-            src={arrowLeftIcon}
-            alt=""
-            aria-hidden="true"
-          />
+          <img src={arrowLeftIcon} alt="" aria-hidden="true" />
         </button>
 
-        <h1 className="register-title">
-          User Registration
-        </h1>
+        <h1 className="register-title">User Registration</h1>
 
         <p className="register-subtitle">
-          Register to access all
-          the benefits of the app
+          Register to access all the benefits of the app
         </p>
 
-        <form
-          className="register-form"
-          onSubmit={
-            handleSubmit
-          }
-        >
+        <form className="register-form" onSubmit={handleSubmit}>
           <div className="register-form-group">
-            <label
-              className="register-label"
-              htmlFor="register-phone"
-            >
+            <label className="register-label" htmlFor="register-phone">
               Phone Number
             </label>
 
@@ -236,17 +136,9 @@ function RegisterPage() {
                 id="register-phone"
                 name="phoneNumber"
                 type="tel"
-                value={
-                  phoneNumber
-                }
-                onChange={(
-                  event,
-                ) => {
-                  setPhoneNumber(
-                    event.target
-                      .value,
-                  )
-
+                value={phoneNumber}
+                onChange={(event) => {
+                  setPhoneNumber(event.target.value)
                   clearError()
                 }}
                 placeholder="Enter your phone number without dashes"
@@ -258,10 +150,7 @@ function RegisterPage() {
           </div>
 
           <div className="register-form-group">
-            <label
-              className="register-label"
-              htmlFor="register-password"
-            >
+            <label className="register-label" htmlFor="register-password">
               Password
             </label>
 
@@ -277,17 +166,9 @@ function RegisterPage() {
                 id="register-password"
                 name="password"
                 type="password"
-                value={
-                  password
-                }
-                onChange={(
-                  event,
-                ) => {
-                  setPassword(
-                    event.target
-                      .value,
-                  )
-
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value)
                   clearError()
                 }}
                 placeholder="Enter your password"
@@ -318,17 +199,9 @@ function RegisterPage() {
                 id="register-repeat-password"
                 name="repeatPassword"
                 type="password"
-                value={
-                  repeatPassword
-                }
-                onChange={(
-                  event,
-                ) => {
-                  setRepeatPassword(
-                    event.target
-                      .value,
-                  )
-
+                value={repeatPassword}
+                onChange={(event) => {
+                  setRepeatPassword(event.target.value)
                   clearError()
                 }}
                 placeholder="Repeat your password"
@@ -340,10 +213,7 @@ function RegisterPage() {
           </div>
 
           {error && (
-            <p
-              className="register-error"
-              role="alert"
-            >
+            <p className="register-error" role="alert">
               {error}
             </p>
           )}
@@ -351,39 +221,21 @@ function RegisterPage() {
           <button
             className="register-submit-button"
             type="submit"
-            disabled={
-              isSubmitting
-            }
+            disabled={isSubmitting}
           >
-            {isSubmitting
-              ? 'Registering...'
-              : 'Register'}
+            {isSubmitting ? 'Registering...' : 'Register'}
           </button>
         </form>
 
-        <Link
-          className="register-login-link"
-          to="/login"
-        >
+        <Link className="register-login-link" to="/login">
           Already have an account?
         </Link>
 
         <p className="register-terms">
-          By registering, you
-          agree to the{' '}
-
-          <Link to="/information/terms-of-use">
-            Terms of Service
-          </Link>
-
-          {' '}and{' '}
-
-          <Link to="/information/privacy-policy">
-            Privacy Policy
-          </Link>
-
-          , as well as the Cookie
-          Policy.
+          By registering, you agree to the{' '}
+          <Link to="/information/terms-of-use">Terms of Service</Link> and{' '}
+          <Link to="/information/privacy-policy">Privacy Policy</Link>, as well
+          as the Cookie Policy.
         </p>
       </section>
     </main>

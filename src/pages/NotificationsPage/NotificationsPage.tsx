@@ -1,17 +1,8 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
-
-import {
-  Link,
-  useNavigate,
-} from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 import backButton from '../../assets/icon bell/Back Button black.svg'
 import logoGradient from '../../assets/icon bell/logo gradient.svg'
-
 import favoritesIcon from '../../assets/icons main pages/Favorites.svg'
 import homeIcon from '../../assets/icons main pages/Home.svg'
 import profileIcon from '../../assets/icons main pages/Profile.svg'
@@ -20,6 +11,7 @@ import {
   getMyNotifications,
   type NotificationResponse,
 } from '../../services/notificationService'
+import { logError } from '../../utils/logger'
 
 import './NotificationsPage.css'
 
@@ -28,13 +20,8 @@ interface NotificationGroup {
   notifications: NotificationResponse[]
 }
 
-const parseNotificationDate = (
-  notification: NotificationResponse,
-) => {
-  const value = `${notification.date}T${
-    notification.time || '00:00:00'
-  }`
-
+const parseNotificationDate = (notification: NotificationResponse) => {
+  const value = `${notification.date}T${notification.time || '00:00:00'}`
   const parsed = new Date(value)
 
   if (Number.isNaN(parsed.getTime())) {
@@ -44,16 +31,10 @@ const parseNotificationDate = (
   return parsed
 }
 
-const getDateKey = (
-  notification: NotificationResponse,
-) => notification.date
+const getDateKey = (notification: NotificationResponse) => notification.date
 
-const getDateLabel = (
-  dateValue: string,
-) => {
-  const date = new Date(
-    `${dateValue}T00:00:00`,
-  )
+const getDateLabel = (dateValue: string) => {
+  const date = new Date(`${dateValue}T00:00:00`)
 
   if (Number.isNaN(date.getTime())) {
     return dateValue
@@ -73,15 +54,9 @@ const getDateLabel = (
     date.getDate(),
   )
 
-  const difference =
-    todayStart.getTime() -
-    notificationStart.getTime()
+  const difference = todayStart.getTime() - notificationStart.getTime()
 
-  const differenceInDays =
-    Math.round(
-      difference /
-        (1000 * 60 * 60 * 24),
-    )
+  const differenceInDays = Math.round(difference / (1000 * 60 * 60 * 24))
 
   if (differenceInDays === 0) {
     return 'Today'
@@ -91,23 +66,14 @@ const getDateLabel = (
     return 'Yesterday'
   }
 
-  return date.toLocaleDateString(
-    'en-US',
-    {
-      month: 'long',
-      day: 'numeric',
-      year:
-        date.getFullYear() !==
-        today.getFullYear()
-          ? 'numeric'
-          : undefined,
-    },
-  )
+  return date.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+  })
 }
 
-const formatTime = (
-  value: string,
-) => {
+const formatTime = (value: string) => {
   if (!value) {
     return ''
   }
@@ -118,119 +84,73 @@ const formatTime = (
 function NotificationsPage() {
   const navigate = useNavigate()
 
-  const [
-    notifications,
-    setNotifications,
-  ] = useState<NotificationResponse[]>([])
-
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(true)
-
-  const [
-    error,
-    setError,
-  ] = useState('')
+  const [notifications, setNotifications] = useState<NotificationResponse[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    const loadNotifications =
-      async () => {
-        try {
-          setIsLoading(true)
-          setError('')
+    let isMounted = true
 
-          const response =
-            await getMyNotifications(
-              0,
-              100,
-            )
+    const loadNotifications = async () => {
+      try {
+        const response = await getMyNotifications(0, 100)
 
-          setNotifications(
-            response.content ?? [],
-          )
-        } catch (error) {
-          console.error(
-            'Failed to load notifications:',
-            error,
-          )
+        if (!isMounted) {
+          return
+        }
 
-          setNotifications([])
+        setNotifications(response.content ?? [])
+        setError('')
+      } catch (loadError) {
+        logError('NotificationsPage: failed to load notifications', loadError)
 
-          setError(
-            'Failed to load notifications.',
-          )
-        } finally {
+        if (!isMounted) {
+          return
+        }
+
+        setNotifications([])
+        setError('Failed to load notifications.')
+      } finally {
+        if (isMounted) {
           setIsLoading(false)
         }
       }
+    }
 
     void loadNotifications()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
-  const groups =
-    useMemo<
-      NotificationGroup[]
-    >(() => {
-      const sorted = [
-        ...notifications,
-      ].sort((first, second) => {
-        const firstDate =
-          parseNotificationDate(first)
+  const groups = useMemo<NotificationGroup[]>(() => {
+    const sorted = [...notifications].sort((first, second) => {
+      const firstDate = parseNotificationDate(first)
+      const secondDate = parseNotificationDate(second)
 
-        const secondDate =
-          parseNotificationDate(second)
+      if (!firstDate || !secondDate) {
+        return 0
+      }
 
-        if (
-          !firstDate ||
-          !secondDate
-        ) {
-          return 0
-        }
+      return secondDate.getTime() - firstDate.getTime()
+    })
 
-        return (
-          secondDate.getTime() -
-          firstDate.getTime()
-        )
-      })
+    const grouped = new Map<string, NotificationResponse[]>()
 
-      const grouped = new Map<
-        string,
-        NotificationResponse[]
-      >()
+    sorted.forEach((notification) => {
+      const key = getDateKey(notification)
+      const current = grouped.get(key) ?? []
 
-      sorted.forEach(
-        (notification) => {
-          const key =
-            getDateKey(notification)
+      current.push(notification)
+      grouped.set(key, current)
+    })
 
-          const current =
-            grouped.get(key) ?? []
-
-          current.push(notification)
-
-          grouped.set(
-            key,
-            current,
-          )
-        },
-      )
-
-      return Array.from(
-        grouped.entries(),
-      ).map(
-        ([
-          date,
-          groupNotifications,
-        ]) => ({
-          label:
-            getDateLabel(date),
-
-          notifications:
-            groupNotifications,
-        }),
-      )
-    }, [notifications])
+    return Array.from(grouped.entries()).map(([date, groupNotifications]) => ({
+      label: getDateLabel(date),
+      notifications: groupNotifications,
+    }))
+  }, [notifications])
 
   return (
     <main className="mobile-page notifications-page">
@@ -239,106 +159,64 @@ function NotificationsPage() {
           <button
             className="notifications-back-button"
             type="button"
-            onClick={() =>
-              navigate(-1)
-            }
+            onClick={() => navigate(-1)}
             aria-label="Go back"
           >
-            <img
-              src={backButton}
-              alt=""
-              aria-hidden="true"
-            />
+            <img src={backButton} alt="" aria-hidden="true" />
           </button>
 
-          <img
-            className="notifications-logo"
-            src={logoGradient}
-            alt="UTOWN"
-          />
+          <img className="notifications-logo" src={logoGradient} alt="UTOWN" />
         </header>
 
         <div className="notifications-content">
-          <h1 className="notifications-title">
-            Notifications
-          </h1>
+          <h1 className="notifications-title">Notifications</h1>
 
           {isLoading && (
-            <p className="notifications-state">
+            <p className="notifications-state" role="status">
               Loading notifications...
             </p>
           )}
 
-          {!isLoading &&
-            error && (
-              <p
-                className="notifications-state notifications-state--error"
-                role="alert"
-              >
-                {error}
-              </p>
-            )}
+          {!isLoading && error && (
+            <p
+              className="notifications-state notifications-state--error"
+              role="alert"
+            >
+              {error}
+            </p>
+          )}
 
-          {!isLoading &&
-            !error &&
-            groups.length === 0 && (
-              <div className="notifications-empty">
-                <strong>
-                  No notifications yet
-                </strong>
-
-                <p>
-                  Your notifications will
-                  appear here.
-                </p>
-              </div>
-            )}
+          {!isLoading && !error && groups.length === 0 && (
+            <div className="notifications-empty">
+              <strong>No notifications yet</strong>
+              <p>Your notifications will appear here.</p>
+            </div>
+          )}
 
           {!isLoading &&
             !error &&
             groups.map((group) => (
-              <section
-                className="notifications-group"
-                key={group.label}
-              >
-                <p className="notifications-date">
-                  {group.label}
-                </p>
+              <section className="notifications-group" key={group.label}>
+                <p className="notifications-date">{group.label}</p>
 
-                {group.notifications.map(
-                  (notification) => (
-                    <article
-                      className="notification-item"
-                      key={
-                        notification.id
-                      }
-                    >
-                      <div className="notification-message">
-                        {notification.title && (
-                          <>
-                            <strong>
-                              {
-                                notification.title
-                              }
-                            </strong>
+                {group.notifications.map((notification) => (
+                  <article className="notification-item" key={notification.id}>
+                    <div className="notification-message">
+                      {notification.title && (
+                        <>
+                          <strong>{notification.title}</strong>
+                          <br />
+                        </>
+                      )}
 
-                            <br />
-                          </>
-                        )}
+                      {notification.text}
+                    </div>
 
-                        {
-                          notification.text
-                        }
-                      </div>
-
-                      <time className="notification-time">
-                        {formatTime(
-                          notification.time,
-                        )}
-                      </time>
-                    </article>
-                  ),
-                )}
+                    <time className="notification-time">
+                      {formatTime(notification.time)}
+                    </time>
+                  </article>
+                ))}
               </section>
             ))}
         </div>
@@ -347,47 +225,19 @@ function NotificationsPage() {
           className="bottom-nav notifications-bottom-nav"
           aria-label="Main navigation"
         >
-          <Link
-            className="bottom-nav-link"
-            to="/"
-          >
-            <img
-              src={homeIcon}
-              alt=""
-              aria-hidden="true"
-            />
-
+          <Link className="bottom-nav-link" to="/">
+            <img src={homeIcon} alt="" aria-hidden="true" />
             <span>Home</span>
           </Link>
 
-          <Link
-            className="bottom-nav-link"
-            to="/favorites"
-          >
-            <img
-              src={favoritesIcon}
-              alt=""
-              aria-hidden="true"
-            />
-
-            <span>
-              Favorites
-            </span>
+          <Link className="bottom-nav-link" to="/favorites">
+            <img src={favoritesIcon} alt="" aria-hidden="true" />
+            <span>Favorites</span>
           </Link>
 
-          <Link
-            className="bottom-nav-link"
-            to="/profile"
-          >
-            <img
-              src={profileIcon}
-              alt=""
-              aria-hidden="true"
-            />
-
-            <span>
-              Profile
-            </span>
+          <Link className="bottom-nav-link" to="/profile">
+            <img src={profileIcon} alt="" aria-hidden="true" />
+            <span>Profile</span>
           </Link>
         </nav>
       </section>

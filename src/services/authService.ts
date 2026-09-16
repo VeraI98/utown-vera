@@ -1,11 +1,6 @@
 import { api } from './api'
 
-import type {
-  AuthResponse,
-  LoginData,
-  RegisterData,
-  User,
-} from '../types/auth'
+import type { AuthResponse, LoginData, RegisterData, User } from '../types/auth'
 
 export interface ChangePasswordData {
   currentPassword: string
@@ -32,24 +27,14 @@ export interface DeleteProfileData {
   password: string
 }
 
-export async function login(
-  request: LoginData,
-): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>(
-    '/auth/login',
-    request,
-  )
+export async function login(request: LoginData): Promise<AuthResponse> {
+  const { data } = await api.post<AuthResponse>('/auth/login', request)
 
   return data
 }
 
-export async function register(
-  request: RegisterData,
-): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>(
-    '/auth/register',
-    request,
-  )
+export async function register(request: RegisterData): Promise<AuthResponse> {
+  const { data } = await api.post<AuthResponse>('/auth/register', request)
 
   return data
 }
@@ -57,48 +42,27 @@ export async function register(
 export async function forgotPassword(
   request: ForgotPasswordData,
 ): Promise<void> {
-  await api.post(
-    '/auth/password/forgot',
-    request,
-  )
+  await api.post('/auth/password/forgot', request)
 }
 
-export async function resetPassword(
-  request: ResetPasswordData,
-): Promise<void> {
-  await api.post(
-    '/auth/password/reset',
-    request,
-  )
+export async function resetPassword(request: ResetPasswordData): Promise<void> {
+  await api.post('/auth/password/reset', request)
 }
 
 export async function changePassword(
   request: ChangePasswordData,
 ): Promise<void> {
-  await api.post(
-    '/auth/password/change',
-    request,
-  )
+  await api.post('/auth/password/change', request)
 }
 
-export async function updateProfile(
-  request: UpdateProfileData,
-): Promise<User> {
-  const { data } = await api.put<User>(
-    '/users/profile',
-    request,
-  )
+export async function updateProfile(request: UpdateProfileData): Promise<User> {
+  const { data } = await api.put<User>('/users/profile', request)
 
   return data
 }
 
-export async function deleteProfile(
-  request: DeleteProfileData,
-): Promise<void> {
-  await api.delete(
-    '/users/profile',
-    {
-      data: request,
-    },
-  )
+export async function deleteProfile(request: DeleteProfileData): Promise<void> {
+  await api.delete('/users/profile', {
+    data: request,
+  })
 }

@@ -1,11 +1,6 @@
 import axios from 'axios'
-import {
-  useEffect,
-  useState,
-} from 'react'
-import {
-  useNavigate,
-} from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../hooks/useAuth'
 
@@ -14,13 +9,9 @@ import {
   updateOwnerRestaurantStatus,
 } from '../../services/ownerRestaurantService'
 
-import type {
-  OwnerRestaurantStatus,
-} from '../../services/ownerRestaurantService'
-
-import type {
-  RestaurantResponse,
-} from '../../types/restaurant'
+import type { OwnerRestaurantStatus } from '../../services/ownerRestaurantService'
+import type { RestaurantResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 import './OwnerHomePage.css'
 
@@ -34,35 +25,24 @@ const DAY_NAMES: Record<number, string> = {
   7: 'Sun',
 }
 
-function getErrorMessage(
-  error: unknown,
-): string {
+function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
-    if (
-      error.response?.status ===
-      403
-    ) {
+    if (error.response?.status === 403) {
       return 'You do not have access to restaurant owner data.'
     }
 
-    const responseData =
-      error.response?.data
+    const responseData = error.response?.data
 
     if (
       responseData &&
-      typeof responseData ===
-        'object' &&
+      typeof responseData === 'object' &&
       'message' in responseData &&
-      typeof responseData.message ===
-        'string'
+      typeof responseData.message === 'string'
     ) {
       return responseData.message
     }
 
-    if (
-      typeof responseData ===
-      'string'
-    ) {
+    if (typeof responseData === 'string') {
       return responseData
     }
   }
@@ -76,28 +56,13 @@ function OwnerHomePage() {
 
   const userId = user?.id
 
-  const [
-    restaurant,
-    setRestaurant,
-  ] =
-    useState<RestaurantResponse | null>(
-      null,
-    )
+  const [restaurant, setRestaurant] = useState<RestaurantResponse | null>(null)
 
-  const [
-    isLoading,
-    setIsLoading,
-  ] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const [
-    isUpdatingStatus,
-    setIsUpdatingStatus,
-  ] = useState(false)
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
 
-  const [
-    errorMessage,
-    setErrorMessage,
-  ] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     if (!userId) {
@@ -112,22 +77,18 @@ function OwnerHomePage() {
           return
         }
 
-        setRestaurant(
-          restaurants[0] ?? null,
-        )
-
+        setRestaurant(restaurants[0] ?? null)
         setErrorMessage('')
       })
       .catch((error: unknown) => {
+        logError('OwnerHomePage: failed to load restaurant', error)
+
         if (!isActive) {
           return
         }
 
         setRestaurant(null)
-
-        setErrorMessage(
-          getErrorMessage(error),
-        )
+        setErrorMessage(getErrorMessage(error))
       })
       .finally(() => {
         if (!isActive) {
@@ -142,97 +103,60 @@ function OwnerHomePage() {
     }
   }, [userId])
 
-  const operatingModes =
-    restaurant?.operatingModes?.length
-      ? [
-          ...restaurant.operatingModes,
-        ].sort(
-          (
-            firstMode,
-            secondMode,
-          ) =>
-            firstMode.dayOfWeek -
-            secondMode.dayOfWeek,
-        )
-      : []
+  const operatingModes = restaurant?.operatingModes?.length
+    ? [...restaurant.operatingModes].sort(
+        (firstMode, secondMode) => firstMode.dayOfWeek - secondMode.dayOfWeek,
+      )
+    : []
 
-  const visibleOperatingModes =
-    operatingModes.slice(0, 4)
+  const visibleOperatingModes = operatingModes.slice(0, 4)
 
-  const currentStatus =
-    String(
-      restaurant?.statusDisplay ?? '',
-    )
-      .trim()
-      .toUpperCase()
+  const currentStatus = String(restaurant?.statusDisplay ?? '')
+    .trim()
+    .toUpperCase()
 
-  const isSuspended =
-    currentStatus ===
-    'TEMPORARILY_CLOSED'
+  const isSuspended = currentStatus === 'TEMPORARILY_CLOSED'
 
-  const handleToggleStatus =
-    async () => {
-      if (
-        !restaurant ||
-        !userId ||
-        isUpdatingStatus
-      ) {
-        return
-      }
-
-      const nextStatus:
-        OwnerRestaurantStatus =
-        isSuspended
-          ? 'OPEN'
-          : 'TEMPORARILY_CLOSED'
-
-      setIsUpdatingStatus(true)
-      setErrorMessage('')
-
-      try {
-        await updateOwnerRestaurantStatus(
-          restaurant.id,
-          nextStatus,
-        )
-
-        const restaurants =
-          await getOwnerRestaurants(
-            userId,
-          )
-
-        setRestaurant(
-          restaurants[0] ?? null,
-        )
-      } catch (error: unknown) {
-        setErrorMessage(
-          getErrorMessage(error),
-        )
-      } finally {
-        setIsUpdatingStatus(false)
-      }
+  const handleToggleStatus = async () => {
+    if (!restaurant || !userId || isUpdatingStatus) {
+      return
     }
+
+    const nextStatus: OwnerRestaurantStatus = isSuspended
+      ? 'OPEN'
+      : 'TEMPORARILY_CLOSED'
+
+    setIsUpdatingStatus(true)
+    setErrorMessage('')
+
+    try {
+      await updateOwnerRestaurantStatus(restaurant.id, nextStatus)
+
+      const restaurants = await getOwnerRestaurants(userId)
+
+      setRestaurant(restaurants[0] ?? null)
+    } catch (error: unknown) {
+      logError('OwnerHomePage: failed to update restaurant status', error)
+
+      setErrorMessage(getErrorMessage(error))
+    } finally {
+      setIsUpdatingStatus(false)
+    }
+  }
 
   return (
     <div className="owner-home-page">
       <div className="owner-home-page__content">
         {!userId ? (
-          <p
-            className="owner-home-page__error"
-            role="alert"
-          >
+          <p className="owner-home-page__error" role="alert">
             User information is unavailable.
           </p>
         ) : isLoading ? (
-          <p>
-            Loading restaurant...
-          </p>
+          <p>Loading restaurant...</p>
         ) : (
           <>
             {errorMessage && (
-              <p
-                className="owner-home-page__error"
-                role="alert"
-              >
+              <p className="owner-home-page__error" role="alert">
                 {errorMessage}
               </p>
             )}
@@ -245,82 +169,49 @@ function OwnerHomePage() {
 
                 <section className="owner-home-page__suspend-card">
                   <div className="owner-home-page__suspend-text">
-                    <h2>
-                      Suspend operations
-                    </h2>
-
+                    <h2>Suspend operations</h2>
                     <p>
-                      Temporarily suspend
-                      the establishment&apos;s
-                      operations
+                      Temporarily suspend the establishment&apos;s operations
                     </p>
                   </div>
 
                   <button
                     className={`owner-home-page__switch ${
-                      isSuspended
-                        ? 'owner-home-page__switch--active'
-                        : ''
+                      isSuspended ? 'owner-home-page__switch--active' : ''
                     }`}
                     type="button"
                     role="switch"
-                    aria-checked={
-                      isSuspended
-                    }
+                    aria-checked={isSuspended}
                     aria-label="Suspend operations"
-                    disabled={
-                      isUpdatingStatus
-                    }
-                    onClick={() =>
-                      void handleToggleStatus()
-                    }
+                    disabled={isUpdatingStatus}
+                    onClick={() => void handleToggleStatus()}
                   >
                     <span />
                   </button>
                 </section>
 
                 <section className="owner-home-page__navigation">
-                  <h2>
-                    Navigation
-                  </h2>
+                  <h2>Navigation</h2>
 
                   <div className="owner-home-page__navigation-grid">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        navigate('orders')
-                      }
-                    >
+                    <button type="button" onClick={() => navigate('orders')}>
                       Order table
                     </button>
 
                     <button
                       type="button"
-                      onClick={() =>
-                        navigate(
-                          'statistics',
-                        )
-                      }
+                      onClick={() => navigate('statistics')}
                     >
                       Statistics
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        navigate('menu')
-                      }
-                    >
+                    <button type="button" onClick={() => navigate('menu')}>
                       Menu
                     </button>
 
                     <button
                       type="button"
-                      onClick={() =>
-                        navigate(
-                          'establishment',
-                        )
-                      }
+                      onClick={() => navigate('establishment')}
                     >
                       Establishment
                     </button>
@@ -328,83 +219,50 @@ function OwnerHomePage() {
                 </section>
 
                 <section className="owner-home-page__working-hours">
-                  <h2>
-                    Working hours
-                  </h2>
+                  <h2>Working hours</h2>
 
-                  {visibleOperatingModes.length >
-                  0 ? (
+                  {visibleOperatingModes.length > 0 ? (
                     <div className="owner-home-page__days">
-                      {visibleOperatingModes.map(
-                        (
-                          operatingMode,
-                        ) => (
-                          <article
-                            className="owner-home-page__day"
-                            key={
-                              operatingMode.id
-                            }
-                          >
-                            <span className="owner-home-page__day-name">
-                              {DAY_NAMES[
-                                operatingMode
-                                  .dayOfWeek
-                              ] ??
-                                `Day ${operatingMode.dayOfWeek}`}
-                            </span>
+                      {visibleOperatingModes.map((operatingMode) => (
+                        <article
+                          className="owner-home-page__day"
+                          key={operatingMode.id}
+                        >
+                          <span className="owner-home-page__day-name">
+                            {DAY_NAMES[operatingMode.dayOfWeek] ??
+                              `Day ${operatingMode.dayOfWeek}`}
+                          </span>
 
-                            <div className="owner-home-page__day-card">
-                              {operatingMode.dayOff ? (
-                                <span>
-                                  Day off
-                                </span>
-                              ) : (
-                                <>
-                                  <span>
-                                    {operatingMode.start ??
-                                      '--:--'}{' '}
-                                    -
-                                  </span>
-
-                                  <span>
-                                    {operatingMode.end ??
-                                      '--:--'}
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                          </article>
-                        ),
-                      )}
+                          <div className="owner-home-page__day-card">
+                            {operatingMode.dayOff ? (
+                              <span>Day off</span>
+                            ) : (
+                              <>
+                                <span>{operatingMode.start ?? '--:--'} -</span>
+                                <span>{operatingMode.end ?? '--:--'}</span>
+                              </>
+                            )}
+                          </div>
+                        </article>
+                      ))}
                     </div>
                   ) : (
                     <p className="owner-home-page__empty-hours">
-                      Working hours are not
-                      specified.
+                      Working hours are not specified.
                     </p>
                   )}
 
                   <button
                     className="owner-home-page__working-hours-button"
                     type="button"
-                    onClick={() =>
-                      navigate(
-                        'working-hours',
-                      )
-                    }
+                    onClick={() => navigate('working-hours')}
                   >
-                    Specify the
-                    establishment&apos;s
-                    working hours
+                    Specify the establishment&apos;s working hours
                   </button>
                 </section>
               </>
             ) : (
-              !errorMessage && (
-                <p>
-                  No restaurant found.
-                </p>
-              )
+              !errorMessage && <p>No restaurant found.</p>
             )}
           </>
         )}

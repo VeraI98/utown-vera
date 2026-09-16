@@ -18,9 +18,7 @@ export interface OperatingModeRequest {
 export async function getOwnerOperatingModes(
   restaurantId: number,
 ): Promise<OperatingModeResponse[]> {
-  const { data } = await api.get<
-    OperatingModeResponse[]
-  >(
+  const { data } = await api.get<OperatingModeResponse[]>(
     `/restaurant-owner/restaurants/${restaurantId}/operating-modes`,
   )
 
@@ -31,9 +29,7 @@ export async function createOwnerOperatingMode(
   restaurantId: number,
   request: OperatingModeRequest,
 ): Promise<OperatingModeResponse> {
-  const { data } = await api.post<
-    OperatingModeResponse
-  >(
+  const { data } = await api.post<OperatingModeResponse>(
     `/restaurant-owner/restaurants/${restaurantId}/operating-modes`,
     request,
   )
@@ -46,9 +42,7 @@ export async function updateOwnerOperatingMode(
   modeId: number,
   request: OperatingModeRequest,
 ): Promise<OperatingModeResponse> {
-  const { data } = await api.put<
-    OperatingModeResponse
-  >(
+  const { data } = await api.put<OperatingModeResponse>(
     `/restaurant-owner/restaurants/${restaurantId}/operating-modes/${modeId}`,
     request,
   )
@@ -60,9 +54,7 @@ export async function replaceOwnerOperatingModes(
   restaurantId: number,
   request: OperatingModeRequest[],
 ): Promise<OperatingModeResponse[]> {
-  const { data } = await api.put<
-    OperatingModeResponse[]
-  >(
+  const { data } = await api.put<OperatingModeResponse[]>(
     `/restaurant-owner/restaurants/${restaurantId}/operating-modes`,
     request,
   )

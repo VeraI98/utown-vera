@@ -1,11 +1,5 @@
-import {
-  Outlet,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom'
-import {
-  useState,
-} from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 import arrowIcon from '../../../assets/restaurateur/Arrow.svg'
 import backIcon from '../../../assets/restaurateur/Back Icon.svg'
@@ -50,23 +44,15 @@ export default function OwnerLayout() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const [
-    isMenuOpen,
-    setIsMenuOpen,
-  ] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const isOwnerHome =
-    location.pathname === '/owner' ||
-    location.pathname === '/owner/'
+    location.pathname === '/owner' || location.pathname === '/owner/'
 
-  const handleMenuNavigation = (
-    path: string,
-  ) => {
+  const handleMenuNavigation = (path: string) => {
     setIsMenuOpen(false)
 
-    navigate(
-      `/owner/${path}`,
-    )
+    navigate(`/owner/${path}`)
   }
 
   return (
@@ -78,30 +64,18 @@ export default function OwnerLayout() {
               type="button"
               className="owner-layout__header-button"
               aria-label="Open menu"
-              onClick={() =>
-                setIsMenuOpen(true)
-              }
+              onClick={() => setIsMenuOpen(true)}
             >
-              <img
-                src={menuIcon}
-                alt=""
-                aria-hidden="true"
-              />
+              <img src={menuIcon} alt="" aria-hidden="true" />
             </button>
           ) : (
             <button
               type="button"
               className="owner-layout__header-button"
               aria-label="Go back"
-              onClick={() =>
-                navigate(-1)
-              }
+              onClick={() => navigate(-1)}
             >
-              <img
-                src={backIcon}
-                alt=""
-                aria-hidden="true"
-              />
+              <img src={backIcon} alt="" aria-hidden="true" />
             </button>
           )}
 
@@ -111,10 +85,7 @@ export default function OwnerLayout() {
             alt="UT Business"
           />
 
-          <div
-            className="owner-layout__placeholder"
-            aria-hidden="true"
-          />
+          <div className="owner-layout__placeholder" aria-hidden="true" />
         </header>
 
         <Outlet />
@@ -125,9 +96,7 @@ export default function OwnerLayout() {
               type="button"
               className="owner-layout-drawer__overlay"
               aria-label="Close menu"
-              onClick={() =>
-                setIsMenuOpen(false)
-              }
+              onClick={() => setIsMenuOpen(false)}
             />
 
             <aside className="owner-layout-drawer__panel">
@@ -140,29 +109,17 @@ export default function OwnerLayout() {
               </div>
 
               <nav className="owner-layout-drawer__navigation">
-                {OWNER_MENU_ITEMS.map(
-                  (item) => (
-                    <button
-                      key={item.path}
-                      type="button"
-                      onClick={() =>
-                        handleMenuNavigation(
-                          item.path,
-                        )
-                      }
-                    >
-                      <span>
-                        {item.label}
-                      </span>
+                {OWNER_MENU_ITEMS.map((item) => (
+                  <button
+                    key={item.path}
+                    type="button"
+                    onClick={() => handleMenuNavigation(item.path)}
+                  >
+                    <span>{item.label}</span>
 
-                      <img
-                        src={arrowIcon}
-                        alt=""
-                        aria-hidden="true"
-                      />
-                    </button>
-                  ),
-                )}
+                    <img src={arrowIcon} alt="" aria-hidden="true" />
+                  </button>
+                ))}
               </nav>
             </aside>
 
@@ -170,9 +127,7 @@ export default function OwnerLayout() {
               type="button"
               className="owner-layout-drawer__close"
               aria-label="Close menu"
-              onClick={() =>
-                setIsMenuOpen(false)
-              }
+              onClick={() => setIsMenuOpen(false)}
             >
               ×
             </button>

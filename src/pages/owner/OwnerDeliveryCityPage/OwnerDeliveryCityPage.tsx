@@ -1,9 +1,5 @@
-import {
-  useState,
-} from 'react'
-import {
-  useNavigate,
-} from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import './OwnerDeliveryCityPage.css'
 
@@ -20,14 +16,8 @@ const CITIES = [
 export default function OwnerDeliveryCityPage() {
   const navigate = useNavigate()
 
-  const [
-    selectedCity,
-    setSelectedCity,
-  ] = useState(
-    () =>
-      sessionStorage.getItem(
-        'ownerEditRestaurantCity',
-      ) ?? '',
+  const [selectedCity, setSelectedCity] = useState(
+    () => sessionStorage.getItem('ownerEditRestaurantCity') ?? '',
   )
 
   const handleNext = () => {
@@ -35,46 +25,30 @@ export default function OwnerDeliveryCityPage() {
       return
     }
 
-    sessionStorage.setItem(
-      'ownerEditRestaurantCity',
-      selectedCity,
-    )
+    sessionStorage.setItem('ownerEditRestaurantCity', selectedCity)
 
-    navigate(
-      '/owner/restaurant/edit/areas',
-    )
+    navigate('/owner/restaurant/edit/areas')
   }
 
   return (
     <main className="owner-delivery-city-page">
       <section className="owner-delivery-city-content">
-        <h1>
-          Select delivery city
-        </h1>
+        <h1>Select delivery city</h1>
 
         <div className="owner-delivery-city-list">
           {CITIES.map((city) => (
-            <label
-              key={city}
-              className="owner-delivery-city-option"
-            >
+            <label key={city} className="owner-delivery-city-option">
               <input
                 type="radio"
                 name="delivery-city"
                 value={city}
-                checked={
-                  selectedCity === city
-                }
-                onChange={() =>
-                  setSelectedCity(city)
-                }
+                checked={selectedCity === city}
+                onChange={() => setSelectedCity(city)}
               />
 
               <span className="owner-delivery-city-radio" />
 
-              <span className="owner-delivery-city-name">
-                {city}
-              </span>
+              <span className="owner-delivery-city-name">{city}</span>
             </label>
           ))}
         </div>

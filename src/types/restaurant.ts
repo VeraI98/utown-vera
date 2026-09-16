@@ -1,8 +1,4 @@
-export type RestaurantStatus =
-  | 'CLOSED'
-  | 'OPEN'
-  | 'TEMPORARILY_CLOSED'
-  | 'BUSY'
+export type RestaurantStatus = 'CLOSED' | 'OPEN' | 'TEMPORARILY_CLOSED' | 'BUSY'
 
 export interface RestaurantAddress {
   id: number

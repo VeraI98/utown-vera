@@ -23,21 +23,17 @@ export interface RestaurantSearchParams {
 export async function getRestaurantById(
   restaurantId: number,
 ): Promise<RestaurantResponse> {
-  const { data } =
-    await api.get<RestaurantResponse>(
-      `/public/restaurants/${restaurantId}`,
-    )
+  const { data } = await api.get<RestaurantResponse>(
+    `/public/restaurants/${restaurantId}`,
+  )
 
   return data
 }
 
-export async function getActiveRestaurants(): Promise<
-  RestaurantResponse[]
-> {
-  const { data } =
-    await api.get<RestaurantResponse[]>(
-      '/public/restaurants/active',
-    )
+export async function getActiveRestaurants(): Promise<RestaurantResponse[]> {
+  const { data } = await api.get<RestaurantResponse[]>(
+    '/public/restaurants/active',
+  )
 
   return data
 }
@@ -46,14 +42,15 @@ export async function getRestaurants(
   page = 0,
   size = 20,
 ): Promise<PaginatedResponse<RestaurantResponse>> {
-  const { data } = await api.get<
-    PaginatedResponse<RestaurantResponse>
-  >('/public/restaurants', {
-    params: {
-      page,
-      size,
+  const { data } = await api.get<PaginatedResponse<RestaurantResponse>>(
+    '/public/restaurants',
+    {
+      params: {
+        page,
+        size,
+      },
     },
-  })
+  )
 
   return data
 }
@@ -63,15 +60,16 @@ export async function searchRestaurants(
   page = 0,
   size = 50,
 ): Promise<PaginatedResponse<RestaurantResponse>> {
-  const { data } = await api.get<
-    PaginatedResponse<RestaurantResponse>
-  >('/public/restaurants/search', {
-    params: {
-      title,
-      page,
-      size,
+  const { data } = await api.get<PaginatedResponse<RestaurantResponse>>(
+    '/public/restaurants/search',
+    {
+      params: {
+        title,
+        page,
+        size,
+      },
     },
-  })
+  )
 
   return data
 }
@@ -92,30 +90,23 @@ export async function searchRestaurantsAdvanced(
     size = 50,
   } = params
 
-  const { data } = await api.get<
-    PaginatedResponse<RestaurantResponse>
-  >('/public/restaurants/search/advanced', {
-    params: {
-      ...(title ? { title } : {}),
-      ...(category ? { category } : {}),
-      ...(minRating !== undefined
-        ? { minRating }
-        : {}),
-      ...(minMinOrderAmount !== undefined
-        ? { minMinOrderAmount }
-        : {}),
-      ...(maxMinOrderAmount !== undefined
-        ? { maxMinOrderAmount }
-        : {}),
-      ...(city ? { city } : {}),
-      ...(status ? { status } : {}),
-      ...(isRecommended !== undefined
-        ? { isRecommended }
-        : {}),
-      page,
-      size,
+  const { data } = await api.get<PaginatedResponse<RestaurantResponse>>(
+    '/public/restaurants/search/advanced',
+    {
+      params: {
+        ...(title ? { title } : {}),
+        ...(category ? { category } : {}),
+        ...(minRating !== undefined ? { minRating } : {}),
+        ...(minMinOrderAmount !== undefined ? { minMinOrderAmount } : {}),
+        ...(maxMinOrderAmount !== undefined ? { maxMinOrderAmount } : {}),
+        ...(city ? { city } : {}),
+        ...(status ? { status } : {}),
+        ...(isRecommended !== undefined ? { isRecommended } : {}),
+        page,
+        size,
+      },
     },
-  })
+  )
 
   return data
 }
@@ -125,9 +116,7 @@ export async function getRestaurantDishes(
   page = 0,
   size = 100,
 ): Promise<PaginatedResponse<DishResponse>> {
-  const { data } = await api.get<
-    PaginatedResponse<DishResponse>
-  >(
+  const { data } = await api.get<PaginatedResponse<DishResponse>>(
     `/dishes/restaurant/${restaurantId}`,
     {
       params: {

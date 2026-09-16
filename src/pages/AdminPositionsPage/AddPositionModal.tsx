@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import type { DishCategoryResponse } from '../../types/restaurant'
+import { logError } from '../../utils/logger'
 
 interface AddPositionModalProps {
   categories: DishCategoryResponse[]
@@ -56,7 +57,9 @@ function AddPositionModal({
         price: parsedPrice,
         dishCategoryId: Number(categoryId),
       })
-    } catch {
+    } catch (saveError) {
+      logError('AddPositionModal: failed to add position', saveError)
+
       setError('Could not add the position')
     } finally {
       setIsSaving(false)
@@ -64,10 +67,7 @@ function AddPositionModal({
   }
 
   return (
-    <div
-      className="admin-positions-page__modal-overlay"
-      onClick={onCancel}
-    >
+    <div className="admin-positions-page__modal-overlay" onClick={onCancel}>
       <div
         className="admin-positions-page__modal"
         onClick={(event) => event.stopPropagation()}
@@ -76,6 +76,7 @@ function AddPositionModal({
 
         <div className="admin-positions-page__modal-field">
           <label htmlFor="position-title">Name</label>
+
           <input
             id="position-title"
             type="text"
@@ -87,6 +88,7 @@ function AddPositionModal({
 
         <div className="admin-positions-page__modal-field">
           <label htmlFor="position-description">Description</label>
+
           <textarea
             id="position-description"
             value={description}
@@ -97,6 +99,7 @@ function AddPositionModal({
 
         <div className="admin-positions-page__modal-field">
           <label htmlFor="position-price">Price</label>
+
           <input
             id="position-price"
             type="number"
@@ -109,6 +112,7 @@ function AddPositionModal({
 
         <div className="admin-positions-page__modal-field">
           <label htmlFor="position-category">Category</label>
+
           <select
             id="position-category"
             value={categoryId}
@@ -126,9 +130,7 @@ function AddPositionModal({
           </select>
         </div>
 
-        {error && (
-          <p className="admin-positions-page__modal-error">{error}</p>
-        )}
+        {error && <p className="admin-positions-page__modal-error">{error}</p>}
 
         <div className="admin-positions-page__modal-actions">
           <button
@@ -139,6 +141,7 @@ function AddPositionModal({
           >
             Cancel
           </button>
+
           <button
             type="button"
             className="admin-positions-page__modal-save-button"
