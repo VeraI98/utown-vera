@@ -25,9 +25,7 @@ function AdminCategoriesPage() {
 
   const [establishmentName, setEstablishmentName] = useState('')
 
-  const [allCategories, setAllCategories] = useState<DishCategoryResponse[]>(
-    [],
-  )
+  const [allCategories, setAllCategories] = useState<DishCategoryResponse[]>([])
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -39,9 +37,9 @@ function AdminCategoriesPage() {
 
   const [reloadKey, setReloadKey] = useState(0)
 
-  const [priorityDrafts, setPriorityDrafts] = useState<
-    Record<number, string>
-  >({})
+  const [priorityDrafts, setPriorityDrafts] = useState<Record<number, string>>(
+    {},
+  )
 
   const [editingCategory, setEditingCategory] =
     useState<DishCategoryResponse | null>(null)
@@ -268,9 +266,7 @@ function AdminCategoriesPage() {
               type="button"
               className="admin-categories-page__title-button"
               onClick={() =>
-                navigate(
-                  `/admin/establishments/${restaurantId}/positions/add`,
-                )
+                navigate(`/admin/establishments/${restaurantId}/positions/add`)
               }
             >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -295,9 +291,7 @@ function AdminCategoriesPage() {
               type="button"
               className="admin-categories-page__title-button"
               onClick={() =>
-                navigate(
-                  `/admin/establishments/${restaurantId}/categories/add`,
-                )
+                navigate(`/admin/establishments/${restaurantId}/categories/add`)
               }
             >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -342,6 +336,8 @@ function AdminCategoriesPage() {
             >
               Positions
             </span>
+            <span> / </span>
+            <span>{establishmentName || 'Categories'}</span>
           </nav>
         </div>
 

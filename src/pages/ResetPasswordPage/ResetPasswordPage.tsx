@@ -1,13 +1,6 @@
-import {
-  useState,
-  type FormEvent,
-} from 'react'
+import { useState, type FormEvent } from 'react'
 
-import {
-  Link,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import { resetPassword } from '../../services/authService'
 
@@ -16,12 +9,9 @@ import logo from '../../assets/ut-business-logo.svg'
 import '../LoginPage/LoginPage.css'
 
 function ResetPasswordPage() {
-  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  const [username, setUsername] = useState(
-    searchParams.get('username') || '',
-  )
+  const [username, setUsername] = useState(searchParams.get('username') || '')
   const [code, setCode] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -79,20 +69,13 @@ function ResetPasswordPage() {
     return (
       <main className="login-page">
         <section className="login-content">
-          <img
-            className="brand-logo"
-            src={logo}
-            alt="UT"
-          />
+          <img className="brand-logo" src={logo} alt="UT" />
 
           <p className="reset-password-success">
             Your password has been reset. You can now log in.
           </p>
 
-          <Link
-            className="reset-password-success-link"
-            to="/login"
-          >
+          <Link className="reset-password-success-link" to="/login">
             Go to log in
           </Link>
         </section>
@@ -103,16 +86,9 @@ function ResetPasswordPage() {
   return (
     <main className="login-page">
       <section className="login-content">
-        <img
-          className="brand-logo"
-          src={logo}
-          alt="UT"
-        />
+        <img className="brand-logo" src={logo} alt="UT" />
 
-        <form
-          className="login-form"
-          onSubmit={handleSubmit}
-        >
+        <form className="login-form" onSubmit={handleSubmit}>
           <p className="forgot-password-hint">
             Enter the code we sent you and choose a new password.
           </p>
@@ -186,10 +162,7 @@ function ResetPasswordPage() {
           </div>
 
           {error && (
-            <p
-              className="input-error"
-              role="alert"
-            >
+            <p className="input-error" role="alert">
               {error}
             </p>
           )}
@@ -203,17 +176,11 @@ function ResetPasswordPage() {
           </button>
         </form>
 
-        <Link
-          className="forgot-link"
-          to="/forgot-password"
-        >
+        <Link className="forgot-link" to="/forgot-password">
           Didn't get a code? Send again
         </Link>
 
-        <Link
-          className="registration-link"
-          to="/login"
-        >
+        <Link className="registration-link" to="/login">
           Back to log in
         </Link>
       </section>
