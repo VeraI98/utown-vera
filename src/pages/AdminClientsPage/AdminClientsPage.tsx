@@ -22,9 +22,9 @@ const PAGE_SIZE = 10
 type SortDirection = 'asc' | 'desc'
 
 // Only fields that really exist on UserResponse can be sorted on the
-// backend (Spring Pageable). City/Address/Orders are not real fields of
-// the client entity (see note on ClientResponse), so they stay
-// unsortable rather than silently sending a "sort" the API will ignore.
+// backend (Spring Pageable). Address/Orders are not real fields of the
+// client entity (see note on ClientResponse), so they stay unsortable
+// rather than silently sending a "sort" the API will ignore.
 type SortableField = 'fullName' | 'username'
 
 interface SortState {
@@ -32,10 +32,23 @@ interface SortState {
   direction: SortDirection
 }
 
-const COLUMNS: Array<{ label: string; field?: SortableField }> = [
+// The city filter is a quick-pick shortcut for these three cities (the
+// Filter popover above the table still allows free text for any other
+// city). The client entity has no real "city" field yet — see the note
+// on ClientResponse — so this list is a curated shortlist, not something
+// read from the data.
+const CITY_QUICK_PICKS = ['Seoul', 'Busan', 'Incheon']
+
+interface ColumnDef {
+  label: string
+  field?: SortableField
+  kind?: 'city'
+}
+
+const COLUMNS: ColumnDef[] = [
   { label: 'Name', field: 'fullName' },
-  { label: 'Username', field: 'username' },
-  { label: 'City' },
+  { label: 'Phone number', field: 'username' },
+  { label: 'City', kind: 'city' },
   { label: 'Address' },
   { label: 'Orders' },
   { label: 'Order History' },
@@ -105,6 +118,9 @@ function AdminClientsPage() {
   const [city, setCity] = useState('')
   const filterRef = useRef<HTMLDivElement | null>(null)
 
+  const [isCityMenuOpen, setIsCityMenuOpen] = useState(false)
+  const cityMenuRef = useRef<HTMLDivElement | null>(null)
+
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false)
   const [selectedAction, setSelectedAction] = useState<BulkAction | null>(null)
   const actionMenuRef = useRef<HTMLDivElement | null>(null)
@@ -166,9 +182,9 @@ function AdminClientsPage() {
     }
   }, [page, search, city, sort, reloadKey])
 
-  // Close the Filter / Choose action popovers on outside click.
+  // Close the Filter / Choose action / City popovers on outside click.
   useEffect(() => {
-    if (!isFilterOpen && !isActionMenuOpen) {
+    if (!isFilterOpen && !isActionMenuOpen && !isCityMenuOpen) {
       return
     }
 
@@ -190,6 +206,14 @@ function AdminClientsPage() {
       ) {
         setIsActionMenuOpen(false)
       }
+
+      if (
+        isCityMenuOpen &&
+        cityMenuRef.current &&
+        !cityMenuRef.current.contains(target)
+      ) {
+        setIsCityMenuOpen(false)
+      }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
@@ -197,7 +221,7 @@ function AdminClientsPage() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isFilterOpen, isActionMenuOpen])
+  }, [isFilterOpen, isActionMenuOpen, isCityMenuOpen])
 
   const handleSearchSubmit = () => {
     if (isLoading) {
@@ -247,6 +271,29 @@ function AdminClientsPage() {
     setCityInput('')
     setCity('')
     setIsFilterOpen(false)
+  }
+
+  const handlePickCity = (pickedCity: string) => {
+    setPage(0)
+
+    setCity((current) => {
+      // Clicking the same city again clears the filter (toggle).
+      const next = current === pickedCity ? '' : pickedCity
+
+      setCityInput(next)
+
+      return next
+    })
+
+    setIsCityMenuOpen(false)
+  }
+
+  const handleViewOrderHistory = (client: ClientResponse) => {
+    const query = client.username
+      ? `?search=${encodeURIComponent(client.username)}`
+      : ''
+
+    navigate(`/admin/orders${query}`)
   }
 
   const handleConfirmDelete = async () => {
@@ -576,27 +623,64 @@ function AdminClientsPage() {
               />
             </th>
 
-            {COLUMNS.map((column) => (
-              <th key={column.label}>
-                <button
-                  className="admin-clients-page__sort-button"
-                  type="button"
-                  disabled={!column.field || isLoading}
-                  onClick={
-                    column.field ? () => handleSort(column.field!) : undefined
-                  }
-                >
-                  {column.label}{' '}
-                  <span aria-hidden="true">
-                    {column.field && sort?.field === column.field
-                      ? sort.direction === 'asc'
-                        ? '▲'
-                        : '▼'
-                      : '▾'}
-                  </span>
-                </button>
-              </th>
-            ))}
+            {COLUMNS.map((column) => {
+              if (column.kind === 'city') {
+                return (
+                  <th key={column.label}>
+                    <div
+                      className="admin-clients-page__popover-wrapper"
+                      ref={cityMenuRef}
+                    >
+                      <button
+                        className="admin-clients-page__sort-button"
+                        type="button"
+                        disabled={isLoading}
+                        onClick={() => setIsCityMenuOpen((open) => !open)}
+                      >
+                        {column.label} <span aria-hidden="true">▾</span>
+                      </button>
+
+                      {isCityMenuOpen && (
+                        <div className="admin-clients-page__popover admin-clients-page__popover--action">
+                          {CITY_QUICK_PICKS.map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              className="admin-clients-page__popover-option"
+                              onClick={() => handlePickCity(option)}
+                            >
+                              {option === city ? `✓ ${option}` : option}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </th>
+                )
+              }
+
+              return (
+                <th key={column.label}>
+                  <button
+                    className="admin-clients-page__sort-button"
+                    type="button"
+                    disabled={!column.field || isLoading}
+                    onClick={
+                      column.field ? () => handleSort(column.field!) : undefined
+                    }
+                  >
+                    {column.label}{' '}
+                    <span aria-hidden="true">
+                      {column.field && sort?.field === column.field
+                        ? sort.direction === 'asc'
+                          ? '▲'
+                          : '▼'
+                        : '▾'}
+                    </span>
+                  </button>
+                </th>
+              )
+            })}
 
             <th />
           </tr>
@@ -661,7 +745,8 @@ function AdminClientsPage() {
                   <button
                     type="button"
                     className="admin-clients-page__view-link"
-                    onClick={() => openClientCard(client)}
+                    onClick={() => handleViewOrderHistory(client)}
+                    title="Search this client's username in Order History"
                   >
                     <span>View</span>
 
