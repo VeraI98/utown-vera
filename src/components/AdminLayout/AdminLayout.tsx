@@ -17,7 +17,7 @@ interface AddMenuItem {
 const ADD_MENU_ITEMS: AddMenuItem[] = [
   { label: 'Client', path: '/admin/clients/add' },
   { label: 'Rider' },
-  { label: 'Establishment' },
+  { label: 'Establishment', path: '/admin/establishments/add' },
   { label: 'Service' },
   { label: 'Job Vacancy' },
 ]
@@ -117,6 +117,19 @@ function AdminLayout() {
                     }
                   >
                     Orders
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink
+                    to="/admin/positions"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'admin-layout__sidebar-link admin-layout__sidebar-link--active'
+                        : 'admin-layout__sidebar-link'
+                    }
+                  >
+                    Positions
                   </NavLink>
                 </li>
               </ul>
