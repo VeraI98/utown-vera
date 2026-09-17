@@ -73,7 +73,13 @@ function AdminEstablishmentsPage() {
           return
         }
 
-        setEstablishments(data.content)
+        // TODO: backend workaround — same as AdminClientsPage. DELETE only
+        // soft-deletes (isActive: false), and the list response may still
+        // include those establishments. Filter them out here until the
+        // backend excludes inactive establishments from the list response.
+        setEstablishments(
+          data.content.filter((establishment) => establishment.isActive),
+        )
         setTotalPages(data.totalPages)
       } catch (error) {
         logError('Failed to load establishments:', error)

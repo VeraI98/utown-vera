@@ -74,7 +74,11 @@ function AdminClientsPage() {
           return
         }
 
-        setClients(data.content)
+        // TODO: backend workaround — DELETE /admin/clients/{id} only
+        // soft-deletes (isActive: false), and GET /admin/clients still
+        // returns those clients. Filter them out here until the backend
+        // excludes inactive clients from the list response.
+        setClients(data.content.filter((client) => client.isActive))
 
         setTotalPages(data.totalPages)
 
