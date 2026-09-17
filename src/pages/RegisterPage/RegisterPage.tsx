@@ -5,6 +5,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import arrowLeftIcon from '../../assets/icons/arrow-left.svg'
 import lockIcon from '../../assets/icons/lock.svg'
 import phoneIcon from '../../assets/icons/phone.svg'
+import { useToast } from '../../components/Toast/useToast'
 import { useAuth } from '../../hooks/useAuth'
 import { logError } from '../../utils/logger'
 
@@ -34,6 +35,7 @@ function getRegistrationErrorMessage(error: unknown): string {
 function RegisterPage() {
   const navigate = useNavigate()
   const { register, isAuthenticated } = useAuth()
+  const { showToast } = useToast()
 
   const [phoneNumber, setPhoneNumber] = useState('')
   const [password, setPassword] = useState('')
@@ -92,9 +94,12 @@ function RegisterPage() {
         replace: true,
       })
     } catch (submitError) {
-      logError('RegisterPage: failed to register user', submitError)
+      logError('Failed to register user:', submitError)
 
-      setError(getRegistrationErrorMessage(submitError))
+      const message = getRegistrationErrorMessage(submitError)
+
+      showToast(message, 'error')
+      setError(message)
     } finally {
       setIsSubmitting(false)
     }

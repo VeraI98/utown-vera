@@ -62,10 +62,7 @@ function EstablishmentCardModal({
 
         setOperatingModes(restaurant.operatingModes ?? [])
       } catch (error) {
-        logError(
-          'EstablishmentCardModal: failed to load operating modes',
-          error,
-        )
+        logError('Failed to load operating modes:', error)
 
         if (isMounted) {
           setOperatingModes([])

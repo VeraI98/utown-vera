@@ -9,6 +9,8 @@ import {
 } from '../services/authService'
 import { logError } from '../utils/logger'
 
+import { disconnectSocket } from '../sockets/socket'
+
 import { AuthContext } from './auth-context'
 
 interface AuthProviderProps {
@@ -99,6 +101,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = () => {
     clearStoredAuthData()
+    disconnectSocket()
     setUser(null)
   }
 

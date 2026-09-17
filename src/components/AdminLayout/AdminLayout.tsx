@@ -7,6 +7,7 @@ import logo from '../../assets/admin-pages/Logo.png'
 import avatarIcon from '../../assets/admin-pages/Avatar.png'
 import addIcon from '../../assets/admin-pages/master.png'
 import settingsIcon from '../../assets/admin-pages/Icon-GearSix.png'
+import { useAdminOrderNotifications } from '../../sockets/useAdminOrderNotifications'
 
 interface AddMenuItem {
   label: string
@@ -28,6 +29,8 @@ function AdminLayout() {
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false)
   const [isUsersOpen, setIsUsersOpen] = useState(true)
   const [isAppOpen, setIsAppOpen] = useState(true)
+
+  useAdminOrderNotifications()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -104,7 +107,18 @@ function AdminLayout() {
                   </NavLink>
                 </li>
 
-                <li className="admin-layout__sidebar-link">Orders</li>
+                <li>
+                  <NavLink
+                    to="/admin/orders"
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'admin-layout__sidebar-link admin-layout__sidebar-link--active'
+                        : 'admin-layout__sidebar-link'
+                    }
+                  >
+                    Orders
+                  </NavLink>
+                </li>
               </ul>
             )}
 

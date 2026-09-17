@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
+import { useToast } from '../../components/Toast/useToast'
 import {
   createDish,
   createDishOption,
@@ -29,6 +30,7 @@ function buildEmptyOptions(): OptionRow[] {
 
 function AdminPositionAddPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { establishmentId } = useParams()
   const restaurantId = Number(establishmentId)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -66,10 +68,7 @@ function AdminPositionAddPage() {
           }
         }
       } catch (categoriesError) {
-        logError(
-          'AdminPositionAddPage: failed to load categories',
-          categoriesError,
-        )
+        logError('Failed to load categories:', categoriesError)
       }
     }
 
@@ -167,7 +166,7 @@ function AdminPositionAddPage() {
             })),
           })
         } catch (optionsError) {
-          logError('AdminPositionAddPage: failed to save options', optionsError)
+          logError('Failed to save options:', optionsError)
         }
       }
 
@@ -175,17 +174,15 @@ function AdminPositionAddPage() {
         try {
           await deactivateDish(dish.id)
         } catch (holdError) {
-          logError(
-            'AdminPositionAddPage: failed to put dish on hold',
-            holdError,
-          )
+          logError('Failed to put dish on hold:', holdError)
         }
       }
 
+      showToast('Позиция добавлена', 'success')
       navigate(`/admin/establishments/${restaurantId}/positions`)
     } catch (submitError) {
-      logError('AdminPositionAddPage: failed to add position', submitError)
-
+      logError('Failed to add position:', submitError)
+      showToast('Не удалось добавить позицию. Попробуйте ещё раз', 'error')
       setError('Не удалось добавить позицию. Попробуйте ещё раз')
     } finally {
       setIsSubmitting(false)

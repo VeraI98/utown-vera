@@ -1,7 +1,5 @@
-export const logError = (context: string, error: unknown) => {
-  if (!import.meta.env.DEV) {
-    return
+export function logError(message: string, error?: unknown) {
+  if (import.meta.env.DEV) {
+    console.error(message, error)
   }
-
-  console.error(`[${context}]`, error)
 }

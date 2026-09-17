@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
+import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
+import { useToast } from '../../components/Toast/useToast'
 import { deleteClient, getClients } from '../../services/clientService'
 import type { ClientResponse } from '../../types/client'
 import { logError } from '../../utils/logger'
@@ -23,6 +25,7 @@ const SORTABLE_COLUMNS = [
 
 function AdminClientsPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
 
   const [selectedIds, setSelectedIds] = useState<number[]>([])
 
@@ -77,7 +80,7 @@ function AdminClientsPage() {
 
         setSelectedIds([])
       } catch (error) {
-        logError('AdminClientsPage: failed to load clients', error)
+        logError('Failed to load clients:', error)
 
         if (isMounted) {
           setClients([])
@@ -133,9 +136,11 @@ function AdminClientsPage() {
       setClientToDelete(null)
       setSelectedIds([])
       setReloadKey((current) => current + 1)
+      showToast('Клиент удалён', 'success')
     } catch (error) {
-      logError('AdminClientsPage: failed to delete client', error)
+      logError('Failed to delete client:', error)
 
+      showToast('Не удалось удалить клиента', 'error')
       setDeleteError('Could not delete the client')
     } finally {
       setIsDeleting(false)
@@ -295,13 +300,7 @@ function AdminClientsPage() {
         </thead>
 
         <tbody>
-          {isLoading && (
-            <tr>
-              <td colSpan={8} className="admin-clients-page__state-cell">
-                Loading...
-              </td>
-            </tr>
-          )}
+          {isLoading && <TableSkeleton columns={8} />}
 
           {!isLoading && loadError && (
             <tr>

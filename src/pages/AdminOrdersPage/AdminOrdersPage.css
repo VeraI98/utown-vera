@@ -1,0 +1,342 @@
+.admin-orders-page {
+  width: 100%;
+  color: #101828;
+}
+
+.admin-orders-page__top-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 32px 22px 16px;
+}
+
+.admin-orders-page__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-orders-page__title-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.admin-orders-page__top-row h1 {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.admin-orders-page__title-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: #68717a;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.admin-orders-page__title-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.admin-orders-page__breadcrumb {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: #68717a;
+}
+
+.admin-orders-page__breadcrumb-link {
+  color: #7749f8;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.admin-orders-page__controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.admin-orders-page__search-wrapper {
+  position: relative;
+  width: 424px;
+}
+
+.admin-orders-page__search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.admin-orders-page__search {
+  box-sizing: border-box;
+  width: 100%;
+  height: 36px;
+  padding: 0 16px 0 40px;
+  border: 1px solid #98a2b3;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #101828;
+}
+
+.admin-orders-page__search::placeholder {
+  color: #98a2b3;
+}
+
+.admin-orders-page__search:focus {
+  border-color: #667085;
+}
+
+.admin-orders-page__toolbar {
+  display: flex;
+  gap: 12px;
+}
+
+.admin-orders-page__toolbar-button {
+  height: 32px;
+  padding: 4px 8px;
+  background: #fff;
+  border: 1px solid #98a2b3;
+  border-radius: 4px;
+  color: #6c757d;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-orders-page__toolbar-button--filter {
+  width: 198px;
+}
+
+.admin-orders-page__toolbar-button--choose-action {
+  width: 214px;
+}
+
+.admin-orders-page__apply-button {
+  width: 58px;
+  height: 32px;
+  padding: 0 8px;
+  background: #414141;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-orders-page__toolbar-button:disabled,
+.admin-orders-page__apply-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.admin-orders-page__table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-orders-page__table {
+  width: 100%;
+  min-width: 1360px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.admin-orders-page__table thead {
+  background: #f3f3f3;
+}
+
+.admin-orders-page__table th {
+  height: 48px;
+  padding: 0 20px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: #101828;
+  vertical-align: middle;
+}
+
+.admin-orders-page__table td {
+  height: 49px;
+  padding: 0 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #101828;
+  vertical-align: middle;
+}
+
+.admin-orders-page__table th:nth-child(1),
+.admin-orders-page__table td:nth-child(1) {
+  width: 52px;
+}
+
+.admin-orders-page__table th:nth-child(2),
+.admin-orders-page__table td:nth-child(2) {
+  width: 190px;
+}
+
+.admin-orders-page__table th:nth-child(3),
+.admin-orders-page__table td:nth-child(3) {
+  width: 190px;
+}
+
+.admin-orders-page__table th:nth-child(4),
+.admin-orders-page__table td:nth-child(4) {
+  width: 160px;
+}
+
+.admin-orders-page__table th:nth-child(5),
+.admin-orders-page__table td:nth-child(5) {
+  width: 140px;
+}
+
+.admin-orders-page__table th:nth-child(6),
+.admin-orders-page__table td:nth-child(6) {
+  width: 100px;
+}
+
+.admin-orders-page__table th:nth-child(7),
+.admin-orders-page__table td:nth-child(7) {
+  width: 100px;
+}
+
+.admin-orders-page__table th:nth-child(8),
+.admin-orders-page__table td:nth-child(8) {
+  width: 100px;
+}
+
+.admin-orders-page__table th:nth-child(9),
+.admin-orders-page__table td:nth-child(9) {
+  width: 100px;
+}
+
+.admin-orders-page__table th:nth-child(10),
+.admin-orders-page__table td:nth-child(10) {
+  width: 180px;
+}
+
+.admin-orders-page__table tbody tr:hover {
+  background: #fafafa;
+}
+
+.admin-orders-page__table input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.admin-orders-page__sort-button {
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-orders-page__sort-button:disabled {
+  color: inherit;
+  cursor: default;
+}
+
+.admin-orders-page__description-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: #68717a;
+}
+
+.admin-orders-page__client-name,
+.admin-orders-page__establishment-name {
+  font-weight: 500;
+}
+
+.admin-orders-page__client-address,
+.admin-orders-page__establishment-address,
+.admin-orders-page__rider-transport {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #98a2b3;
+}
+
+.admin-orders-page__state-cell {
+  text-align: center;
+  color: #68717a;
+  padding: 32px 12px;
+}
+
+.admin-orders-page__error-cell {
+  text-align: center;
+  color: #d92d20;
+  padding: 32px 12px;
+}
+
+.admin-orders-page__retry-button {
+  height: 32px;
+  margin-left: 12px;
+  padding: 0 12px;
+  background: #414141;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-orders-page__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-top: 40px;
+}
+
+.admin-orders-page__pagination button {
+  height: 36px;
+  min-width: 36px;
+  padding: 0 10px;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  color: #414141;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-orders-page__pagination button + button {
+  border-left: none;
+}
+
+.admin-orders-page__pagination-active {
+  background: #414141 !important;
+  color: #fff !important;
+  border-color: #414141 !important;
+}
+
+.admin-orders-page__pagination button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+

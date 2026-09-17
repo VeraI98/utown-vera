@@ -1,14 +1,19 @@
 import { useState } from 'react'
 
-import { logError } from '../../utils/logger'
+import type { DishCategoryResponse } from '../../types/restaurant'
 
-interface AddCategoryModalProps {
+interface EditCategoryModalProps {
+  category: DishCategoryResponse
   onSave: (name: string) => Promise<void>
   onCancel: () => void
 }
 
-function AddCategoryModal({ onSave, onCancel }: AddCategoryModalProps) {
-  const [name, setName] = useState('')
+function EditCategoryModal({
+  category,
+  onSave,
+  onCancel,
+}: EditCategoryModalProps) {
+  const [name, setName] = useState(category.name)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -25,28 +30,28 @@ function AddCategoryModal({ onSave, onCancel }: AddCategoryModalProps) {
 
     try {
       await onSave(trimmedName)
-    } catch (saveError) {
-      logError('AddCategoryModal: failed to add category', saveError)
-
-      setError('Could not add the category')
+    } catch {
+      setError('Could not save the category')
     } finally {
       setIsSaving(false)
     }
   }
 
   return (
-    <div className="admin-positions-page__modal-overlay" onClick={onCancel}>
+    <div
+      className="admin-categories-page__modal-overlay"
+      onClick={onCancel}
+    >
       <div
-        className="admin-positions-page__modal"
+        className="admin-categories-page__modal"
         onClick={(event) => event.stopPropagation()}
       >
-        <h2>Add category</h2>
+        <h2>Edit category</h2>
 
-        <div className="admin-positions-page__modal-field">
-          <label htmlFor="category-name">Name</label>
-
+        <div className="admin-categories-page__modal-field">
+          <label htmlFor="category-edit-name">Name</label>
           <input
-            id="category-name"
+            id="category-edit-name"
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
@@ -54,25 +59,26 @@ function AddCategoryModal({ onSave, onCancel }: AddCategoryModalProps) {
           />
         </div>
 
-        {error && <p className="admin-positions-page__modal-error">{error}</p>}
+        {error && (
+          <p className="admin-categories-page__modal-error">{error}</p>
+        )}
 
-        <div className="admin-positions-page__modal-actions">
+        <div className="admin-categories-page__modal-actions">
           <button
             type="button"
-            className="admin-positions-page__modal-cancel-button"
+            className="admin-categories-page__modal-cancel-button"
             disabled={isSaving}
             onClick={onCancel}
           >
             Cancel
           </button>
-
           <button
             type="button"
-            className="admin-positions-page__modal-save-button"
+            className="admin-categories-page__modal-save-button"
             disabled={isSaving}
             onClick={handleSave}
           >
-            {isSaving ? 'Adding...' : 'Add'}
+            {isSaving ? 'Saving...' : 'Save'}
           </button>
         </div>
       </div>
@@ -80,4 +86,4 @@ function AddCategoryModal({ onSave, onCancel }: AddCategoryModalProps) {
   )
 }
 
-export default AddCategoryModal
+export default EditCategoryModal

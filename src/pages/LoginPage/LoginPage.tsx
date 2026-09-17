@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 
 import logo from '../../assets/ut-business-logo.svg'
+import { useToast } from '../../components/Toast/useToast'
 import { useAuth } from '../../hooks/useAuth'
 import { logError } from '../../utils/logger'
 
@@ -9,6 +10,7 @@ import './LoginPage.css'
 
 function LoginPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { login, isAuthenticated } = useAuth()
 
   const [username, setUsername] = useState('')
@@ -49,8 +51,8 @@ function LoginPage() {
         replace: true,
       })
     } catch (loginError) {
-      logError('LoginPage: failed to log in', loginError)
-
+      logError('Failed to log in:', loginError)
+      showToast('Invalid username or password.', 'error')
       setError('Invalid username or password.')
     } finally {
       setIsSubmitting(false)

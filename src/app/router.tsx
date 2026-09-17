@@ -6,12 +6,15 @@ import ProtectedRoute from '../components/ProtectedRoute'
 import AccountPasswordPage from '../pages/AccountPasswordPage/AccountPasswordPage'
 import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
 import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
+import AdminCategoriesPage from '../pages/AdminCategoriesPage/AdminCategoriesPage'
+import AdminCategoryAddPage from '../pages/AdminCategoryAddPage/AdminCategoryAddPage'
 import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
 import AdminClientEditPage from '../pages/AdminClientEditPage/AdminClientEditPage'
 import AdminClientsPage from '../pages/AdminClientsPage/AdminClientsPage'
 import AdminEstablishmentAddPage from '../pages/AdminEstablishmentAddPage/AdminEstablishmentAddPage'
 import AdminEstablishmentEditPage from '../pages/AdminEstablishmentEditPage/AdminEstablishmentEditPage'
 import AdminEstablishmentsPage from '../pages/AdminEstablishmentsPage/AdminEstablishmentsPage'
+import AdminOrdersPage from '../pages/AdminOrdersPage/AdminOrdersPage'
 import AdminPositionAddPage from '../pages/AdminPositionAddPage/AdminPositionAddPage'
 import AdminPositionEditPage from '../pages/AdminPositionEditPage/AdminPositionEditPage'
 import AdminPositionsPage from '../pages/AdminPositionsPage/AdminPositionsPage'
@@ -21,6 +24,7 @@ import FoodCategoryPage from '../pages/FoodCategoryPage/FoodCategoryPage'
 import FoodMorePage from '../pages/FoodMorePage/FoodMorePage'
 import FoodPage from '../pages/FoodPage/FoodPage'
 import FoodSearch from '../pages/FoodSearch/FoodSearch'
+import ForgotPasswordPage from '../pages/ForgotPasswordPage/ForgotPasswordPage'
 import HomePage from '../pages/HomePage/HomePage'
 import InformationPage from '../pages/InformationPage/InformationPage'
 import LegalPage from '../pages/LegalPage/LegalPage'
@@ -34,6 +38,7 @@ import OrderStatusPage from '../pages/OrderStatusPage/OrderStatusPage'
 import PersonalInformationPage from '../pages/PersonalInformationPage/PersonalInformationPage'
 import ProfilePage from '../pages/ProfilePage/ProfilePage'
 import RegisterPage from '../pages/RegisterPage/RegisterPage'
+import ResetPasswordPage from '../pages/ResetPasswordPage/ResetPasswordPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
 import OwnerDeliveryAreasPage from '../pages/owner/OwnerDeliveryAreasPage/OwnerDeliveryAreasPage'
@@ -58,6 +63,14 @@ export const router = createBrowserRouter([
   {
     path: '/register',
     element: <RegisterPage />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPasswordPage />,
+  },
+  {
+    path: '/reset-password',
+    element: <ResetPasswordPage />,
   },
   {
     path: '/favorites',
@@ -240,6 +253,18 @@ export const router = createBrowserRouter([
       {
         path: 'establishments/:establishmentId/positions',
         element: <AdminPositionsPage />,
+      },
+      {
+        path: 'establishments/:establishmentId/categories',
+        element: <AdminCategoriesPage />,
+      },
+      {
+        path: 'establishments/:establishmentId/categories/add',
+        element: <AdminCategoryAddPage />,
+      },
+      {
+        path: 'orders',
+        element: <AdminOrdersPage />,
       },
       {
         path: 'establishments/:establishmentId/positions/add',

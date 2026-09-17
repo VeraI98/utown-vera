@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
+import Spinner from '../../components/Spinner/Spinner'
+import { useToast } from '../../components/Toast/useToast'
 import {
   getEstablishmentById,
   updateEstablishment,
@@ -58,6 +60,7 @@ function buildDefaultHours(): DayHours[] {
 
 function AdminEstablishmentEditPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { establishmentId } = useParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -141,16 +144,10 @@ function AdminEstablishmentEditPage() {
             )
           }
         } catch (hoursError) {
-          logError(
-            'AdminEstablishmentEditPage: failed to load operating modes',
-            hoursError,
-          )
+          logError('Failed to load operating modes:', hoursError)
         }
       } catch (requestError) {
-        logError(
-          'AdminEstablishmentEditPage: failed to load establishment',
-          requestError,
-        )
+        logError('Failed to load establishment:', requestError)
 
         if (isMounted) {
           setLoadError('Could not load the establishment')
@@ -283,13 +280,11 @@ function AdminEstablishmentEditPage() {
         }
       }
 
+      showToast('Изменения сохранены', 'success')
       navigate('/admin/establishments')
     } catch (submitError) {
-      logError(
-        'AdminEstablishmentEditPage: failed to save establishment changes',
-        submitError,
-      )
-
+      logError('Failed to save establishment changes:', submitError)
+      showToast('Не удалось сохранить изменения. Попробуйте ещё раз', 'error')
       setError('Не удалось сохранить изменения. Попробуйте ещё раз')
     } finally {
       setIsSubmitting(false)
@@ -300,7 +295,7 @@ function AdminEstablishmentEditPage() {
     return (
       <div className="admin-establishment-edit-page">
         <h1>Edit establishment</h1>
-        <p className="admin-establishment-edit-page__loading">Loading...</p>
+        <Spinner />
       </div>
     )
   }

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
+import Spinner from '../../components/Spinner/Spinner'
+import { useToast } from '../../components/Toast/useToast'
 import {
   activateDish,
   createDishOption,
@@ -33,6 +35,7 @@ function buildEmptyOptions(): OptionRow[] {
 
 function AdminPositionEditPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { establishmentId, positionId } = useParams()
   const restaurantId = Number(establishmentId)
   const dishId = Number(positionId)
@@ -70,10 +73,7 @@ function AdminPositionEditPage() {
           setCategories(data.content)
         }
       } catch (categoriesError) {
-        logError(
-          'AdminPositionEditPage: failed to load categories',
-          categoriesError,
-        )
+        logError('Failed to load categories:', categoriesError)
       }
     }
 
@@ -127,7 +127,7 @@ function AdminPositionEditPage() {
           )
         }
       } catch (requestError) {
-        logError('AdminPositionEditPage: failed to load position', requestError)
+        logError('Failed to load position:', requestError)
 
         if (isMounted) {
           setLoadError('Could not load the position')
@@ -245,7 +245,7 @@ function AdminPositionEditPage() {
           await deleteDishOption(dishId, existingOptionId)
         }
       } catch (optionsError) {
-        logError('AdminPositionEditPage: failed to save options', optionsError)
+        logError('Failed to save options:', optionsError)
       }
 
       try {
@@ -255,19 +255,14 @@ function AdminPositionEditPage() {
           await activateDish(dishId)
         }
       } catch (holdError) {
-        logError(
-          'AdminPositionEditPage: failed to update hold status',
-          holdError,
-        )
+        logError('Failed to update hold status:', holdError)
       }
 
+      showToast('Изменения сохранены', 'success')
       navigate(`/admin/establishments/${restaurantId}/positions`)
     } catch (submitError) {
-      logError(
-        'AdminPositionEditPage: failed to save position changes',
-        submitError,
-      )
-
+      logError('Failed to save position changes:', submitError)
+      showToast('Не удалось сохранить изменения. Попробуйте ещё раз', 'error')
       setError('Не удалось сохранить изменения. Попробуйте ещё раз')
     } finally {
       setIsSubmitting(false)
@@ -278,7 +273,7 @@ function AdminPositionEditPage() {
     return (
       <div className="admin-position-edit-page">
         <h1>Edit Position</h1>
-        <p className="admin-position-edit-page__loading">Loading...</p>
+        <Spinner />
       </div>
     )
   }
