@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
 import { useToast } from '../../components/Toast/useToast'
-import { deleteClient, getClients } from '../../services/clientService'
+import {
+  blockClient,
+  deleteClient,
+  getClients,
+  unblockClient,
+} from '../../services/clientService'
 import type { ClientResponse } from '../../types/client'
 import { logError } from '../../utils/logger'
 
@@ -14,14 +19,53 @@ import './AdminClientsPage.css'
 
 const PAGE_SIZE = 10
 
-const SORTABLE_COLUMNS = [
-  'Name',
-  'Number',
-  'City',
-  'Address',
-  'Orders',
-  'Order History',
+type SortDirection = 'asc' | 'desc'
+
+// Only fields that really exist on UserResponse can be sorted on the
+// backend (Spring Pageable). City/Address/Orders are not real fields of
+// the client entity (see note on ClientResponse), so they stay
+// unsortable rather than silently sending a "sort" the API will ignore.
+type SortableField = 'fullName' | 'username'
+
+interface SortState {
+  field: SortableField
+  direction: SortDirection
+}
+
+const COLUMNS: Array<{ label: string; field?: SortableField }> = [
+  { label: 'Name', field: 'fullName' },
+  { label: 'Username', field: 'username' },
+  { label: 'City' },
+  { label: 'Address' },
+  { label: 'Orders' },
+  { label: 'Order History' },
 ]
+
+type BulkAction = 'block' | 'unblock' | 'delete'
+
+const BULK_ACTIONS: Array<{ value: BulkAction; label: string }> = [
+  { value: 'block', label: 'Block' },
+  { value: 'unblock', label: 'Unblock' },
+  { value: 'delete', label: 'Delete' },
+]
+
+const BULK_ACTION_CONFIRM_TITLE: Record<BulkAction, string> = {
+  block: 'Block selected clients?',
+  unblock: 'Unblock selected clients?',
+  delete: 'Delete selected clients?',
+}
+
+const BULK_ACTION_CONFIRM_LABEL: Record<BulkAction, string> = {
+  block: 'Block',
+  unblock: 'Unblock',
+  delete: 'Delete',
+}
+
+const BULK_ACTION_PENDING_LABEL: Record<BulkAction, string> = {
+  block: 'Blocking...',
+  unblock: 'Unblocking...',
+  delete: 'Deleting...',
+}
 
 function AdminClientsPage() {
   const navigate = useNavigate()
@@ -54,6 +98,23 @@ function AdminClientsPage() {
 
   const [reloadKey, setReloadKey] = useState(0)
 
+  const [sort, setSort] = useState<SortState | null>(null)
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [cityInput, setCityInput] = useState('')
+  const [city, setCity] = useState('')
+  const filterRef = useRef<HTMLDivElement | null>(null)
+
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false)
+  const [selectedAction, setSelectedAction] = useState<BulkAction | null>(null)
+  const actionMenuRef = useRef<HTMLDivElement | null>(null)
+
+  const [bulkActionPending, setBulkActionPending] = useState<BulkAction | null>(
+    null,
+  )
+  const [isBulkRunning, setIsBulkRunning] = useState(false)
+  const [bulkError, setBulkError] = useState('')
+
   useEffect(() => {
     let isMounted = true
 
@@ -68,6 +129,8 @@ function AdminClientsPage() {
           page,
           size: PAGE_SIZE,
           search: search || undefined,
+          city: city || undefined,
+          sort: sort ? `${sort.field},${sort.direction}` : undefined,
         })
 
         if (!isMounted) {
@@ -101,7 +164,40 @@ function AdminClientsPage() {
     return () => {
       isMounted = false
     }
-  }, [page, search, reloadKey])
+  }, [page, search, city, sort, reloadKey])
+
+  // Close the Filter / Choose action popovers on outside click.
+  useEffect(() => {
+    if (!isFilterOpen && !isActionMenuOpen) {
+      return
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node
+
+      if (
+        isFilterOpen &&
+        filterRef.current &&
+        !filterRef.current.contains(target)
+      ) {
+        setIsFilterOpen(false)
+      }
+
+      if (
+        isActionMenuOpen &&
+        actionMenuRef.current &&
+        !actionMenuRef.current.contains(target)
+      ) {
+        setIsActionMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isFilterOpen, isActionMenuOpen])
 
   const handleSearchSubmit = () => {
     if (isLoading) {
@@ -120,6 +216,37 @@ function AdminClientsPage() {
     }
 
     setReloadKey((current) => current + 1)
+  }
+
+  const handleSort = (field: SortableField) => {
+    if (isLoading) {
+      return
+    }
+
+    setPage(0)
+
+    setSort((current) => {
+      if (current?.field !== field) {
+        return { field, direction: 'asc' }
+      }
+
+      return {
+        field,
+        direction: current.direction === 'asc' ? 'desc' : 'asc',
+      }
+    })
+  }
+
+  const handleApplyFilter = () => {
+    setPage(0)
+    setCity(cityInput.trim())
+    setIsFilterOpen(false)
+  }
+
+  const handleClearFilter = () => {
+    setCityInput('')
+    setCity('')
+    setIsFilterOpen(false)
   }
 
   const handleConfirmDelete = async () => {
@@ -176,11 +303,93 @@ function AdminClientsPage() {
     setViewedClient(client)
   }
 
+  const handleApplyBulkAction = () => {
+    if (!selectedAction || selectedIds.length === 0) {
+      return
+    }
+
+    setBulkActionPending(selectedAction)
+    setBulkError('')
+  }
+
+  const handleCancelBulkAction = () => {
+    if (isBulkRunning) {
+      return
+    }
+
+    setBulkActionPending(null)
+    setBulkError('')
+  }
+
+  const handleConfirmBulkAction = async () => {
+    if (!bulkActionPending) {
+      return
+    }
+
+    const action = bulkActionPending
+    const idsToProcess = [...selectedIds]
+
+    const actionFn =
+      action === 'block'
+        ? blockClient
+        : action === 'unblock'
+          ? unblockClient
+          : deleteClient
+
+    setIsBulkRunning(true)
+    setBulkError('')
+
+    let successCount = 0
+    let failureCount = 0
+
+    // The backend only accepts one id per request (no bulk endpoint), so
+    // each selected client is processed independently. A failure on one
+    // client should not stop the rest — we report a summary at the end.
+    for (const id of idsToProcess) {
+      try {
+        await actionFn(id)
+        successCount += 1
+      } catch (error) {
+        logError(`Failed to ${action} client ${id}:`, error)
+        failureCount += 1
+      }
+    }
+
+    setIsBulkRunning(false)
+    setBulkActionPending(null)
+    setSelectedAction(null)
+    setSelectedIds([])
+    setReloadKey((current) => current + 1)
+
+    const actionLabelRu =
+      action === 'block'
+        ? 'Заблокировано'
+        : action === 'unblock'
+          ? 'Разблокировано'
+          : 'Удалено'
+
+    if (failureCount === 0) {
+      showToast(`${actionLabelRu}: ${successCount}`, 'success')
+    } else if (successCount === 0) {
+      showToast(
+        `Не удалось выполнить действие для ${failureCount} клиент(ов)`,
+        'error',
+      )
+    } else {
+      showToast(
+        `${actionLabelRu}: ${successCount}, не удалось: ${failureCount}`,
+        'error',
+      )
+    }
+  }
+
   const canGoPrev = page > 0
 
   const canGoNext = page + 1 < totalPages
 
   const showEmptyState = !isLoading && !loadError && clients.length === 0
+
+  const hasSelection = selectedIds.length > 0
 
   return (
     <div className="admin-clients-page">
@@ -241,26 +450,110 @@ function AdminClientsPage() {
           </div>
 
           <div className="admin-clients-page__toolbar">
-            <button
-              className="admin-clients-page__toolbar-button admin-clients-page__toolbar-button--filter"
-              type="button"
-              disabled
+            <div
+              className="admin-clients-page__popover-wrapper"
+              ref={filterRef}
             >
-              Filter <span aria-hidden="true">▾</span>
-            </button>
+              <button
+                className="admin-clients-page__toolbar-button admin-clients-page__toolbar-button--filter"
+                type="button"
+                onClick={() => setIsFilterOpen((open) => !open)}
+              >
+                {city ? `Filter: ${city}` : 'Filter'}{' '}
+                <span aria-hidden="true">▾</span>
+              </button>
 
-            <button
-              className="admin-clients-page__toolbar-button admin-clients-page__toolbar-button--choose-action"
-              type="button"
-              disabled
+              {isFilterOpen && (
+                <div className="admin-clients-page__popover admin-clients-page__popover--filter">
+                  <label
+                    className="admin-clients-page__popover-label"
+                    htmlFor="admin-clients-city-filter"
+                  >
+                    City
+                  </label>
+
+                  <input
+                    id="admin-clients-city-filter"
+                    className="admin-clients-page__popover-input"
+                    type="text"
+                    placeholder="e.g. Seoul"
+                    value={cityInput}
+                    onChange={(event) => setCityInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        handleApplyFilter()
+                      }
+                    }}
+                  />
+
+                  <div className="admin-clients-page__popover-actions">
+                    <button
+                      className="admin-clients-page__popover-secondary-button"
+                      type="button"
+                      onClick={handleClearFilter}
+                    >
+                      Clear
+                    </button>
+
+                    <button
+                      className="admin-clients-page__popover-primary-button"
+                      type="button"
+                      onClick={handleApplyFilter}
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div
+              className="admin-clients-page__popover-wrapper"
+              ref={actionMenuRef}
             >
-              Choose action <span aria-hidden="true">▾</span>
-            </button>
+              <button
+                className="admin-clients-page__toolbar-button admin-clients-page__toolbar-button--choose-action"
+                type="button"
+                onClick={() => setIsActionMenuOpen((open) => !open)}
+              >
+                {selectedAction
+                  ? BULK_ACTIONS.find((item) => item.value === selectedAction)
+                      ?.label
+                  : 'Choose action'}{' '}
+                <span aria-hidden="true">▾</span>
+              </button>
+
+              {isActionMenuOpen && (
+                <div className="admin-clients-page__popover admin-clients-page__popover--action">
+                  {BULK_ACTIONS.map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      className="admin-clients-page__popover-option"
+                      onClick={() => {
+                        setSelectedAction(item.value)
+                        setIsActionMenuOpen(false)
+                      }}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <button
               className="admin-clients-page__apply-button"
               type="button"
-              disabled
+              disabled={!selectedAction || !hasSelection}
+              title={
+                !hasSelection
+                  ? 'Select at least one client'
+                  : !selectedAction
+                    ? 'Choose an action first'
+                    : undefined
+              }
+              onClick={handleApplyBulkAction}
             >
               Apply
             </button>
@@ -283,14 +576,24 @@ function AdminClientsPage() {
               />
             </th>
 
-            {SORTABLE_COLUMNS.map((column) => (
-              <th key={column}>
+            {COLUMNS.map((column) => (
+              <th key={column.label}>
                 <button
                   className="admin-clients-page__sort-button"
                   type="button"
-                  disabled
+                  disabled={!column.field || isLoading}
+                  onClick={
+                    column.field ? () => handleSort(column.field!) : undefined
+                  }
                 >
-                  {column} <span aria-hidden="true">▾</span>
+                  {column.label}{' '}
+                  <span aria-hidden="true">
+                    {column.field && sort?.field === column.field
+                      ? sort.direction === 'asc'
+                        ? '▲'
+                        : '▼'
+                      : '▾'}
+                  </span>
                 </button>
               </th>
             ))}
@@ -349,6 +652,9 @@ function AdminClientsPage() {
                   {client.address || '-'}
                 </td>
 
+                {/* No admin endpoint returns another user's order count
+                    (only /orders/count/user for the caller themselves),
+                    so this stays a placeholder until the backend adds one. */}
                 <td>-</td>
 
                 <td>
@@ -471,6 +777,18 @@ function AdminClientsPage() {
           error={deleteError}
           onConfirm={handleConfirmDelete}
           onCancel={handleCancelDelete}
+        />
+      )}
+
+      {bulkActionPending && (
+        <ConfirmDeleteModal
+          title={`${BULK_ACTION_CONFIRM_TITLE[bulkActionPending]} (${selectedIds.length})`}
+          isDeleting={isBulkRunning}
+          error={bulkError}
+          confirmLabel={BULK_ACTION_CONFIRM_LABEL[bulkActionPending]}
+          pendingLabel={BULK_ACTION_PENDING_LABEL[bulkActionPending]}
+          onConfirm={handleConfirmBulkAction}
+          onCancel={handleCancelBulkAction}
         />
       )}
     </div>
