@@ -198,10 +198,9 @@ function OwnerHomePage() {
                       Order table
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() => navigate('statistics')}
-                    >
+                    {/* Statistics has no page yet, so it's disabled instead
+                        of linking to a route that 404s. */}
+                    <button type="button" disabled>
                       Statistics
                     </button>
 
@@ -211,7 +210,7 @@ function OwnerHomePage() {
 
                     <button
                       type="button"
-                      onClick={() => navigate('establishment')}
+                      onClick={() => navigate('restaurant/edit')}
                     >
                       Establishment
                     </button>

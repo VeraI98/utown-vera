@@ -1,0 +1,131 @@
+.owner-menu-page {
+  background: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.owner-menu-page__content {
+  padding: 20px 16px 32px;
+}
+
+.owner-menu-page h1 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #111111;
+}
+
+.owner-menu-page__message {
+  padding: 24px 0;
+  font-size: 13px;
+  text-align: center;
+  color: #888888;
+}
+
+.owner-menu-page__error {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f1;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #b42318;
+}
+
+.owner-menu-page__retry {
+  display: block;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b42318;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.owner-menu-page__categories {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.owner-menu-page__category h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #888888;
+}
+
+.owner-menu-page__dishes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.owner-menu-page__dish {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.owner-menu-page__dish-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.owner-menu-page__dish-name {
+  font-size: 14px;
+  color: #111111;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.owner-menu-page__dish-price {
+  font-size: 12px;
+  color: #888888;
+}
+
+.owner-menu-page__switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #d9d9d9;
+  cursor: pointer;
+}
+
+.owner-menu-page__switch span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.owner-menu-page__switch--active {
+  background: #3978f6;
+}
+
+.owner-menu-page__switch--active span {
+  transform: translateX(18px);
+}
+
+.owner-menu-page__switch:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}

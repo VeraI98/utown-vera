@@ -6,6 +6,7 @@ import ProtectedRoute from '../components/ProtectedRoute'
 import AccountPasswordPage from '../pages/AccountPasswordPage/AccountPasswordPage'
 import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
 import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
+import AdminAllPositionsPage from '../pages/AdminAllPositionsPage/AdminAllPositionsPage'
 import AdminCategoriesPage from '../pages/AdminCategoriesPage/AdminCategoriesPage'
 import AdminCategoryAddPage from '../pages/AdminCategoryAddPage/AdminCategoryAddPage'
 import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
@@ -46,8 +47,11 @@ import OwnerDeliveryCityPage from '../pages/owner/OwnerDeliveryCityPage/OwnerDel
 import OwnerEditRestaurantPage from '../pages/owner/OwnerEditRestaurantPage/OwnerEditRestaurantPage'
 import OwnerHomePage from '../pages/owner/OwnerHomePage'
 import OwnerLayout from '../pages/owner/OwnerLayout/OwnerLayout'
+import OwnerMenuPage from '../pages/owner/OwnerMenuPage/OwnerMenuPage'
 import OwnerNotFoundPage from '../pages/owner/OwnerNotFoundPage/OwnerNotFoundPage'
 import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
+import OwnerOrderCardPage from '../pages/owner/OwnerOrderCardPage/OwnerOrderCardPage'
+import OwnerOrdersPage from '../pages/owner/OwnerOrdersPage/OwnerOrdersPage'
 import OwnerWorkingHoursEditPage from '../pages/owner/OwnerWorkingHoursEditPage/OwnerWorkingHoursEditPage'
 import OwnerWorkingHoursPage from '../pages/owner/OwnerWorkingHoursPage'
 
@@ -267,6 +271,10 @@ export const router = createBrowserRouter([
         element: <AdminOrdersPage />,
       },
       {
+        path: 'positions',
+        element: <AdminAllPositionsPage />,
+      },
+      {
         path: 'establishments/:establishmentId/positions/add',
         element: <AdminPositionAddPage />,
       },
@@ -293,6 +301,22 @@ export const router = createBrowserRouter([
       {
         path: 'notifications',
         element: <OwnerNotificationsPage />,
+      },
+
+      // Orders
+      {
+        path: 'orders',
+        element: <OwnerOrdersPage />,
+      },
+      {
+        path: 'orders/:orderId',
+        element: <OwnerOrderCardPage />,
+      },
+
+      // Menu
+      {
+        path: 'menu',
+        element: <OwnerMenuPage />,
       },
 
       // Working hours

@@ -121,6 +121,15 @@
   height: 20px;
 }
 
+.owner-layout-drawer__navigation button:disabled {
+  color: #b0b0b0;
+  cursor: default;
+}
+
+.owner-layout-drawer__navigation button:disabled img {
+  opacity: 0.4;
+}
+
 .owner-layout-drawer__close {
   position: absolute;
   z-index: 3;

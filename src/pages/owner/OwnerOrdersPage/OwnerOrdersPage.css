@@ -1,0 +1,192 @@
+.owner-orders-page {
+  background: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.owner-orders-page__content {
+  padding: 20px 16px 32px;
+}
+
+.owner-orders-page h1 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #111111;
+}
+
+.owner-orders-page__filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.owner-orders-page__filter {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid #d9d9d9;
+  border-radius: 999px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  color: #555555;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.owner-orders-page__filter--active {
+  border-color: #3978f6;
+  background: #3978f6;
+  color: #ffffff;
+}
+
+.owner-orders-page__message {
+  padding: 24px 0;
+  font-size: 13px;
+  text-align: center;
+  color: #888888;
+}
+
+.owner-orders-page__error {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f1;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #b42318;
+}
+
+.owner-orders-page__retry {
+  display: block;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b42318;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.owner-orders-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.owner-orders-page__order {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #eeeeee;
+  border-radius: 12px;
+  background: #ffffff;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.owner-orders-page__order:active {
+  background: #f7faff;
+}
+
+.owner-orders-page__order-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.owner-orders-page__order-number {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.owner-orders-page__status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f0f0f0;
+  font-size: 11px;
+  font-weight: 500;
+  color: #555555;
+  white-space: nowrap;
+}
+
+.owner-orders-page__status--pending {
+  background: #fff4e5;
+  color: #b26a00;
+}
+
+.owner-orders-page__status--confirmed,
+.owner-orders-page__status--preparing {
+  background: #e9f0ff;
+  color: #3978f6;
+}
+
+.owner-orders-page__status--ready,
+.owner-orders-page__status--out_for_delivery {
+  background: #eaf7ee;
+  color: #1a7f37;
+}
+
+.owner-orders-page__status--delivered {
+  background: #eaf7ee;
+  color: #1a7f37;
+}
+
+.owner-orders-page__status--cancelled,
+.owner-orders-page__status--refunded {
+  background: #fdecea;
+  color: #b42318;
+}
+
+.owner-orders-page__order-client {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #333333;
+}
+
+.owner-orders-page__order-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888888;
+}
+
+.owner-orders-page__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.owner-orders-page__pagination button {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  color: #333333;
+  cursor: pointer;
+}
+
+.owner-orders-page__pagination button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.owner-orders-page__pagination-label {
+  font-size: 13px;
+  color: #888888;
+}

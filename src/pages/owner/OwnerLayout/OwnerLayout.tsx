@@ -10,7 +10,10 @@ import './OwnerLayout.css'
 
 interface OwnerMenuItem {
   label: string
-  path: string
+  // No path yet means the page for this section doesn't exist. Keep the
+  // item visible (so it's not a surprise later) but not clickable, instead
+  // of linking somewhere that 404s.
+  path?: string
 }
 
 const OWNER_MENU_ITEMS: OwnerMenuItem[] = [
@@ -24,7 +27,6 @@ const OWNER_MENU_ITEMS: OwnerMenuItem[] = [
   },
   {
     label: 'Statistics',
-    path: 'statistics',
   },
   {
     label: 'Menu',
@@ -32,7 +34,7 @@ const OWNER_MENU_ITEMS: OwnerMenuItem[] = [
   },
   {
     label: 'Establishment',
-    path: 'establishment',
+    path: 'restaurant/edit',
   },
   {
     label: 'Working hours',
@@ -111,9 +113,10 @@ export default function OwnerLayout() {
               <nav className="owner-layout-drawer__navigation">
                 {OWNER_MENU_ITEMS.map((item) => (
                   <button
-                    key={item.path}
+                    key={item.label}
                     type="button"
-                    onClick={() => handleMenuNavigation(item.path)}
+                    disabled={!item.path}
+                    onClick={() => item.path && handleMenuNavigation(item.path)}
                   >
                     <span>{item.label}</span>
 
