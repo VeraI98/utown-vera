@@ -6,7 +6,6 @@ import ProtectedRoute from '../components/ProtectedRoute'
 import AccountPasswordPage from '../pages/AccountPasswordPage/AccountPasswordPage'
 import AccountSettingPage from '../pages/AccountSettingPage/AccountSettingPage'
 import AddressCreatePage from '../pages/AddressCreatePage/AddressCreatePage'
-import AdminAllPositionsPage from '../pages/AdminAllPositionsPage/AdminAllPositionsPage'
 import AdminCategoriesPage from '../pages/AdminCategoriesPage/AdminCategoriesPage'
 import AdminCategoryAddPage from '../pages/AdminCategoryAddPage/AdminCategoryAddPage'
 import AdminClientAddPage from '../pages/AdminClientAddPage/AdminClientAddPage'
@@ -269,10 +268,6 @@ export const router = createBrowserRouter([
       {
         path: 'orders',
         element: <AdminOrdersPage />,
-      },
-      {
-        path: 'positions',
-        element: <AdminAllPositionsPage />,
       },
       {
         path: 'establishments/:establishmentId/positions/add',
