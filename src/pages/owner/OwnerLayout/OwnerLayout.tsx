@@ -10,9 +10,6 @@ import './OwnerLayout.css'
 
 interface OwnerMenuItem {
   label: string
-  // No path yet means the page for this section doesn't exist. Keep the
-  // item visible (so it's not a surprise later) but not clickable, instead
-  // of linking somewhere that 404s.
   path?: string
 }
 
@@ -27,6 +24,7 @@ const OWNER_MENU_ITEMS: OwnerMenuItem[] = [
   },
   {
     label: 'Statistics',
+    path: 'statistics',
   },
   {
     label: 'Menu',

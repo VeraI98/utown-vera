@@ -51,6 +51,7 @@ import OwnerNotFoundPage from '../pages/owner/OwnerNotFoundPage/OwnerNotFoundPag
 import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
 import OwnerOrderCardPage from '../pages/owner/OwnerOrderCardPage/OwnerOrderCardPage'
 import OwnerOrdersPage from '../pages/owner/OwnerOrdersPage/OwnerOrdersPage'
+import OwnerStatisticsPage from '../pages/owner/OwnerStatisticsPage/OwnerStatisticsPage'
 import OwnerWorkingHoursEditPage from '../pages/owner/OwnerWorkingHoursEditPage/OwnerWorkingHoursEditPage'
 import OwnerWorkingHoursPage from '../pages/owner/OwnerWorkingHoursPage'
 
@@ -308,13 +309,16 @@ export const router = createBrowserRouter([
         element: <OwnerOrderCardPage />,
       },
 
-      // Menu
       {
         path: 'menu',
         element: <OwnerMenuPage />,
       },
 
-      // Working hours
+      {
+        path: 'statistics',
+        element: <OwnerStatisticsPage />,
+      },
+
       {
         path: 'working-hours',
         element: <OwnerWorkingHoursPage />,
@@ -324,7 +328,6 @@ export const router = createBrowserRouter([
         element: <OwnerWorkingHoursEditPage />,
       },
 
-      // Edit restaurant
       {
         path: 'restaurant/edit',
         element: <OwnerEditRestaurantPage />,

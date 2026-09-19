@@ -90,6 +90,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     saveAuthData(response)
     setUser(response.user)
+
+    return response.user
   }
 
   const register = async (data: RegisterData) => {
@@ -97,6 +99,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     saveAuthData(response)
     setUser(response.user)
+
+    return response.user
   }
 
   const logout = () => {
