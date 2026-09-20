@@ -95,6 +95,7 @@ function AdminEstablishmentAddPage() {
   const [category, setCategory] = useState('')
   const [city, setCity] = useState('')
   const [facilities, setFacilities] = useState('')
+  const [ownerId, setOwnerId] = useState('')
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -168,6 +169,8 @@ function AdminEstablishmentAddPage() {
         imageUrl = await uploadFile(photoFile)
       }
 
+      const parsedOwnerId = ownerId.trim() ? Number(ownerId.trim()) : undefined
+
       const created = await createEstablishment({
         title: title.trim(),
         description: description.trim() || undefined,
@@ -176,6 +179,8 @@ function AdminEstablishmentAddPage() {
         phone: phone.trim() || undefined,
         imageUrl,
         facilities: facilities.trim() || undefined,
+        ownerId: parsedOwnerId,
+        userId: parsedOwnerId,
         address: {
           city: city.trim(),
         },
@@ -374,6 +379,16 @@ function AdminEstablishmentAddPage() {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="admin-establishment-add-page__field">
+          <label>Owner user ID (RESTAURATEUR)</label>
+          <input
+            type="number"
+            value={ownerId}
+            onChange={(event) => setOwnerId(event.target.value)}
+            placeholder="e.g. 157"
+          />
         </div>
 
         <div className="admin-establishment-add-page__field">

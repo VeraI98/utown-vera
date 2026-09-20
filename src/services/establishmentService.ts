@@ -23,6 +23,8 @@ export interface CreateEstablishmentRequest {
   minOrderAmount: number
   phone?: string
   imageUrl?: string
+  ownerId?: number
+  userId?: number
   address: CreateEstablishmentAddress
 }
 
