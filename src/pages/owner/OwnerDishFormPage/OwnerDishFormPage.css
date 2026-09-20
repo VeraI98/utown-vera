@@ -1,0 +1,241 @@
+.owner-dish-form-page {
+  background: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.owner-dish-form-page__message {
+  padding: 24px 16px;
+  font-size: 13px;
+  text-align: center;
+  color: #888888;
+}
+
+.owner-dish-form-page__content {
+  padding: 20px 16px 40px;
+}
+
+.owner-dish-form-page h1 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #111111;
+}
+
+.owner-dish-form-page__error {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f1;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #b42318;
+}
+
+.owner-dish-form-page__field {
+  margin-bottom: 18px;
+}
+
+.owner-dish-form-page__field > label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.owner-dish-form-page__field input[type='text'],
+.owner-dish-form-page__field input[type='number'],
+.owner-dish-form-page__field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #111111;
+}
+
+.owner-dish-form-page__field input[type='text'],
+.owner-dish-form-page__field input[type='number'] {
+  height: 44px;
+}
+
+.owner-dish-form-page__field textarea {
+  height: 96px;
+  padding-top: 10px;
+  resize: vertical;
+}
+
+.owner-dish-form-page__upload {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  color: #b0b0b0;
+  cursor: pointer;
+}
+
+.owner-dish-form-page__upload img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.owner-dish-form-page__upload svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #b0b0b0;
+}
+
+.owner-dish-form-page__file-input {
+  display: none;
+}
+
+.owner-dish-form-page__option-dot {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 1.5px solid #c0c0c0;
+  border-radius: 50%;
+}
+
+.owner-dish-form-page__category-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+}
+
+.owner-dish-form-page__category-row select {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #111111;
+}
+
+.owner-dish-form-page__category-row select:focus {
+  outline: none;
+}
+
+.owner-dish-form-page__hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #d0342c;
+}
+
+.owner-dish-form-page__hold-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 24px 0 32px;
+}
+
+.owner-dish-form-page__hold-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.owner-dish-form-page__hold-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.owner-dish-form-page__hold-description {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #9a9a9a;
+}
+
+.owner-dish-form-page__switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #d9d9d9;
+  cursor: pointer;
+}
+
+.owner-dish-form-page__switch span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.owner-dish-form-page__switch--active {
+  background: #20b520;
+}
+
+.owner-dish-form-page__switch--active span {
+  transform: translateX(20px);
+}
+
+.owner-dish-form-page__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.owner-dish-form-page__save {
+  width: 100%;
+  height: 50px;
+  border: 0;
+  border-radius: 10px;
+  background: #3978f6;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.owner-dish-form-page__save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.owner-dish-form-page__delete {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #d0342c;
+  cursor: pointer;
+}
+
+.owner-dish-form-page__delete:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
