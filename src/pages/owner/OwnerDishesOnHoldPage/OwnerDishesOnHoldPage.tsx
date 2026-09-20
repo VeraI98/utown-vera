@@ -8,7 +8,6 @@ import { getCategoriesByRestaurant } from '../../../services/categoryService'
 
 import {
   activateOwnerDish,
-  deactivateOwnerDish,
   getOwnerDishes,
 } from '../../../services/ownerDishService'
 import { getOwnerRestaurants } from '../../../services/ownerRestaurantService'
@@ -20,7 +19,7 @@ import { logError } from '../../../utils/logger'
 
 import DishCategoryList from '../components/DishCategoryList/DishCategoryList'
 
-import './OwnerMenuPage.css'
+import './OwnerDishesOnHoldPage.css'
 
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -40,16 +39,14 @@ function getErrorMessage(error: unknown): string {
     }
   }
 
-  return 'Failed to load the menu.'
+  return 'Failed to load dishes.'
 }
 
-function OwnerMenuPage() {
+function OwnerDishesOnHoldPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
 
   const userId = user?.id
-
-  const [restaurantId, setRestaurantId] = useState<number | null>(null)
 
   const [categories, setCategories] = useState<DishCategoryResponse[]>([])
   const [dishes, setDishes] = useState<DishResponse[]>([])
@@ -68,7 +65,7 @@ function OwnerMenuPage() {
 
     let isMounted = true
 
-    const loadMenu = async () => {
+    const load = async () => {
       if (isMounted) {
         setIsLoading(true)
         setErrorMessage('')
@@ -76,7 +73,6 @@ function OwnerMenuPage() {
 
       try {
         const restaurants = await getOwnerRestaurants(userId)
-
         const restaurant = restaurants[0]
 
         if (!restaurant) {
@@ -84,10 +80,6 @@ function OwnerMenuPage() {
             setErrorMessage('No restaurant found.')
           }
           return
-        }
-
-        if (isMounted) {
-          setRestaurantId(restaurant.id)
         }
 
         const [dishesData, categoriesData] = await Promise.all([
@@ -99,10 +91,12 @@ function OwnerMenuPage() {
           return
         }
 
-        setDishes(dishesData.filter((dish) => !dish.isDeleted))
+        setDishes(
+          dishesData.filter((dish) => !dish.isDeleted && !dish.isActive),
+        )
         setCategories(categoriesData.content)
       } catch (error) {
-        logError('OwnerMenuPage: failed to load menu', error)
+        logError('OwnerDishesOnHoldPage: failed to load dishes', error)
 
         if (isMounted) {
           setDishes([])
@@ -116,7 +110,7 @@ function OwnerMenuPage() {
       }
     }
 
-    void loadMenu()
+    void load()
 
     return () => {
       isMounted = false
@@ -127,7 +121,7 @@ function OwnerMenuPage() {
     setReloadKey((current) => current + 1)
   }
 
-  const handleToggle = async (dish: DishResponse) => {
+  const handleRemoveFromHold = async (dish: DishResponse) => {
     if (togglingId) {
       return
     }
@@ -136,15 +130,11 @@ function OwnerMenuPage() {
     setToggleError('')
 
     try {
-      if (dish.isActive) {
-        await deactivateOwnerDish(dish.id)
-      } else {
-        await activateOwnerDish(dish.id)
-      }
+      await activateOwnerDish(dish.id)
 
-      setReloadKey((current) => current + 1)
-    } catch (error: unknown) {
-      logError('OwnerMenuPage: failed to toggle dish', error)
+      setDishes((current) => current.filter((item) => item.id !== dish.id))
+    } catch (error) {
+      logError('OwnerDishesOnHoldPage: failed to remove from hold', error)
       setToggleError(getErrorMessage(error))
     } finally {
       setTogglingId(null)
@@ -154,33 +144,35 @@ function OwnerMenuPage() {
   const showEmptyState = !isLoading && !errorMessage && dishes.length === 0
 
   return (
-    <main className="owner-menu-page">
-      <div className="owner-menu-page__content">
-        <h1>Menu</h1>
+    <main className="owner-dishes-on-hold-page">
+      <div className="owner-dishes-on-hold-page__content">
+        <h1>Dishes on hold</h1>
 
-        {isLoading && <p className="owner-menu-page__message">Loading...</p>}
+        {isLoading && (
+          <p className="owner-dishes-on-hold-page__message">Loading...</p>
+        )}
 
         {!isLoading && errorMessage && (
-          <p className="owner-menu-page__error" role="alert">
+          <p className="owner-dishes-on-hold-page__error" role="alert">
             {errorMessage}
-            {restaurantId && (
-              <button
-                className="owner-menu-page__retry"
-                type="button"
-                onClick={handleRetry}
-              >
-                Retry
-              </button>
-            )}
+            <button
+              className="owner-dishes-on-hold-page__retry"
+              type="button"
+              onClick={handleRetry}
+            >
+              Retry
+            </button>
           </p>
         )}
 
         {showEmptyState && (
-          <p className="owner-menu-page__message">No dishes yet.</p>
+          <p className="owner-dishes-on-hold-page__message">
+            No dishes on hold.
+          </p>
         )}
 
         {toggleError && (
-          <p className="owner-menu-page__error" role="alert">
+          <p className="owner-dishes-on-hold-page__error" role="alert">
             {toggleError}
           </p>
         )}
@@ -189,29 +181,17 @@ function OwnerMenuPage() {
           <DishCategoryList
             categories={categories}
             dishes={dishes}
-            toggleLabel={(dish) =>
-              dish.isActive ? 'Put on hold' : 'Remove from hold'
-            }
-            isToggleOn={(dish) => !dish.isActive}
-            onToggle={(dish) => void handleToggle(dish)}
+            toggleLabel={() => 'Remove from hold'}
+            isToggleOn={() => true}
+            onToggle={(dish) => void handleRemoveFromHold(dish)}
             togglingId={togglingId}
-            onEdit={(dish) => navigate(`${dish.id}/edit`)}
-            emptyMessage="No dishes yet."
+            onEdit={(dish) => navigate(`/owner/menu/${dish.id}/edit`)}
+            emptyMessage="No dishes on hold."
           />
         )}
-      </div>
-
-      <div className="owner-menu-page__footer">
-        <button
-          type="button"
-          className="owner-menu-page__edit-menu"
-          onClick={() => navigate('edit')}
-        >
-          Edit Menu
-        </button>
       </div>
     </main>
   )
 }
 
-export default OwnerMenuPage
+export default OwnerDishesOnHoldPage

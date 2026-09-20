@@ -1,0 +1,42 @@
+.owner-categories-hub-page {
+  background: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.owner-categories-hub-page__content {
+  padding: 20px 16px 32px;
+}
+
+.owner-categories-hub-page h1 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #111111;
+}
+
+.owner-categories-hub-page__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.owner-categories-hub-page__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #eeeeee;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  color: #111111;
+  cursor: pointer;
+}
+
+.owner-categories-hub-page__chevron {
+  font-size: 18px;
+  color: #b0b0b0;
+}

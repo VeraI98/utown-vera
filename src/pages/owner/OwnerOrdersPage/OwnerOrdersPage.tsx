@@ -4,30 +4,41 @@ import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../../hooks/useAuth'
 
-import { getOwnerOrders } from '../../../services/ownerOrderService'
+import {
+  getOwnerOrders,
+  updateOrderStatus,
+} from '../../../services/ownerOrderService'
 import { getOwnerRestaurants } from '../../../services/ownerRestaurantService'
 import type { OrderResponse, OrderStatus } from '../../../types/cart'
 import { logError } from '../../../utils/logger'
 
 import './OwnerOrdersPage.css'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 50
 
-interface StatusFilter {
-  label: string
-  value: OrderStatus | undefined
+type OrdersTab = 'ACTIVE' | 'COMPLETED'
+
+const ACTIVE_STATUSES: OrderStatus[] = [
+  'PENDING',
+  'CONFIRMED',
+  'PREPARING',
+  'READY',
+  'OUT_FOR_DELIVERY',
+]
+
+const COMPLETED_STATUSES: OrderStatus[] = ['DELIVERED', 'CANCELLED']
+
+const ACTIVE_STATUS_LABELS: Partial<Record<OrderStatus, string>> = {
+  CONFIRMED: 'Confirmed',
+  PREPARING: 'In preparation',
+  READY: 'Ready',
+  OUT_FOR_DELIVERY: 'Out for delivery',
 }
 
-const STATUS_FILTERS: StatusFilter[] = [
-  { label: 'All', value: undefined },
-  { label: 'Pending', value: 'PENDING' },
-  { label: 'Confirmed', value: 'CONFIRMED' },
-  { label: 'Preparing', value: 'PREPARING' },
-  { label: 'Ready', value: 'READY' },
-  { label: 'Out for delivery', value: 'OUT_FOR_DELIVERY' },
-  { label: 'Delivered', value: 'DELIVERED' },
-  { label: 'Cancelled', value: 'CANCELLED' },
-]
+const COMPLETED_STATUS_LABELS: Partial<Record<OrderStatus, string>> = {
+  DELIVERED: 'Completed',
+  CANCELLED: 'Declined',
+}
 
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -70,18 +81,17 @@ function OwnerOrdersPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const [page, setPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(1)
-
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>(
-    undefined,
-  )
+  const [tab, setTab] = useState<OrdersTab>('ACTIVE')
 
   const [reloadKey, setReloadKey] = useState(0)
 
-  // First find the owner's restaurant, then load its orders. Every
-  // /orders/restaurant/... call is re-checked for ownership on the backend,
-  // but we still need the restaurantId up front to call it at all.
+  const [confirmingOrder, setConfirmingOrder] = useState<OrderResponse | null>(
+    null,
+  )
+  const [isAccepting, setIsAccepting] = useState(false)
+  const [isDeclining, setIsDeclining] = useState(false)
+  const [acceptError, setAcceptError] = useState('')
+
   useEffect(() => {
     if (!userId) {
       return
@@ -112,9 +122,8 @@ function OwnerOrdersPage() {
         }
 
         const data = await getOwnerOrders(restaurant.id, {
-          page,
+          page: 0,
           size: PAGE_SIZE,
-          status: statusFilter,
         })
 
         if (!isMounted) {
@@ -122,7 +131,6 @@ function OwnerOrdersPage() {
         }
 
         setOrders(data.content)
-        setTotalPages(Math.max(1, data.totalPages))
       } catch (error) {
         logError('OwnerOrdersPage: failed to load orders', error)
 
@@ -142,42 +150,135 @@ function OwnerOrdersPage() {
     return () => {
       isMounted = false
     }
-  }, [userId, page, statusFilter, reloadKey])
-
-  const handleSelectStatus = (status: OrderStatus | undefined) => {
-    setPage(0)
-    setStatusFilter(status)
-  }
+  }, [userId, reloadKey])
 
   const handleRetry = () => {
     setReloadKey((current) => current + 1)
   }
 
-  const canGoPrev = page > 0
-  const canGoNext = page + 1 < totalPages
+  const visibleOrders = orders.filter((order) =>
+    (tab === 'ACTIVE' ? ACTIVE_STATUSES : COMPLETED_STATUSES).includes(
+      order.status,
+    ),
+  )
 
-  const showEmptyState = !isLoading && !errorMessage && orders.length === 0
+  const handleAcceptClick = (order: OrderResponse) => {
+    setAcceptError('')
+    setConfirmingOrder(order)
+  }
+
+  const handleCloseConfirm = () => {
+    if (isAccepting || isDeclining) {
+      return
+    }
+
+    setConfirmingOrder(null)
+    setAcceptError('')
+  }
+
+  const handleConfirmAccept = async () => {
+    if (!confirmingOrder || isAccepting || isDeclining) {
+      return
+    }
+
+    setIsAccepting(true)
+    setAcceptError('')
+
+    try {
+      await updateOrderStatus(confirmingOrder.id, 'PREPARING')
+
+      const acceptedOrderId = confirmingOrder.id
+
+      setConfirmingOrder(null)
+      navigate(`${acceptedOrderId}/cooking-time`)
+    } catch (error) {
+      logError('OwnerOrdersPage: failed to accept order', error)
+
+      setAcceptError(getErrorMessage(error))
+    } finally {
+      setIsAccepting(false)
+    }
+  }
+
+  const handleConfirmDecline = async () => {
+    if (!confirmingOrder || isAccepting || isDeclining) {
+      return
+    }
+
+    setIsDeclining(true)
+    setAcceptError('')
+
+    try {
+      const updated = await updateOrderStatus(confirmingOrder.id, 'CANCELLED')
+
+      setOrders((current) =>
+        current.map((order) => (order.id === updated.id ? updated : order)),
+      )
+
+      setConfirmingOrder(null)
+    } catch (error) {
+      logError('OwnerOrdersPage: failed to decline order', error)
+
+      setAcceptError(getErrorMessage(error))
+    } finally {
+      setIsDeclining(false)
+    }
+  }
+
+  const showEmptyState =
+    !isLoading && !errorMessage && visibleOrders.length === 0
 
   return (
     <main className="owner-orders-page">
       <div className="owner-orders-page__content">
-        <h1>Order table</h1>
+        <div className="owner-orders-page__title-row">
+          <h1>Order Table</h1>
 
-        <div className="owner-orders-page__filters">
-          {STATUS_FILTERS.map((filter) => (
-            <button
-              key={filter.label}
-              type="button"
-              className={`owner-orders-page__filter${
-                statusFilter === filter.value
-                  ? ' owner-orders-page__filter--active'
-                  : ''
-              }`}
-              onClick={() => handleSelectStatus(filter.value)}
-            >
-              {filter.label}
-            </button>
-          ))}
+          <button
+            type="button"
+            className="owner-orders-page__refresh"
+            aria-label="Refresh orders"
+            onClick={handleRetry}
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M4 12a8 8 0 0114.5-4.5M20 12a8 8 0 01-14.5 4.5"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M18.5 3.5v4h-4M5.5 20.5v-4h4"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div className="owner-orders-page__tabs">
+          <button
+            type="button"
+            className={`owner-orders-page__tab${
+              tab === 'ACTIVE' ? ' owner-orders-page__tab--active' : ''
+            }`}
+            onClick={() => setTab('ACTIVE')}
+          >
+            New / In Progress
+          </button>
+
+          <button
+            type="button"
+            className={`owner-orders-page__tab${
+              tab === 'COMPLETED' ? ' owner-orders-page__tab--active' : ''
+            }`}
+            onClick={() => setTab('COMPLETED')}
+          >
+            Completed
+          </button>
         </div>
 
         {isLoading && <p className="owner-orders-page__message">Loading...</p>}
@@ -201,63 +302,129 @@ function OwnerOrdersPage() {
           <p className="owner-orders-page__message">No orders found.</p>
         )}
 
-        {!isLoading && !errorMessage && orders.length > 0 && (
+        {!isLoading && !errorMessage && visibleOrders.length > 0 && (
           <div className="owner-orders-page__list">
-            {orders.map((order) => (
-              <button
-                className="owner-orders-page__order"
-                key={order.id}
-                type="button"
-                onClick={() => navigate(`${order.id}`)}
-              >
+            {visibleOrders.map((order) => (
+              <div className="owner-orders-page__order" key={order.id}>
                 <div className="owner-orders-page__order-top">
                   <span className="owner-orders-page__order-number">
-                    No. {order.number}
+                    Order No. {order.number}
                   </span>
-                  <span
-                    className={`owner-orders-page__status owner-orders-page__status--${order.status.toLowerCase()}`}
+                  <span className="owner-orders-page__order-time">
+                    {order.time || '-'}
+                  </span>
+                </div>
+
+                <div className="owner-orders-page__items">
+                  {order.items.map((item) => (
+                    <div className="owner-orders-page__item" key={item.id}>
+                      <span className="owner-orders-page__item-name">
+                        {item.dishTitle} / x{item.count}
+                      </span>
+
+                      {item.elements.length > 0 && (
+                        <span className="owner-orders-page__item-elements">
+                          {item.elements
+                            .map((element) => element.name)
+                            .join(', ')}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="owner-orders-page__order-total">
+                  {formatAmount(order.totalSum)}
+                </div>
+
+                {tab === 'ACTIVE' ? (
+                  order.status === 'PENDING' ? (
+                    <button
+                      type="button"
+                      className="owner-orders-page__accept-button"
+                      onClick={() => handleAcceptClick(order)}
+                    >
+                      Accept
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="owner-orders-page__status-button"
+                      disabled
+                    >
+                      {ACTIVE_STATUS_LABELS[order.status] ?? order.status}
+                    </button>
+                  )
+                ) : (
+                  <button
+                    type="button"
+                    className={`owner-orders-page__completed-button${
+                      order.status === 'CANCELLED'
+                        ? ' owner-orders-page__completed-button--declined'
+                        : ''
+                    }`}
+                    disabled
                   >
-                    {order.status}
-                  </span>
-                </div>
+                    {COMPLETED_STATUS_LABELS[order.status] ?? order.status}
+                  </button>
+                )}
 
-                <div className="owner-orders-page__order-client">
-                  {order.userName || '-'}
-                </div>
-
-                <div className="owner-orders-page__order-bottom">
-                  <span>{order.time || '-'}</span>
-                  <span>{formatAmount(order.totalSum)}</span>
-                </div>
-              </button>
+                <button
+                  type="button"
+                  className="owner-orders-page__more-details"
+                  onClick={() => navigate(`${order.id}`)}
+                >
+                  More details
+                </button>
+              </div>
             ))}
           </div>
         )}
+      </div>
 
-        {!isLoading && !errorMessage && totalPages > 1 && (
-          <div className="owner-orders-page__pagination">
+      {confirmingOrder && (
+        <div className="owner-orders-page__modal-overlay">
+          <button
+            type="button"
+            className="owner-orders-page__modal-backdrop"
+            aria-label="Close"
+            disabled={isAccepting || isDeclining}
+            onClick={handleCloseConfirm}
+          />
+
+          <div className="owner-orders-page__modal">
+            <p className="owner-orders-page__modal-title">
+              Accept the order
+              <br />
+              for processing?
+            </p>
+
+            {acceptError && (
+              <p className="owner-orders-page__modal-error" role="alert">
+                {acceptError}
+              </p>
+            )}
+
             <button
               type="button"
-              disabled={!canGoPrev}
-              onClick={() => setPage((current) => current - 1)}
+              className="owner-orders-page__modal-decline"
+              disabled={isAccepting || isDeclining}
+              onClick={() => void handleConfirmDecline()}
             >
-              Prev
+              {isDeclining ? 'Declining...' : 'Decline'}
             </button>
 
-            <span className="owner-orders-page__pagination-label">
-              {page + 1} / {totalPages}
-            </span>
-
             <button
               type="button"
-              disabled={!canGoNext}
-              onClick={() => setPage((current) => current + 1)}
+              className="owner-orders-page__modal-accept"
+              disabled={isAccepting || isDeclining}
+              onClick={() => void handleConfirmAccept()}
             >
-              Next
+              {isAccepting ? 'Accepting...' : 'Accept'}
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </main>
   )
 }

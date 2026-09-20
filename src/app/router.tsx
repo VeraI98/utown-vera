@@ -41,8 +41,15 @@ import RegisterPage from '../pages/RegisterPage/RegisterPage'
 import ResetPasswordPage from '../pages/ResetPasswordPage/ResetPasswordPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
+import OwnerCategoriesHubPage from '../pages/owner/OwnerCategoriesHubPage/OwnerCategoriesHubPage'
+import OwnerCategoriesListPage from '../pages/owner/OwnerCategoriesListPage/OwnerCategoriesListPage'
+import OwnerCategoryFormPage from '../pages/owner/OwnerCategoryFormPage/OwnerCategoryFormPage'
+import OwnerDeletedDishesPage from '../pages/owner/OwnerDeletedDishesPage/OwnerDeletedDishesPage'
 import OwnerDeliveryAreasPage from '../pages/owner/OwnerDeliveryAreasPage/OwnerDeliveryAreasPage'
 import OwnerDeliveryCityPage from '../pages/owner/OwnerDeliveryCityPage/OwnerDeliveryCityPage'
+import OwnerDishesOnHoldPage from '../pages/owner/OwnerDishesOnHoldPage/OwnerDishesOnHoldPage'
+import OwnerDishFormPage from '../pages/owner/OwnerDishFormPage/OwnerDishFormPage'
+import OwnerEditMenuHubPage from '../pages/owner/OwnerEditMenuHubPage/OwnerEditMenuHubPage'
 import OwnerEditRestaurantPage from '../pages/owner/OwnerEditRestaurantPage/OwnerEditRestaurantPage'
 import OwnerHomePage from '../pages/owner/OwnerHomePage'
 import OwnerLayout from '../pages/owner/OwnerLayout/OwnerLayout'
@@ -50,6 +57,7 @@ import OwnerMenuPage from '../pages/owner/OwnerMenuPage/OwnerMenuPage'
 import OwnerNotFoundPage from '../pages/owner/OwnerNotFoundPage/OwnerNotFoundPage'
 import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
 import OwnerOrderCardPage from '../pages/owner/OwnerOrderCardPage/OwnerOrderCardPage'
+import OwnerOrderCookingTimePage from '../pages/owner/OwnerOrderCookingTimePage/OwnerOrderCookingTimePage'
 import OwnerOrdersPage from '../pages/owner/OwnerOrdersPage/OwnerOrdersPage'
 import OwnerStatisticsPage from '../pages/owner/OwnerStatisticsPage/OwnerStatisticsPage'
 import OwnerWorkingHoursEditPage from '../pages/owner/OwnerWorkingHoursEditPage/OwnerWorkingHoursEditPage'
@@ -308,10 +316,50 @@ export const router = createBrowserRouter([
         path: 'orders/:orderId',
         element: <OwnerOrderCardPage />,
       },
+      {
+        path: 'orders/:orderId/cooking-time',
+        element: <OwnerOrderCookingTimePage />,
+      },
 
       {
         path: 'menu',
         element: <OwnerMenuPage />,
+      },
+      {
+        path: 'menu/edit',
+        element: <OwnerEditMenuHubPage />,
+      },
+      {
+        path: 'menu/add',
+        element: <OwnerDishFormPage />,
+      },
+      {
+        path: 'menu/:dishId/edit',
+        element: <OwnerDishFormPage />,
+      },
+      {
+        path: 'menu/on-hold',
+        element: <OwnerDishesOnHoldPage />,
+      },
+      {
+        path: 'menu/deleted',
+        element: <OwnerDeletedDishesPage />,
+      },
+      {
+        path: 'menu/categories',
+        element: <OwnerCategoriesHubPage />,
+      },
+      {
+        path: 'menu/categories/add',
+        element: <OwnerCategoryFormPage />,
+      },
+      {
+        path: 'menu/categories/list',
+        element: <OwnerCategoriesListPage />,
+      },
+      {
+        path: 'menu/categories/:categoryId/edit',
+        element: <OwnerCategoryFormPage />,
       },
 
       {
