@@ -59,6 +59,7 @@ import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
 import OwnerOrderCardPage from '../pages/owner/OwnerOrderCardPage/OwnerOrderCardPage'
 import OwnerOrderCookingTimePage from '../pages/owner/OwnerOrderCookingTimePage/OwnerOrderCookingTimePage'
 import OwnerOrdersPage from '../pages/owner/OwnerOrdersPage/OwnerOrdersPage'
+import OwnerStatisticsDayPage from '../pages/owner/OwnerStatisticsDayPage/OwnerStatisticsDayPage'
 import OwnerStatisticsPage from '../pages/owner/OwnerStatisticsPage/OwnerStatisticsPage'
 import OwnerWorkingHoursEditPage from '../pages/owner/OwnerWorkingHoursEditPage/OwnerWorkingHoursEditPage'
 import OwnerWorkingHoursPage from '../pages/owner/OwnerWorkingHoursPage'
@@ -365,6 +366,10 @@ export const router = createBrowserRouter([
       {
         path: 'statistics',
         element: <OwnerStatisticsPage />,
+      },
+      {
+        path: 'statistics/:date',
+        element: <OwnerStatisticsDayPage />,
       },
 
       {
