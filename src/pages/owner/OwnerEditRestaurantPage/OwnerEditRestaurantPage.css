@@ -39,7 +39,8 @@
 }
 
 .owner-edit-restaurant-field input,
-.owner-edit-restaurant-field textarea {
+.owner-edit-restaurant-field textarea,
+.owner-edit-restaurant-field select {
   width: 100%;
   border: 1px solid #cfd6e1;
   border-radius: 4px;
@@ -51,7 +52,8 @@
   outline: none;
 }
 
-.owner-edit-restaurant-field input {
+.owner-edit-restaurant-field input,
+.owner-edit-restaurant-field select {
   height: 42px;
   padding: 0 12px;
 }
@@ -63,7 +65,8 @@
 }
 
 .owner-edit-restaurant-field input:focus,
-.owner-edit-restaurant-field textarea:focus {
+.owner-edit-restaurant-field textarea:focus,
+.owner-edit-restaurant-field select:focus {
   border-color: #3978f6;
 }
 
@@ -74,16 +77,32 @@
   gap: 6px;
 }
 
-.owner-edit-restaurant-hours-row {
-  min-height: 42px;
+.owner-edit-restaurant-upload {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  height: 42px;
+  align-items: center;
+  justify-content: space-between;
   padding: 0 12px;
   border: 1px solid #cfd6e1;
   border-radius: 4px;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
+  background: #ffffff;
+  font-family: inherit;
   font-size: 14px;
-  color: #252b36;
+  color: #7c8798;
+  cursor: pointer;
+}
+
+.owner-edit-restaurant-upload svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #7c8798;
+}
+
+.owner-edit-restaurant-file-input {
+  display: none;
 }
 
 .owner-edit-restaurant-select {

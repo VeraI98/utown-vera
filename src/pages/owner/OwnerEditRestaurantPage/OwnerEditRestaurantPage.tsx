@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../../hooks/useAuth'
 
+import { uploadFile } from '../../../services/fileService'
 import {
   getOwnerRestaurants,
   updateOwnerRestaurant,
@@ -13,15 +14,21 @@ import { logError } from '../../../utils/logger'
 
 import './OwnerEditRestaurantPage.css'
 
-const DAY_NAMES: Record<number, string> = {
-  1: 'Mon',
-  2: 'Tue',
-  3: 'Wed',
-  4: 'Thu',
-  5: 'Fri',
-  6: 'Sat',
-  7: 'Sun',
-}
+const MIN_ORDER_OPTIONS = ['5000', '10000', '15000', '20000', '30000']
+
+const CATEGORY_OPTIONS = [
+  'Fast food',
+  'Asian',
+  'Korean',
+  'Russian',
+  'Uzbek',
+  'European',
+]
+
+// Weekday hours (Mon-Fri) live on dayOfWeek 1-5, weekend hours (Sat-Sun) on
+// 6-7. The form only exposes these two combined rows, not per-day editing.
+const WEEKDAY_DAYS = [1, 2, 3, 4, 5]
+const WEEKEND_DAYS = [6, 7]
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -43,28 +50,36 @@ function getErrorMessage(error: unknown): string {
   return 'Something went wrong'
 }
 
-function formatOpeningHours(restaurant: OwnerRestaurant): string[] {
-  const modes = [...(restaurant.operatingModes ?? [])].sort(
-    (first, second) => first.dayOfWeek - second.dayOfWeek,
-  )
-
-  if (modes.length === 0) {
-    return ['Working hours are not specified']
+function formatHoursRow(
+  restaurant: OwnerRestaurant | null,
+  days: number[],
+): string {
+  if (!restaurant) {
+    return ''
   }
 
-  return modes.map((mode) => {
-    const day = DAY_NAMES[mode.dayOfWeek] ?? `Day ${mode.dayOfWeek}`
+  const mode = (restaurant.operatingModes ?? []).find((item) =>
+    days.includes(item.dayOfWeek),
+  )
 
-    if (mode.dayOff) {
-      return `${day}: Day off`
-    }
+  if (!mode || mode.dayOff || !mode.start || !mode.end) {
+    return ''
+  }
 
-    if (!mode.start || !mode.end) {
-      return `${day}: Not specified`
-    }
+  return `${mode.start} — ${mode.end}`
+}
 
-    return `${day}: ${mode.start} — ${mode.end}`
-  })
+function parseHoursRow(value: string): { start: string; end: string } | null {
+  const match = value
+    .split('—')
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  if (match.length !== 2) {
+    return null
+  }
+
+  return { start: match[0], end: match[1] }
 }
 
 export default function OwnerEditRestaurantPage() {
@@ -74,13 +89,23 @@ export default function OwnerEditRestaurantPage() {
 
   const userId = Number(user?.id)
 
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [restaurant, setRestaurant] = useState<OwnerRestaurant | null>(null)
 
   const [title, setTitle] = useState('')
 
   const [description, setDescription] = useState('')
 
-  const [imageUrl, setImageUrl] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+
+  const [existingImageUrl, setExistingImageUrl] = useState('')
+
+  const [weekdayHours, setWeekdayHours] = useState('')
+
+  const [weekendHours, setWeekendHours] = useState('')
 
   const [minOrderAmount, setMinOrderAmount] = useState('')
 
@@ -129,9 +154,17 @@ export default function OwnerEditRestaurantPage() {
 
         setDescription(firstRestaurant.description ?? '')
 
-        setImageUrl(firstRestaurant.imageUrl ?? '')
+        setExistingImageUrl(firstRestaurant.imageUrl ?? '')
 
-        setMinOrderAmount(String(firstRestaurant.minOrderAmount ?? ''))
+        setWeekdayHours(formatHoursRow(firstRestaurant, WEEKDAY_DAYS))
+
+        setWeekendHours(formatHoursRow(firstRestaurant, WEEKEND_DAYS))
+
+        setMinOrderAmount(
+          firstRestaurant.minOrderAmount != null
+            ? String(firstRestaurant.minOrderAmount)
+            : '',
+        )
 
         setCategory(firstRestaurant.category ?? '')
 
@@ -173,14 +206,6 @@ export default function OwnerEditRestaurantPage() {
     }
   }, [userId])
 
-  const openingHours = useMemo(() => {
-    if (!restaurant) {
-      return []
-    }
-
-    return formatOpeningHours(restaurant)
-  }, [restaurant])
-
   const isSaveDisabled =
     isSaving ||
     !restaurant ||
@@ -188,8 +213,22 @@ export default function OwnerEditRestaurantPage() {
     !description.trim() ||
     !category.trim() ||
     !city.trim() ||
-    !area.trim() ||
     !minOrderAmount.trim()
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+
+    if (!file) {
+      return
+    }
+
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
 
   const handleSave = async () => {
     if (!restaurant || isSaveDisabled) {
@@ -209,6 +248,49 @@ export default function OwnerEditRestaurantPage() {
     setSuccessMessage('')
 
     try {
+      let imageUrl = existingImageUrl
+
+      if (imageFile) {
+        imageUrl = await uploadFile(imageFile)
+      }
+
+      const parsedWeekday = parseHoursRow(weekdayHours)
+      const parsedWeekend = parseHoursRow(weekendHours)
+
+      const otherModes = (restaurant.operatingModes ?? []).filter(
+        (mode) =>
+          !WEEKDAY_DAYS.includes(mode.dayOfWeek) &&
+          !WEEKEND_DAYS.includes(mode.dayOfWeek),
+      )
+
+      const weekdayModes = WEEKDAY_DAYS.map((dayOfWeek) => {
+        const existing = restaurant.operatingModes?.find(
+          (mode) => mode.dayOfWeek === dayOfWeek,
+        )
+
+        return {
+          id: existing?.id ?? 0,
+          dayOfWeek,
+          start: parsedWeekday?.start ?? null,
+          end: parsedWeekday?.end ?? null,
+          dayOff: !parsedWeekday,
+        }
+      })
+
+      const weekendModes = WEEKEND_DAYS.map((dayOfWeek) => {
+        const existing = restaurant.operatingModes?.find(
+          (mode) => mode.dayOfWeek === dayOfWeek,
+        )
+
+        return {
+          id: existing?.id ?? 0,
+          dayOfWeek,
+          start: parsedWeekend?.start ?? null,
+          end: parsedWeekend?.end ?? null,
+          dayOff: !parsedWeekend,
+        }
+      })
+
       const updatedRestaurant: OwnerRestaurant = {
         ...restaurant,
 
@@ -216,11 +298,13 @@ export default function OwnerEditRestaurantPage() {
 
         description: description.trim(),
 
-        imageUrl: imageUrl.trim(),
+        imageUrl,
 
         minOrderAmount: parsedMinOrderAmount,
 
         category: category.trim(),
+
+        operatingModes: [...otherModes, ...weekdayModes, ...weekendModes],
 
         address: {
           ...restaurant.address,
@@ -237,6 +321,10 @@ export default function OwnerEditRestaurantPage() {
       )
 
       setRestaurant(response)
+
+      setExistingImageUrl(response.imageUrl ?? '')
+      setImageFile(null)
+      setImagePreview(null)
 
       sessionStorage.removeItem('ownerEditRestaurantCity')
 
@@ -269,6 +357,8 @@ export default function OwnerEditRestaurantPage() {
       'Restaurant deletion is not available for restaurant owners',
     )
   }
+
+  const previewSrc = imagePreview || existingImageUrl || ''
 
   if (isLoading) {
     return (
@@ -317,14 +407,34 @@ export default function OwnerEditRestaurantPage() {
         </div>
 
         <div className="owner-edit-restaurant-field">
-          <label htmlFor="restaurant-image">Image of establishment</label>
+          <span className="owner-edit-restaurant-label">
+            Image of establishment
+          </span>
+
+          <button
+            type="button"
+            className="owner-edit-restaurant-upload"
+            onClick={handleImageClick}
+          >
+            <span>{previewSrc ? 'Image uploaded' : 'Upload image'}</span>
+
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M4 16.5V18a2 2 0 002 2h12a2 2 0 002-2v-1.5M12 15V4m0 0L7 9m5-5l5 5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
 
           <input
-            id="restaurant-image"
-            type="text"
-            value={imageUrl}
-            placeholder="Image URL"
-            onChange={(event) => setImageUrl(event.target.value)}
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="owner-edit-restaurant-file-input"
+            onChange={handleImageChange}
           />
         </div>
 
@@ -332,39 +442,54 @@ export default function OwnerEditRestaurantPage() {
           <span className="owner-edit-restaurant-label">Opening hours</span>
 
           <div className="owner-edit-restaurant-hours">
-            {openingHours.map((openingHour) => (
-              <div
-                key={openingHour}
-                className="owner-edit-restaurant-hours-row"
-              >
-                {openingHour}
-              </div>
-            ))}
+            <input
+              type="text"
+              placeholder="Mon-Fri, 9:00 — 22:00"
+              value={weekdayHours}
+              onChange={(event) => setWeekdayHours(event.target.value)}
+            />
+
+            <input
+              type="text"
+              placeholder="Sat-Sun, 10:00 — 24:00"
+              value={weekendHours}
+              onChange={(event) => setWeekendHours(event.target.value)}
+            />
           </div>
         </div>
 
         <div className="owner-edit-restaurant-field">
           <label htmlFor="restaurant-min-order">Minimum order</label>
 
-          <input
+          <select
             id="restaurant-min-order"
-            type="number"
-            min="0"
-            step="0.01"
             value={minOrderAmount}
             onChange={(event) => setMinOrderAmount(event.target.value)}
-          />
+          >
+            <option value="">Select amount</option>
+            {MIN_ORDER_OPTIONS.map((amount) => (
+              <option key={amount} value={amount}>
+                {Number(amount).toLocaleString('en-US')}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="owner-edit-restaurant-field">
           <label htmlFor="restaurant-category">Category of establishment</label>
 
-          <input
+          <select
             id="restaurant-category"
-            type="text"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-          />
+          >
+            <option value="">Select category</option>
+            {CATEGORY_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="owner-edit-restaurant-field">
@@ -375,11 +500,7 @@ export default function OwnerEditRestaurantPage() {
             className="owner-edit-restaurant-select"
             onClick={handleCityClick}
           >
-            <span>
-              {city && area
-                ? `${city}, ${area}`
-                : city || area || 'Select delivery area'}
-            </span>
+            <span>{city || 'Select delivery area'}</span>
 
             <span className="owner-edit-restaurant-chevron">›</span>
           </button>
@@ -391,7 +512,7 @@ export default function OwnerEditRestaurantPage() {
           type="button"
           className="owner-edit-restaurant-save"
           disabled={isSaveDisabled}
-          onClick={handleSave}
+          onClick={() => void handleSave()}
         >
           {isSaving ? 'Saving...' : 'Save changes'}
         </button>
