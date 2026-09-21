@@ -3,20 +3,19 @@ import { api } from './api'
 import type { OrderResponse } from '../types/cart'
 import type { PaginatedResponse } from '../types/restaurant'
 
-// Field names below are a best-effort guess (the OpenAPI spec truncates
-// before these schemas) — verify against the real response in DevTools
-// Network once this is live, and adjust if the backend uses different names.
+// Field names verified against the live OpenAPI schema
+// (components.schemas.StatsSummaryResponse / DailyStatsResponse).
 export interface StatsSummaryResponse {
-  totalRevenue: number
-  ordersCount: number
-  cancelledOrdersCount: number
+  revenue: number
+  orders: number
+  cancelled: number
 }
 
 export interface DailyStatsResponse {
-  date: string
-  totalRevenue: number
-  ordersCount: number
-  cancelledOrdersCount: number
+  day: string
+  revenue: number
+  orders: number
+  cancelled: number
 }
 
 function toIsoDateTime(date: string, endOfDay = false): string {

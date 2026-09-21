@@ -180,7 +180,7 @@ function OwnerStatisticsPage() {
     const map = new Map<number, DailyStatsResponse>()
 
     dailyStats.forEach((stat) => {
-      const day = Number(stat.date.slice(-2))
+      const day = Number(stat.day.slice(-2))
 
       if (!Number.isNaN(day)) {
         map.set(day, stat)
@@ -240,18 +240,18 @@ function OwnerStatisticsPage() {
                 Total for {MONTH_LABELS[month]}
               </span>
               <span className="owner-statistics-page__summary-value">
-                {formatAmount(summary.totalRevenue)}
+                {formatAmount(summary.revenue)}
               </span>
             </div>
 
             <div className="owner-statistics-page__summary-row owner-statistics-page__summary-row--muted">
               <span>Orders</span>
-              <span>{summary.ordersCount}</span>
+              <span>{summary.orders}</span>
             </div>
 
             <div className="owner-statistics-page__summary-row owner-statistics-page__summary-row--muted">
               <span>Cancelled Orders</span>
-              <span>{summary.cancelledOrdersCount}</span>
+              <span>{summary.cancelled}</span>
             </div>
           </div>
         )}

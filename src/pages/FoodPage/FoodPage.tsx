@@ -284,12 +284,10 @@ function FoodPage() {
           </button>
 
           <section className="food-banner">
-            <img src={coffeeImage} alt="Coffee promotion" />
-
-            <div className="food-banner-text">
-              <strong>Delicious coffee</strong>
-              <span>Short promotional text -20% on everything</span>
-            </div>
+            <img
+              src={coffeeImage}
+              alt="Delicious coffee — Short promotional text -20% on everything"
+            />
           </section>
 
           <div className="food-banner-dots" aria-hidden="true">

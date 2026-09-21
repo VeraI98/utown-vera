@@ -50,6 +50,13 @@ function getErrorMessage(error: unknown): string {
   return 'Something went wrong'
 }
 
+// The form only exposes one combined row per group (weekdays / weekend),
+// but individual days within a group can carry different hours (e.g. one
+// weekday marked as a day off while the rest are open). Rather than always
+// reading the first day in the group — which silently hid the real hours
+// whenever that first day happened to differ from the rest — this takes
+// the most common working pattern among the group's open days, so a single
+// outlier day doesn't blank out the row.
 function formatHoursRow(
   restaurant: OwnerRestaurant | null,
   days: number[],
@@ -58,15 +65,60 @@ function formatHoursRow(
     return ''
   }
 
-  const mode = (restaurant.operatingModes ?? []).find((item) =>
+  const modesInGroup = (restaurant.operatingModes ?? []).filter((item) =>
     days.includes(item.dayOfWeek),
   )
 
-  if (!mode || mode.dayOff || !mode.start || !mode.end) {
+  const openModes = modesInGroup.filter(
+    (mode) => !mode.dayOff && mode.start && mode.end,
+  )
+
+  if (openModes.length === 0) {
     return ''
   }
 
-  return `${mode.start} — ${mode.end}`
+  const countByHours = new Map<string, number>()
+
+  openModes.forEach((mode) => {
+    const key = `${mode.start} — ${mode.end}`
+
+    countByHours.set(key, (countByHours.get(key) ?? 0) + 1)
+  })
+
+  let mostCommonHours = ''
+  let highestCount = 0
+
+  countByHours.forEach((count, hours) => {
+    if (count > highestCount) {
+      mostCommonHours = hours
+      highestCount = count
+    }
+  })
+
+  return mostCommonHours
+}
+
+// True when the days in a group don't all share the same hours/day-off
+// state, so saving the single combined row would flatten real differences.
+function hasMixedHours(
+  restaurant: OwnerRestaurant | null,
+  days: number[],
+): boolean {
+  if (!restaurant) {
+    return false
+  }
+
+  const modesInGroup = (restaurant.operatingModes ?? []).filter((item) =>
+    days.includes(item.dayOfWeek),
+  )
+
+  const signatures = new Set(
+    modesInGroup.map((mode) =>
+      mode.dayOff ? 'off' : `${mode.start ?? ''}-${mode.end ?? ''}`,
+    ),
+  )
+
+  return signatures.size > 1
 }
 
 function parseHoursRow(value: string): { start: string; end: string } | null {
@@ -205,6 +257,10 @@ export default function OwnerEditRestaurantPage() {
       isActive = false
     }
   }, [userId])
+
+  const weekdayHoursAreMixed = hasMixedHours(restaurant, WEEKDAY_DAYS)
+
+  const weekendHoursAreMixed = hasMixedHours(restaurant, WEEKEND_DAYS)
 
   const isSaveDisabled =
     isSaving ||
@@ -456,6 +512,13 @@ export default function OwnerEditRestaurantPage() {
               onChange={(event) => setWeekendHours(event.target.value)}
             />
           </div>
+
+          {(weekdayHoursAreMixed || weekendHoursAreMixed) && (
+            <p className="owner-edit-restaurant-hint">
+              Some days currently have different hours than the rest of the
+              group. Saving will apply the same hours to every day shown here.
+            </p>
+          )}
         </div>
 
         <div className="owner-edit-restaurant-field">

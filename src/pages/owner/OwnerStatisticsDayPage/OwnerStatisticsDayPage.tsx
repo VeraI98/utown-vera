@@ -186,18 +186,18 @@ function OwnerStatisticsDayPage() {
                 Total for {formatDayTitle(selectedDate)}
               </span>
               <span className="owner-statistics-day-page__summary-value">
-                {formatAmount(summary.totalRevenue)}
+                {formatAmount(summary.revenue)}
               </span>
             </div>
 
             <div className="owner-statistics-day-page__summary-row owner-statistics-day-page__summary-row--muted">
               <span>Orders</span>
-              <span>{summary.ordersCount}</span>
+              <span>{summary.orders}</span>
             </div>
 
             <div className="owner-statistics-day-page__summary-row owner-statistics-day-page__summary-row--muted">
               <span>Cancelled orders</span>
-              <span>{summary.cancelledOrdersCount}</span>
+              <span>{summary.cancelled}</span>
             </div>
           </div>
         )}
