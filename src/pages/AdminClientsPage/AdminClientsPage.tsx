@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
+import Pagination from '../../components/Pagination/Pagination'
 import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
 import { useToast } from '../../components/Toast/useToast'
 import { deleteClient, getClients } from '../../services/clientService'
@@ -175,10 +176,6 @@ function AdminClientsPage() {
   const openClientCard = (client: ClientResponse) => {
     setViewedClient(client)
   }
-
-  const canGoPrev = page > 0
-
-  const canGoNext = page + 1 < totalPages
 
   const showEmptyState = !isLoading && !loadError && clients.length === 0
 
@@ -405,39 +402,12 @@ function AdminClientsPage() {
       </table>
 
       <div className="admin-clients-page__pagination">
-        <button
-          type="button"
-          disabled={isLoading || !canGoPrev}
-          onClick={() => setPage((current) => current - 1)}
-        >
-          Prev
-        </button>
-
-        {Array.from({
-          length: totalPages,
-        }).map((_, index) => (
-          <button
-            type="button"
-            key={index}
-            className={
-              index === page
-                ? 'admin-clients-page__pagination-active'
-                : undefined
-            }
-            disabled={isLoading}
-            onClick={() => setPage(index)}
-          >
-            {index + 1}
-          </button>
-        ))}
-
-        <button
-          type="button"
-          disabled={isLoading || !canGoNext}
-          onClick={() => setPage((current) => current + 1)}
-        >
-          Next
-        </button>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          disabled={isLoading}
+        />
       </div>
 
       {viewedClient && (

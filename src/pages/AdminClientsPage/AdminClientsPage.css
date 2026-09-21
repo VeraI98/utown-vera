@@ -237,37 +237,7 @@
 }
 
 .admin-clients-page__pagination {
-  display: flex;
-  justify-content: center;
-  gap: 0;
   margin-top: 334px;
-}
-
-.admin-clients-page__pagination button {
-  height: 36px;
-  min-width: 36px;
-  padding: 0 10px;
-  background: #fff;
-  border: 1px solid #dee2e6;
-  color: #414141;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 14px;
-}
-
-.admin-clients-page__pagination button + button {
-  border-left: none;
-}
-
-.admin-clients-page__pagination-active {
-  background: #414141 !important;
-  color: #fff !important;
-  border-color: #414141 !important;
-}
-
-.admin-clients-page__pagination button:disabled {
-  opacity: 0.4;
-  cursor: default;
 }
 
 .admin-clients-page__state-cell {

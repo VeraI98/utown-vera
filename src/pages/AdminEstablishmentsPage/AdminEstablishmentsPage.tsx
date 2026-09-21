@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
+import Pagination from '../../components/Pagination/Pagination'
 import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
 import { useToast } from '../../components/Toast/useToast'
 import {
@@ -155,9 +156,6 @@ function AdminEstablishmentsPage() {
       setSelectedIds(establishments.map((establishment) => establishment.id))
     }
   }
-
-  const canGoPrev = page > 0
-  const canGoNext = page + 1 < totalPages
 
   const showEmptyState = !isLoading && !loadError && establishments.length === 0
 
@@ -420,36 +418,12 @@ function AdminEstablishmentsPage() {
       </table>
 
       <div className="admin-establishments-page__pagination">
-        <button
-          type="button"
-          disabled={!canGoPrev}
-          onClick={() => setPage((current) => current - 1)}
-        >
-          Prev
-        </button>
-
-        {Array.from({ length: totalPages }).map((_, index) => (
-          <button
-            type="button"
-            key={index}
-            className={
-              index === page
-                ? 'admin-establishments-page__pagination-active'
-                : undefined
-            }
-            onClick={() => setPage(index)}
-          >
-            {index + 1}
-          </button>
-        ))}
-
-        <button
-          type="button"
-          disabled={!canGoNext}
-          onClick={() => setPage((current) => current + 1)}
-        >
-          Next
-        </button>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          disabled={isLoading}
+        />
       </div>
 
       {viewedEstablishment && (
