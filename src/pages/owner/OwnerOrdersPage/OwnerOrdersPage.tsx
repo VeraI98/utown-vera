@@ -37,7 +37,7 @@ const ACTIVE_STATUS_LABELS: Partial<Record<OrderStatus, string>> = {
 
 const COMPLETED_STATUS_LABELS: Partial<Record<OrderStatus, string>> = {
   DELIVERED: 'Completed',
-  CANCELLED: 'Declined',
+  CANCELLED: 'Rejected',
 }
 
 function getErrorMessage(error: unknown): string {
