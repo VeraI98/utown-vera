@@ -41,7 +41,6 @@ import RegisterPage from '../pages/RegisterPage/RegisterPage'
 import ResetPasswordPage from '../pages/ResetPasswordPage/ResetPasswordPage'
 import RestaurantPage from '../pages/RestaurantPage/RestaurantPage'
 
-import OwnerCategoriesHubPage from '../pages/owner/OwnerCategoriesHubPage/OwnerCategoriesHubPage'
 import OwnerCategoriesListPage from '../pages/owner/OwnerCategoriesListPage/OwnerCategoriesListPage'
 import OwnerCategoryFormPage from '../pages/owner/OwnerCategoryFormPage/OwnerCategoryFormPage'
 import OwnerDeletedDishesPage from '../pages/owner/OwnerDeletedDishesPage/OwnerDeletedDishesPage'
@@ -49,9 +48,9 @@ import OwnerDeliveryAreasPage from '../pages/owner/OwnerDeliveryAreasPage/OwnerD
 import OwnerDeliveryCityPage from '../pages/owner/OwnerDeliveryCityPage/OwnerDeliveryCityPage'
 import OwnerDishesOnHoldPage from '../pages/owner/OwnerDishesOnHoldPage/OwnerDishesOnHoldPage'
 import OwnerDishFormPage from '../pages/owner/OwnerDishFormPage/OwnerDishFormPage'
-import OwnerEditMenuHubPage from '../pages/owner/OwnerEditMenuHubPage/OwnerEditMenuHubPage'
 import OwnerEditRestaurantPage from '../pages/owner/OwnerEditRestaurantPage/OwnerEditRestaurantPage'
 import OwnerHomePage from '../pages/owner/OwnerHomePage'
+import OwnerHubPage from '../components/owner/OwnerHubPage/OwnerHubPage'
 import OwnerLayout from '../pages/owner/OwnerLayout/OwnerLayout'
 import OwnerMenuPage from '../pages/owner/OwnerMenuPage/OwnerMenuPage'
 import OwnerNotFoundPage from '../pages/owner/OwnerNotFoundPage/OwnerNotFoundPage'
@@ -59,7 +58,6 @@ import OwnerNotificationsPage from '../pages/owner/OwnerNotificationsPage'
 import OwnerOrderCardPage from '../pages/owner/OwnerOrderCardPage/OwnerOrderCardPage'
 import OwnerOrderCookingTimePage from '../pages/owner/OwnerOrderCookingTimePage/OwnerOrderCookingTimePage'
 import OwnerOrdersPage from '../pages/owner/OwnerOrdersPage/OwnerOrdersPage'
-import OwnerStatisticsDayPage from '../pages/owner/OwnerStatisticsDayPage/OwnerStatisticsDayPage'
 import OwnerStatisticsPage from '../pages/owner/OwnerStatisticsPage/OwnerStatisticsPage'
 import OwnerWorkingHoursEditPage from '../pages/owner/OwnerWorkingHoursEditPage/OwnerWorkingHoursEditPage'
 import OwnerWorkingHoursPage from '../pages/owner/OwnerWorkingHoursPage'
@@ -328,7 +326,17 @@ export const router = createBrowserRouter([
       },
       {
         path: 'menu/edit',
-        element: <OwnerEditMenuHubPage />,
+        element: (
+          <OwnerHubPage
+            title="Edit Menu"
+            items={[
+              { label: 'Add Dish', path: '/owner/menu/add' },
+              { label: 'Dishes on hold', path: '/owner/menu/on-hold' },
+              { label: 'Deleted', path: '/owner/menu/deleted' },
+              { label: 'Dish Categories', path: '/owner/menu/categories' },
+            ]}
+          />
+        ),
       },
       {
         path: 'menu/add',
@@ -348,7 +356,15 @@ export const router = createBrowserRouter([
       },
       {
         path: 'menu/categories',
-        element: <OwnerCategoriesHubPage />,
+        element: (
+          <OwnerHubPage
+            title="Categories of dishes"
+            items={[
+              { label: 'Add new category', path: '/owner/menu/categories/add' },
+              { label: 'Edit categories', path: '/owner/menu/categories/list' },
+            ]}
+          />
+        ),
       },
       {
         path: 'menu/categories/add',
@@ -366,10 +382,6 @@ export const router = createBrowserRouter([
       {
         path: 'statistics',
         element: <OwnerStatisticsPage />,
-      },
-      {
-        path: 'statistics/:date',
-        element: <OwnerStatisticsDayPage />,
       },
 
       {

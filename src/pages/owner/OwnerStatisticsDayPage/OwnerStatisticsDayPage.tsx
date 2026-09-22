@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -11,6 +10,7 @@ import {
 } from '../../../services/ownerStatisticsService'
 import type { StatsSummaryResponse } from '../../../services/ownerStatisticsService'
 import type { OrderResponse } from '../../../types/cart'
+import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
 import './OwnerStatisticsDayPage.css'
@@ -52,23 +52,6 @@ function parseDateKey(dateKey: string): Date | null {
 
 function formatDayTitle(date: Date): string {
   return `${date.getDate()} ${MONTH_LABELS[date.getMonth()]}`
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-  }
-
-  return 'Failed to load orders.'
 }
 
 function formatAmount(amount: number): string {
@@ -141,7 +124,7 @@ function OwnerStatisticsDayPage() {
         if (isMounted) {
           setSummary(null)
           setOrders([])
-          setErrorMessage(getErrorMessage(error))
+          setErrorMessage(getErrorMessage(error, 'Failed to load orders.'))
         }
       } finally {
         if (isMounted) {

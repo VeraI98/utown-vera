@@ -77,3 +77,17 @@ export async function updateOrderStatus(
 
   return data
 }
+
+// /orders/{id}/status only reads the "status" key (verified against the
+// live API) — cooking time has to go through the general order-update
+// endpoint instead, which is what actually persists it.
+export async function updateOrderCookingTime(
+  orderId: number,
+  cookingTime: number,
+): Promise<OrderResponse> {
+  const { data } = await api.put<OrderResponse>(`/orders/${orderId}`, {
+    cookingTime,
+  })
+
+  return data
+}

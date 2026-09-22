@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -17,30 +16,10 @@ import {
 } from '../../../services/ownerDishService'
 import { getOwnerRestaurants } from '../../../services/ownerRestaurantService'
 import type { DishCategoryResponse } from '../../../types/restaurant'
+import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
 import './OwnerDishFormPage.css'
-
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-  }
-
-  return fallback
-}
 
 function OwnerDishFormPage() {
   const navigate = useNavigate()

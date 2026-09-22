@@ -1,12 +1,13 @@
-import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
+import { ORDER_STATUS_LABELS as STATUS_LABELS } from '../../../constants/orderStatus'
 import {
   getOrderById,
   updateOrderStatus,
 } from '../../../services/ownerOrderService'
 import type { OrderResponse, OrderStatus } from '../../../types/cart'
+import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
 import './OwnerOrderCardPage.css'
@@ -22,38 +23,6 @@ const STATUS_FLOW: OrderStatus[] = [
   'OUT_FOR_DELIVERY',
   'DELIVERED',
 ]
-
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  PENDING: 'Pending',
-  CONFIRMED: 'Confirmed',
-  PREPARING: 'Preparing',
-  READY: 'Ready',
-  OUT_FOR_DELIVERY: 'Out for delivery',
-  DELIVERED: 'Delivered',
-  CANCELLED: 'Cancelled',
-  REFUNDED: 'Refunded',
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-  }
-
-  return 'Something went wrong.'
-}
 
 function formatAmount(amount: number) {
   if (typeof amount !== 'number') {
@@ -101,7 +70,7 @@ function OwnerOrderCardPage() {
         logError('OwnerOrderCardPage: failed to load order', error)
 
         if (isMounted) {
-          setErrorMessage(getErrorMessage(error))
+          setErrorMessage(getErrorMessage(error, 'Something went wrong.'))
         }
       } finally {
         if (isMounted) {
@@ -136,7 +105,7 @@ function OwnerOrderCardPage() {
     } catch (error: unknown) {
       logError('OwnerOrderCardPage: failed to update status', error)
 
-      setUpdateError(getErrorMessage(error))
+      setUpdateError(getErrorMessage(error, 'Something went wrong.'))
     } finally {
       setIsUpdating(false)
     }

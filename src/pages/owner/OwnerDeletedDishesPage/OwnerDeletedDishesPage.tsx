@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,32 +11,12 @@ import type {
   DishCategoryResponse,
   DishResponse,
 } from '../../../types/restaurant'
+import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
 import DishCategoryList from '../components/DishCategoryList/DishCategoryList'
 
 import './OwnerDeletedDishesPage.css'
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-  }
-
-  return 'Failed to load dishes.'
-}
 
 function OwnerDeletedDishesPage() {
   const navigate = useNavigate()
@@ -93,7 +72,7 @@ function OwnerDeletedDishesPage() {
         if (isMounted) {
           setDishes([])
           setCategories([])
-          setErrorMessage(getErrorMessage(error))
+          setErrorMessage(getErrorMessage(error, 'Failed to load dishes.'))
         }
       } finally {
         if (isMounted) {

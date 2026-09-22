@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -16,32 +15,12 @@ import type {
   DishCategoryResponse,
   DishResponse,
 } from '../../../types/restaurant'
+import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
 import DishCategoryList from '../components/DishCategoryList/DishCategoryList'
 
 import './OwnerMenuPage.css'
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-  }
-
-  return 'Failed to load the menu.'
-}
 
 function OwnerMenuPage() {
   const navigate = useNavigate()
@@ -107,7 +86,7 @@ function OwnerMenuPage() {
         if (isMounted) {
           setDishes([])
           setCategories([])
-          setErrorMessage(getErrorMessage(error))
+          setErrorMessage(getErrorMessage(error, 'Failed to load the menu.'))
         }
       } finally {
         if (isMounted) {
@@ -145,7 +124,7 @@ function OwnerMenuPage() {
       setReloadKey((current) => current + 1)
     } catch (error: unknown) {
       logError('OwnerMenuPage: failed to toggle dish', error)
-      setToggleError(getErrorMessage(error))
+      setToggleError(getErrorMessage(error, 'Failed to load the menu.'))
     } finally {
       setTogglingId(null)
     }

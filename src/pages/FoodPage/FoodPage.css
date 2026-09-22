@@ -163,6 +163,30 @@
   object-fit: cover;
 }
 
+.food-banner-text {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  display: flex;
+  max-width: 160px;
+  flex-direction: column;
+  gap: 5px;
+  transform: translateY(-50%);
+  color: #ffffff;
+}
+
+.food-banner-text strong {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.food-banner-text span {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
 .food-banner-dots {
   display: flex;
   min-height: 25px;

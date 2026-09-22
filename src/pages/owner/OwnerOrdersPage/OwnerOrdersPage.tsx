@@ -1,15 +1,16 @@
-import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../../hooks/useAuth'
 
+import { ORDER_STATUS_LABELS } from '../../../constants/orderStatus'
 import {
   getOwnerOrders,
   updateOrderStatus,
 } from '../../../services/ownerOrderService'
 import { getOwnerRestaurants } from '../../../services/ownerRestaurantService'
 import type { OrderResponse, OrderStatus } from '../../../types/cart'
+import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
 import './OwnerOrdersPage.css'
@@ -27,39 +28,6 @@ const ACTIVE_STATUSES: OrderStatus[] = [
 ]
 
 const COMPLETED_STATUSES: OrderStatus[] = ['DELIVERED', 'CANCELLED']
-
-const ACTIVE_STATUS_LABELS: Partial<Record<OrderStatus, string>> = {
-  CONFIRMED: 'Confirmed',
-  PREPARING: 'In preparation',
-  READY: 'Ready',
-  OUT_FOR_DELIVERY: 'Out for delivery',
-}
-
-const COMPLETED_STATUS_LABELS: Partial<Record<OrderStatus, string>> = {
-  DELIVERED: 'Completed',
-  CANCELLED: 'Rejected',
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-  }
-
-  return 'Failed to load orders.'
-}
 
 function formatAmount(amount: number) {
   if (typeof amount !== 'number') {
@@ -136,7 +104,7 @@ function OwnerOrdersPage() {
 
         if (isMounted) {
           setOrders([])
-          setErrorMessage(getErrorMessage(error))
+          setErrorMessage(getErrorMessage(error, 'Failed to load orders.'))
         }
       } finally {
         if (isMounted) {
@@ -194,7 +162,7 @@ function OwnerOrdersPage() {
     } catch (error) {
       logError('OwnerOrdersPage: failed to accept order', error)
 
-      setAcceptError(getErrorMessage(error))
+      setAcceptError(getErrorMessage(error, 'Failed to load orders.'))
     } finally {
       setIsAccepting(false)
     }
@@ -219,7 +187,7 @@ function OwnerOrdersPage() {
     } catch (error) {
       logError('OwnerOrdersPage: failed to decline order', error)
 
-      setAcceptError(getErrorMessage(error))
+      setAcceptError(getErrorMessage(error, 'Failed to load orders.'))
     } finally {
       setIsDeclining(false)
     }
@@ -352,7 +320,7 @@ function OwnerOrdersPage() {
                       className="owner-orders-page__status-button"
                       disabled
                     >
-                      {ACTIVE_STATUS_LABELS[order.status] ?? order.status}
+                      {ORDER_STATUS_LABELS[order.status] ?? order.status}
                     </button>
                   )
                 ) : (
@@ -365,7 +333,7 @@ function OwnerOrdersPage() {
                     }`}
                     disabled
                   >
-                    {COMPLETED_STATUS_LABELS[order.status] ?? order.status}
+                    {ORDER_STATUS_LABELS[order.status] ?? order.status}
                   </button>
                 )}
 

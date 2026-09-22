@@ -1,5 +1,7 @@
 import { api } from './api'
 
+import { invalidateOwnerRestaurantsCache } from './ownerRestaurantService'
+
 export interface OwnerRestaurantAddress {
   id: number
   area: string
@@ -68,6 +70,11 @@ export async function updateOwnerRestaurant(
     `/restaurant-owner/restaurants/${restaurantId}`,
     restaurant,
   )
+
+  // This edit can change fields (name, hours, image, ...) that other owner
+  // pages read via the cached getOwnerRestaurants() in ownerRestaurantService,
+  // so drop that cache to avoid those pages showing stale data.
+  invalidateOwnerRestaurantsCache()
 
   return data
 }

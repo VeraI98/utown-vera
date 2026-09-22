@@ -10,6 +10,7 @@ import {
 } from '../../../services/ownerEditRestaurantService'
 
 import type { OwnerRestaurant } from '../../../services/ownerEditRestaurantService'
+import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
 import './OwnerEditRestaurantPage.css'
@@ -29,26 +30,6 @@ const CATEGORY_OPTIONS = [
 // 6-7. The form only exposes these two combined rows, not per-day editing.
 const WEEKDAY_DAYS = [1, 2, 3, 4, 5]
 const WEEKEND_DAYS = [6, 7]
-
-function getErrorMessage(error: unknown): string {
-  if (typeof error === 'object' && error !== null && 'response' in error) {
-    const response = (
-      error as {
-        response?: {
-          data?: {
-            message?: string
-          }
-        }
-      }
-    ).response
-
-    if (response?.data?.message) {
-      return response.data.message
-    }
-  }
-
-  return 'Something went wrong'
-}
 
 // The form only exposes one combined row per group (weekdays / weekend),
 // but individual days within a group can carry different hours (e.g. one
@@ -121,9 +102,20 @@ function hasMixedHours(
   return signatures.size > 1
 }
 
+// Accepts a hyphen (-), en dash (–), or em dash (—) as the separator, with
+// or without surrounding spaces, since the field is pre-filled with an em
+// dash but owners often retype it with a plain hyphen.
+const HOURS_SEPARATOR_PATTERN = /\s*[-–—]\s*/
+
 function parseHoursRow(value: string): { start: string; end: string } | null {
-  const match = value
-    .split('—')
+  const trimmed = value.trim()
+
+  if (!trimmed) {
+    return null
+  }
+
+  const match = trimmed
+    .split(HOURS_SEPARATOR_PATTERN)
     .map((part) => part.trim())
     .filter(Boolean)
 
@@ -132,6 +124,14 @@ function parseHoursRow(value: string): { start: string; end: string } | null {
   }
 
   return { start: match[0], end: match[1] }
+}
+
+// A row is valid either when it's blank (the group is a day off) or when it
+// parses into a start/end pair. Anything else — text that doesn't match the
+// expected "start — end" shape — must block saving rather than silently
+// turning the whole group into a day off.
+function isValidHoursRow(value: string): boolean {
+  return !value.trim() || parseHoursRow(value) !== null
 }
 
 export default function OwnerEditRestaurantPage() {
@@ -243,7 +243,7 @@ export default function OwnerEditRestaurantPage() {
 
         setRestaurant(null)
 
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(getErrorMessage(error, 'Something went wrong'))
       })
       .finally(() => {
         if (!isActive) {
@@ -262,6 +262,10 @@ export default function OwnerEditRestaurantPage() {
 
   const weekendHoursAreMixed = hasMixedHours(restaurant, WEEKEND_DAYS)
 
+  const isWeekdayHoursValid = isValidHoursRow(weekdayHours)
+
+  const isWeekendHoursValid = isValidHoursRow(weekendHours)
+
   const isSaveDisabled =
     isSaving ||
     !restaurant ||
@@ -269,7 +273,10 @@ export default function OwnerEditRestaurantPage() {
     !description.trim() ||
     !category.trim() ||
     !city.trim() ||
-    !minOrderAmount.trim()
+    !area.trim() ||
+    !minOrderAmount.trim() ||
+    !isWeekdayHoursValid ||
+    !isWeekendHoursValid
 
   const handleImageClick = () => {
     fileInputRef.current?.click()
@@ -295,6 +302,20 @@ export default function OwnerEditRestaurantPage() {
 
     if (!Number.isFinite(parsedMinOrderAmount) || parsedMinOrderAmount < 0) {
       setErrorMessage('Minimum order must be a valid number')
+
+      return
+    }
+
+    if (!isValidHoursRow(weekdayHours) || !isValidHoursRow(weekendHours)) {
+      setErrorMessage(
+        'Opening hours must be in the format "9:00 — 22:00", or left blank for a day off',
+      )
+
+      return
+    }
+
+    if (!area.trim()) {
+      setErrorMessage('Delivery area must be filled in')
 
       return
     }
@@ -390,7 +411,7 @@ export default function OwnerEditRestaurantPage() {
     } catch (error: unknown) {
       logError('OwnerEditRestaurantPage: failed to save restaurant', error)
 
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(getErrorMessage(error, 'Something went wrong'))
     } finally {
       setIsSaving(false)
     }
@@ -503,6 +524,7 @@ export default function OwnerEditRestaurantPage() {
               placeholder="Mon-Fri, 9:00 — 22:00"
               value={weekdayHours}
               onChange={(event) => setWeekdayHours(event.target.value)}
+              aria-invalid={!isWeekdayHoursValid}
             />
 
             <input
@@ -510,8 +532,19 @@ export default function OwnerEditRestaurantPage() {
               placeholder="Sat-Sun, 10:00 — 24:00"
               value={weekendHours}
               onChange={(event) => setWeekendHours(event.target.value)}
+              aria-invalid={!isWeekendHoursValid}
             />
           </div>
+
+          {(!isWeekdayHoursValid || !isWeekendHoursValid) && (
+            <p
+              className="owner-edit-restaurant-hint owner-edit-restaurant-hint-error"
+              role="alert"
+            >
+              Use the format "9:00 — 22:00" (a hyphen also works), or leave the
+              field blank for a day off.
+            </p>
+          )}
 
           {(weekdayHoursAreMixed || weekendHoursAreMixed) && (
             <p className="owner-edit-restaurant-hint">

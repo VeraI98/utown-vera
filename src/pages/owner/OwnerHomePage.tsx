@@ -11,6 +11,7 @@ import {
 
 import type { OwnerRestaurantStatus } from '../../services/ownerRestaurantService'
 import type { RestaurantResponse } from '../../types/restaurant'
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import { logError } from '../../utils/logger'
 
 import './OwnerHomePage.css'
@@ -25,29 +26,16 @@ const DAY_NAMES: Record<number, string> = {
   7: 'Sun',
 }
 
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    if (error.response?.status === 403) {
-      return 'You do not have access to restaurant owner data.'
-    }
-
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
+// OwnerHomePage needs one thing the shared util doesn't handle: a 403 here
+// specifically means "you're logged in but not as a restaurant owner",
+// which deserves its own message rather than whatever (or nothing) the
+// backend puts in the response body for a plain permission denial.
+function getOwnerHomeErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error) && error.response?.status === 403) {
+    return 'You do not have access to restaurant owner data.'
   }
 
-  return 'Failed to load restaurant data.'
+  return getErrorMessage(error, 'Failed to load restaurant data.')
 }
 
 function OwnerHomePage() {
@@ -88,7 +76,7 @@ function OwnerHomePage() {
         }
 
         setRestaurant(null)
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(getOwnerHomeErrorMessage(error))
       })
       .finally(() => {
         if (!isActive) {
@@ -138,7 +126,7 @@ function OwnerHomePage() {
     } catch (error: unknown) {
       logError('OwnerHomePage: failed to update restaurant status', error)
 
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(getOwnerHomeErrorMessage(error))
     } finally {
       setIsUpdatingStatus(false)
     }

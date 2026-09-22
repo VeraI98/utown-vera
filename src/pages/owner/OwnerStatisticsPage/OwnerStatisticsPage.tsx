@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -13,6 +12,7 @@ import type {
   StatsSummaryResponse,
 } from '../../../services/ownerStatisticsService'
 import { getOwnerRestaurants } from '../../../services/ownerRestaurantService'
+import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
 import './OwnerStatisticsPage.css'
@@ -70,23 +70,6 @@ function getMonthGrid(year: number, month: number): (number | null)[][] {
   }
 
   return weeks
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-  }
-
-  return 'Failed to load statistics.'
 }
 
 function formatAmount(amount: number): string {
@@ -158,7 +141,7 @@ function OwnerStatisticsPage() {
         if (isMounted) {
           setSummary(null)
           setDailyStats([])
-          setErrorMessage(getErrorMessage(error))
+          setErrorMessage(getErrorMessage(error, 'Failed to load statistics.'))
         }
       } finally {
         if (isMounted) {

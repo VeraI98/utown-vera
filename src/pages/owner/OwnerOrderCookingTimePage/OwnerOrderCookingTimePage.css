@@ -51,6 +51,17 @@
   color: #111111;
 }
 
+.owner-order-cooking-time-page__error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f1;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  color: #b42318;
+}
+
 .owner-order-cooking-time-page__start-button {
   width: 100%;
   height: 52px;
@@ -62,4 +73,9 @@
   font-weight: 600;
   color: #ffffff;
   cursor: pointer;
+}
+
+.owner-order-cooking-time-page__start-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
