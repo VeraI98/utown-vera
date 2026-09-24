@@ -237,7 +237,10 @@
 }
 
 .admin-clients-page__pagination {
-  margin-top: 334px;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-top: 40px;
 }
 
 .admin-clients-page__state-cell {
