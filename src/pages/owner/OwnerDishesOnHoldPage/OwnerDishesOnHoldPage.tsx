@@ -62,7 +62,7 @@ function OwnerDishesOnHoldPage() {
         }
 
         const [dishesData, categoriesData] = await Promise.all([
-          getOwnerDishes(restaurant.id),
+          getOwnerDishes(restaurant.id, 'inactive'),
           getCategoriesByRestaurant(restaurant.id),
         ])
 

@@ -10,8 +10,8 @@ import {
   deactivateDish,
   deleteDish,
   updateDish,
+  getAllAdminDishesForRestaurant,
 } from '../../services/adminDishService'
-import { getDishesByRestaurant } from '../../services/dishService'
 import { getEstablishmentById } from '../../services/establishmentService'
 import type { DishResponse } from '../../types/restaurant'
 import { logError } from '../../utils/logger'
@@ -104,16 +104,16 @@ function AdminPositionsPage() {
       }
 
       try {
-        const data = await getDishesByRestaurant(restaurantId, 0, 200)
+        const dishes = await getAllAdminDishesForRestaurant(restaurantId)
 
         if (!isMounted) {
           return
         }
 
-        setAllDishes(data.content)
+        setAllDishes(dishes)
         setPriorityDrafts(
           Object.fromEntries(
-            data.content.map((dish) => [dish.id, String(dish.sort ?? 0)]),
+            dishes.map((dish) => [dish.id, String(dish.sort ?? 0)]),
           ),
         )
       } catch (error) {

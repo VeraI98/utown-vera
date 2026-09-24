@@ -1,3 +1,4 @@
+import { invalidateOwnerRestaurantsCache } from '../services/ownerRestaurantService'
 import { useEffect, useState, type ReactNode } from 'react'
 
 import type { AuthResponse, LoginData, RegisterData, User } from '../types/auth'
@@ -104,6 +105,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   const logout = () => {
+    invalidateOwnerRestaurantsCache()
     clearStoredAuthData()
     disconnectSocket()
     setUser(null)

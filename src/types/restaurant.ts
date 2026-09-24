@@ -18,8 +18,8 @@ export interface RestaurantAddress {
 export interface RestaurantOperatingMode {
   id: number
   dayOfWeek: number
-  start: string
-  end: string
+  start: string | null
+  end: string | null
   dayOff: boolean
 }
 

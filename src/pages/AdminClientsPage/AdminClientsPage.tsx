@@ -1,3 +1,4 @@
+import { runBatch } from '../../utils/runBatch'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -5,7 +6,12 @@ import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDelet
 import Pagination from '../../components/Pagination/Pagination'
 import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
 import { useToast } from '../../components/Toast/useToast'
-import { deleteClient, getClients } from '../../services/clientService'
+import {
+  blockClient,
+  unblockClient,
+  deleteClient,
+  getClients,
+} from '../../services/clientService'
 import type { ClientResponse } from '../../types/client'
 import { logError } from '../../utils/logger'
 
@@ -14,6 +20,12 @@ import ClientCardModal from './ClientCardModal'
 import './AdminClientsPage.css'
 
 const PAGE_SIZE = 10
+const CLIENT_ACTIONS = {
+  block: { label: 'Block', pending: 'Blocking...', run: blockClient },
+  unblock: { label: 'Unblock', pending: 'Unblocking...', run: unblockClient },
+  delete: { label: 'Delete', pending: 'Deleting...', run: deleteClient },
+}
+type ClientAction = keyof typeof CLIENT_ACTIONS
 
 const SORTABLE_COLUMNS = [
   'Name',
@@ -29,6 +41,13 @@ function AdminClientsPage() {
   const { showToast } = useToast()
 
   const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [action, setAction] = useState<ClientAction | ''>('')
+  const [pendingBatch, setPendingBatch] = useState<{
+    action: ClientAction
+    ids: number[]
+  } | null>(null)
+  const [isBatchRunning, setIsBatchRunning] = useState(false)
+  const [batchMessage, setBatchMessage] = useState('')
 
   const [viewedClient, setViewedClient] = useState<ClientResponse | null>(null)
 
@@ -75,15 +94,19 @@ function AdminClientsPage() {
           return
         }
 
-        // TODO: backend workaround — DELETE /admin/clients/{id} only
-        // soft-deletes (isActive: false), and GET /admin/clients still
-        // returns those clients. Filter them out here until the backend
-        // excludes inactive clients from the list response.
-        setClients(data.content.filter((client) => client.isActive))
+        if (page > 0 && page >= data.totalPages) {
+          setPage(Math.max(0, data.totalPages - 1))
+          return
+        }
+        setClients(data.content)
 
         setTotalPages(data.totalPages)
 
-        setSelectedIds([])
+        setSelectedIds((current) =>
+          current.filter((id) =>
+            data.content.some((client) => client.id === id),
+          ),
+        )
       } catch (error) {
         logError('Failed to load clients:', error)
 
@@ -181,6 +204,35 @@ function AdminClientsPage() {
     setViewedClient(client)
   }
 
+  const handleBatchConfirm = async () => {
+    if (!pendingBatch || isBatchRunning) return
+    setIsBatchRunning(true)
+    setBatchMessage('')
+    try {
+      const { succeeded, failed } = await runBatch(
+        pendingBatch.ids,
+        CLIENT_ACTIONS[pendingBatch.action].run,
+      )
+      setSelectedIds(failed)
+      setBatchMessage(
+        failed.length
+          ? succeeded.length +
+              ' succeeded; ' +
+              failed.length +
+              ' failed. Failed clients remain selected where visible; you can retry.'
+          : CLIENT_ACTIONS[pendingBatch.action].label +
+              ': ' +
+              succeeded.length +
+              ' clients updated.',
+      )
+      setPendingBatch(null)
+      setReloadKey((current) => current + 1)
+    } finally {
+      setIsBatchRunning(false)
+    }
+  }
+  const controlsDisabled = isLoading || isBatchRunning || pendingBatch !== null
+
   const showEmptyState = !isLoading && !loadError && clients.length === 0
 
   return (
@@ -231,7 +283,7 @@ function AdminClientsPage() {
               type="text"
               placeholder="Search"
               value={searchInput}
-              disabled={isLoading}
+              disabled={controlsDisabled}
               onChange={(event) => setSearchInput(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
@@ -250,18 +302,27 @@ function AdminClientsPage() {
               Filter <span aria-hidden="true">▾</span>
             </button>
 
-            <button
+            <select
               className="admin-clients-page__toolbar-button admin-clients-page__toolbar-button--choose-action"
-              type="button"
-              disabled
+              aria-label="Choose action"
+              value={action}
+              disabled={controlsDisabled}
+              onChange={(event) =>
+                setAction(event.target.value as ClientAction | '')
+              }
             >
-              Choose action <span aria-hidden="true">▾</span>
-            </button>
-
+              <option value="">Choose action</option>
+              <option value="block">Block</option>
+              <option value="unblock">Unblock</option>
+              <option value="delete">Delete</option>
+            </select>
             <button
               className="admin-clients-page__apply-button"
               type="button"
-              disabled
+              disabled={controlsDisabled || !action || selectedIds.length === 0}
+              onClick={() => {
+                if (action) setPendingBatch({ action, ids: [...selectedIds] })
+              }}
             >
               Apply
             </button>
@@ -269,6 +330,7 @@ function AdminClientsPage() {
         </div>
       </div>
 
+      {batchMessage && <p role="status">{batchMessage}</p>}
       <table className="admin-clients-page__table">
         <thead>
           <tr>
@@ -278,7 +340,7 @@ function AdminClientsPage() {
                 checked={
                   selectedIds.length === clients.length && clients.length > 0
                 }
-                disabled={isLoading || clients.length === 0}
+                disabled={controlsDisabled || clients.length === 0}
                 onChange={toggleSelectAll}
                 aria-label="Select all"
               />
@@ -335,6 +397,7 @@ function AdminClientsPage() {
                   <input
                     type="checkbox"
                     checked={selectedIds.includes(client.id)}
+                    disabled={controlsDisabled}
                     onChange={() => toggleSelected(client.id)}
                     aria-label={`Select ${client.fullName}`}
                   />
@@ -409,8 +472,11 @@ function AdminClientsPage() {
         <Pagination
           page={page}
           totalPages={totalPages}
-          onPageChange={setPage}
-          disabled={isLoading}
+          onPageChange={(next) => {
+            setSelectedIds([])
+            setPage(next)
+          }}
+          disabled={controlsDisabled}
         />
       </div>
 
@@ -438,6 +504,24 @@ function AdminClientsPage() {
         />
       )}
 
+      {pendingBatch && (
+        <ConfirmDeleteModal
+          title={
+            CLIENT_ACTIONS[pendingBatch.action].label +
+            ' ' +
+            pendingBatch.ids.length +
+            ' selected clients?'
+          }
+          isDeleting={isBatchRunning}
+          error=""
+          confirmLabel={CLIENT_ACTIONS[pendingBatch.action].label}
+          pendingLabel={CLIENT_ACTIONS[pendingBatch.action].pending}
+          onConfirm={() => void handleBatchConfirm()}
+          onCancel={() => {
+            if (!isBatchRunning) setPendingBatch(null)
+          }}
+        />
+      )}
       {clientToDelete && (
         <ConfirmDeleteModal
           title="Delete client?"

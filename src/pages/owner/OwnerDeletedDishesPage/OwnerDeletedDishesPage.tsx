@@ -56,7 +56,7 @@ function OwnerDeletedDishesPage() {
         }
 
         const [dishesData, categoriesData] = await Promise.all([
-          getOwnerDishes(restaurant.id),
+          getOwnerDishes(restaurant.id, 'deleted'),
           getCategoriesByRestaurant(restaurant.id),
         ])
 

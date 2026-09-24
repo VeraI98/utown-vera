@@ -1,12 +1,6 @@
-import {
-  useState,
-  type FormEvent,
-} from 'react'
+import { useState, type FormEvent } from 'react'
 
-import {
-  Link,
-  useNavigate,
-} from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { forgotPassword } from '../../services/authService'
 
@@ -51,19 +45,12 @@ function ForgotPasswordPage() {
   return (
     <main className="login-page">
       <section className="login-content">
-        <img
-          className="brand-logo"
-          src={logo}
-          alt="UT"
-        />
+        <img className="brand-logo" src={logo} alt="UT" />
 
-        <form
-          className="login-form"
-          onSubmit={handleSubmit}
-        >
+        <form className="login-form" onSubmit={handleSubmit}>
           <p className="forgot-password-hint">
-            Enter your username or phone number and we will send you a code
-            to reset your password.
+            Enter your username or phone number and we will send you a code to
+            reset your password.
           </p>
 
           <div className="form-field">
@@ -84,10 +71,7 @@ function ForgotPasswordPage() {
           </div>
 
           {error && (
-            <p
-              className="input-error"
-              role="alert"
-            >
+            <p className="input-error" role="alert">
               {error}
             </p>
           )}
@@ -101,10 +85,7 @@ function ForgotPasswordPage() {
           </button>
         </form>
 
-        <Link
-          className="forgot-link"
-          to="/login"
-        >
+        <Link className="forgot-link" to="/login">
           Back to log in
         </Link>
       </section>

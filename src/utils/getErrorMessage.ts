@@ -8,6 +8,7 @@ import axios from 'axios'
 export function getErrorMessage(
   error: unknown,
   fallback = 'Something went wrong.',
+  statusMessages: Partial<Record<number, string>> = {},
 ): string {
   if (axios.isAxiosError(error)) {
     const responseData = error.response?.data
@@ -21,10 +22,14 @@ export function getErrorMessage(
       return responseData.message
     }
 
-    if (typeof responseData === 'string') {
+    if (typeof responseData === 'string' && responseData.trim()) {
       return responseData
     }
+    const status = error.response?.status
+    if (status && statusMessages[status]) return statusMessages[status]
   }
 
+  if (!axios.isAxiosError(error) && error instanceof Error && error.message)
+    return error.message
   return fallback
 }

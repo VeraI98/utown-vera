@@ -1,3 +1,4 @@
+import { parseHoursRow, isValidHoursRow } from '../../../utils/openingHours'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -102,38 +103,6 @@ function hasMixedHours(
   return signatures.size > 1
 }
 
-// Accepts a hyphen (-), en dash (–), or em dash (—) as the separator, with
-// or without surrounding spaces, since the field is pre-filled with an em
-// dash but owners often retype it with a plain hyphen.
-const HOURS_SEPARATOR_PATTERN = /\s*[-–—]\s*/
-
-function parseHoursRow(value: string): { start: string; end: string } | null {
-  const trimmed = value.trim()
-
-  if (!trimmed) {
-    return null
-  }
-
-  const match = trimmed
-    .split(HOURS_SEPARATOR_PATTERN)
-    .map((part) => part.trim())
-    .filter(Boolean)
-
-  if (match.length !== 2) {
-    return null
-  }
-
-  return { start: match[0], end: match[1] }
-}
-
-// A row is valid either when it's blank (the group is a day off) or when it
-// parses into a start/end pair. Anything else — text that doesn't match the
-// expected "start — end" shape — must block saving rather than silently
-// turning the whole group into a day off.
-function isValidHoursRow(value: string): boolean {
-  return !value.trim() || parseHoursRow(value) !== null
-}
-
 export default function OwnerEditRestaurantPage() {
   const navigate = useNavigate()
 
@@ -158,6 +127,8 @@ export default function OwnerEditRestaurantPage() {
   const [weekdayHours, setWeekdayHours] = useState('')
 
   const [weekendHours, setWeekendHours] = useState('')
+  const [weekdayHoursEdited, setWeekdayHoursEdited] = useState(false)
+  const [weekendHoursEdited, setWeekendHoursEdited] = useState(false)
 
   const [minOrderAmount, setMinOrderAmount] = useState('')
 
@@ -381,7 +352,19 @@ export default function OwnerEditRestaurantPage() {
 
         category: category.trim(),
 
-        operatingModes: [...otherModes, ...weekdayModes, ...weekendModes],
+        operatingModes: [
+          ...otherModes,
+          ...(weekdayHoursEdited
+            ? weekdayModes
+            : restaurant.operatingModes.filter((mode) =>
+                WEEKDAY_DAYS.includes(mode.dayOfWeek),
+              )),
+          ...(weekendHoursEdited
+            ? weekendModes
+            : restaurant.operatingModes.filter((mode) =>
+                WEEKEND_DAYS.includes(mode.dayOfWeek),
+              )),
+        ],
 
         address: {
           ...restaurant.address,
@@ -398,6 +381,10 @@ export default function OwnerEditRestaurantPage() {
       )
 
       setRestaurant(response)
+      setWeekdayHours(formatHoursRow(response, WEEKDAY_DAYS))
+      setWeekendHours(formatHoursRow(response, WEEKEND_DAYS))
+      setWeekdayHoursEdited(false)
+      setWeekendHoursEdited(false)
 
       setExistingImageUrl(response.imageUrl ?? '')
       setImageFile(null)
@@ -523,15 +510,21 @@ export default function OwnerEditRestaurantPage() {
               type="text"
               placeholder="Mon-Fri, 9:00 — 22:00"
               value={weekdayHours}
-              onChange={(event) => setWeekdayHours(event.target.value)}
+              onChange={(event) => {
+                setWeekdayHours(event.target.value)
+                setWeekdayHoursEdited(true)
+              }}
               aria-invalid={!isWeekdayHoursValid}
             />
 
             <input
               type="text"
-              placeholder="Sat-Sun, 10:00 — 24:00"
+              placeholder="Sat-Sun, 10:00 — 00:00"
               value={weekendHours}
-              onChange={(event) => setWeekendHours(event.target.value)}
+              onChange={(event) => {
+                setWeekendHours(event.target.value)
+                setWeekendHoursEdited(true)
+              }}
               aria-invalid={!isWeekendHoursValid}
             />
           </div>
@@ -549,7 +542,8 @@ export default function OwnerEditRestaurantPage() {
           {(weekdayHoursAreMixed || weekendHoursAreMixed) && (
             <p className="owner-edit-restaurant-hint">
               Some days currently have different hours than the rest of the
-              group. Saving will apply the same hours to every day shown here.
+              group. Editing a group will apply the same hours to its days.
+              Unchanged groups keep their individual schedules.
             </p>
           )}
         </div>

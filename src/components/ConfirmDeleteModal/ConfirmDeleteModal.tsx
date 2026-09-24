@@ -6,6 +6,8 @@ interface ConfirmDeleteModalProps {
   error: string
   onConfirm: () => void
   onCancel: () => void
+  confirmLabel?: string
+  pendingLabel?: string
 }
 
 function ConfirmDeleteModal({
@@ -14,11 +16,16 @@ function ConfirmDeleteModal({
   error,
   onConfirm,
   onCancel,
+  confirmLabel = 'Delete',
+  pendingLabel = 'Deleting...',
 }: ConfirmDeleteModalProps) {
   return (
     <div className="confirm-delete-modal__overlay" onClick={onCancel}>
       <div
         className="confirm-delete-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
         onClick={(event) => event.stopPropagation()}
       >
         <h2 className="confirm-delete-modal__title">{title}</h2>
@@ -31,7 +38,7 @@ function ConfirmDeleteModal({
           disabled={isDeleting}
           onClick={onConfirm}
         >
-          {isDeleting ? 'Deleting...' : 'Delete'}
+          {isDeleting ? pendingLabel : confirmLabel}
         </button>
 
         <button

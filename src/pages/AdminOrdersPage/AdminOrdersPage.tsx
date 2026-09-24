@@ -1,3 +1,4 @@
+import Pagination from '../../components/Pagination/Pagination'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -119,9 +120,6 @@ function AdminOrdersPage() {
       setSelectedIds(orders.map((order) => order.id))
     }
   }
-
-  const canGoPrev = page > 0
-  const canGoNext = page + 1 < totalPages
 
   const showEmptyState = !isLoading && !loadError && orders.length === 0
 
@@ -303,9 +301,7 @@ function AdminOrdersPage() {
                   </td>
 
                   <td>
-                    <div className="admin-orders-page__rider-transport">
-                      -
-                    </div>
+                    <div className="admin-orders-page__rider-transport">-</div>
                   </td>
 
                   <td>No. {order.number}</td>
@@ -328,36 +324,12 @@ function AdminOrdersPage() {
       </div>
 
       <div className="admin-orders-page__pagination">
-        <button
-          type="button"
-          disabled={!canGoPrev}
-          onClick={() => setPage((current) => current - 1)}
-        >
-          Prev
-        </button>
-
-        {Array.from({ length: totalPages }).map((_, index) => (
-          <button
-            type="button"
-            key={index}
-            className={
-              index === page
-                ? 'admin-orders-page__pagination-active'
-                : undefined
-            }
-            onClick={() => setPage(index)}
-          >
-            {index + 1}
-          </button>
-        ))}
-
-        <button
-          type="button"
-          disabled={!canGoNext}
-          onClick={() => setPage((current) => current + 1)}
-        >
-          Next
-        </button>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          disabled={isLoading}
+        />
       </div>
     </div>
   )

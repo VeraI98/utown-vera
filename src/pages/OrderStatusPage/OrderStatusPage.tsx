@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -25,31 +25,6 @@ interface StatusContent {
 }
 
 const POLLING_INTERVAL = 7000
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-
-    if (error.response?.status === 404) {
-      return 'Order not found.'
-    }
-  }
-
-  return 'Failed to load order status. Please try again.'
-}
 
 function normalizeStatus(status?: string): string {
   return status?.trim().toUpperCase() ?? ''
@@ -191,7 +166,13 @@ function OrderStatusPage() {
       } catch (error) {
         logError('OrderStatusPage: failed to refresh order status', error)
 
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(
+          getErrorMessage(
+            error,
+            'Failed to load order status. Please try again.',
+            { 404: 'Order not found.' },
+          ),
+        )
       } finally {
         requestInProgressRef.current = false
 
@@ -229,7 +210,13 @@ function OrderStatusPage() {
           return
         }
 
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(
+          getErrorMessage(
+            error,
+            'Failed to load order status. Please try again.',
+            { 404: 'Order not found.' },
+          ),
+        )
       } finally {
         requestInProgressRef.current = false
 

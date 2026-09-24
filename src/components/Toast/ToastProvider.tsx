@@ -1,9 +1,4 @@
-import {
-  useCallback,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useCallback, useRef, useState, type ReactNode } from 'react'
 
 import './ToastProvider.css'
 import { ToastContext, type ToastType } from './ToastContext'

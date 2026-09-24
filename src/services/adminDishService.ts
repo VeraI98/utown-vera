@@ -1,4 +1,5 @@
 import { api } from './api'
+import { loadAllPages } from '../utils/loadAllPages'
 
 import type {
   DishOption,
@@ -60,6 +61,17 @@ export async function createDish(
   const { data } = await api.post<DishResponse>('/admin/dishes', request)
 
   return data
+}
+
+export async function getAllAdminDishesForRestaurant(
+  restaurantId: number,
+): Promise<DishResponse[]> {
+  // The admin endpoint has no restaurant filter. Read all pages so inactive
+  // dishes remain manageable and later restaurants never get truncated.
+  const dishes = await loadAllPages((page) =>
+    getAdminDishes({ page, size: 100 }),
+  )
+  return dishes.filter((dish) => dish.restaurantId === restaurantId)
 }
 
 export async function updateDish(

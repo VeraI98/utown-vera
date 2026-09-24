@@ -57,7 +57,8 @@ export function getOwnerRestaurants(
 
   const promise = fetchOwnerRestaurants(userId).catch((error: unknown) => {
     // Don't cache a failed request — let the next call retry over the network.
-    restaurantsCache.delete(userId)
+    if (restaurantsCache.get(userId)?.promise === promise)
+      restaurantsCache.delete(userId)
 
     throw error
   })

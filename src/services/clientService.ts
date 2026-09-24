@@ -52,6 +52,14 @@ export async function deleteClient(clientId: number): Promise<void> {
   await api.delete(`/admin/clients/${clientId}`)
 }
 
+export async function blockClient(clientId: number): Promise<void> {
+  await api.patch(`/admin/clients/${clientId}/block`)
+}
+
+export async function unblockClient(clientId: number): Promise<void> {
+  await api.patch(`/admin/clients/${clientId}/unblock`)
+}
+
 export async function updateClient(
   clientId: number,
   request: UpdateClientRequest,

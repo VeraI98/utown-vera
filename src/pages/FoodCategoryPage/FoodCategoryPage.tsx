@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -16,31 +16,6 @@ import './FoodCategoryPage.css'
 interface DishImageProps {
   src?: string | null
   alt: string
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-
-    if (error.response?.status === 404) {
-      return 'Category not found.'
-    }
-  }
-
-  return 'Failed to load dishes.'
 }
 
 function formatPrice(price: number): string {
@@ -151,7 +126,11 @@ function FoodCategoryPage() {
         }
 
         setDishes([])
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(
+          getErrorMessage(error, 'Failed to load dishes.', {
+            404: 'Category not found.',
+          }),
+        )
       } finally {
         if (isMounted) {
           setIsLoading(false)

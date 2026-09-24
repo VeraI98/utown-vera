@@ -1,11 +1,7 @@
 import { useEffect } from 'react'
 
 import { useToast } from '../components/Toast/useToast'
-import {
-  connectSocket,
-  disconnectSocket,
-  socket,
-} from './socket'
+import { connectSocket, disconnectSocket, socket } from './socket'
 
 const ORDER_EVENT_NAMES = [
   'orderStatusChanged',
@@ -30,9 +26,7 @@ function buildMessage(
   const orderId = payload?.orderId ?? payload?.id
 
   if (eventName === 'newOrder' || eventName === 'order:created') {
-    return orderId
-      ? `Новый заказ №${orderId}`
-      : 'Поступил новый заказ'
+    return orderId ? `Новый заказ №${orderId}` : 'Поступил новый заказ'
   }
 
   if (payload?.status) {
@@ -41,9 +35,7 @@ function buildMessage(
       : `Статус заказа изменён на ${payload.status}`
   }
 
-  return orderId
-    ? `Заказ №${orderId} обновлён`
-    : 'Заказ обновлён'
+  return orderId ? `Заказ №${orderId} обновлён` : 'Заказ обновлён'
 }
 
 export function useAdminOrderNotifications() {
@@ -52,12 +44,11 @@ export function useAdminOrderNotifications() {
   useEffect(() => {
     connectSocket()
 
-    const handleEvent = (eventName: string) => (
-      payload?: OrderEventPayload,
-    ) => {
-      console.log(`[socket] ${eventName}:`, payload)
-      showToast(buildMessage(eventName, payload), 'info')
-    }
+    const handleEvent =
+      (eventName: string) => (payload?: OrderEventPayload) => {
+        console.log(`[socket] ${eventName}:`, payload)
+        showToast(buildMessage(eventName, payload), 'info')
+      }
 
     const handlers = ORDER_EVENT_NAMES.map((eventName) => {
       const handler = handleEvent(eventName)

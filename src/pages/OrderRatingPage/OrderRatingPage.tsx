@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useEffect, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -21,31 +21,6 @@ import type { OrderResponse } from '../../types/cart'
 import { logError } from '../../utils/logger'
 
 import './OrderRatingPage.css'
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-
-    if (error.response?.status === 404) {
-      return 'Order not found.'
-    }
-  }
-
-  return 'Failed to load or save your rating. Please try again.'
-}
 
 function normalizeStatus(status?: string): string {
   return status?.trim().toUpperCase() ?? ''
@@ -146,7 +121,13 @@ function OrderRatingPage() {
           return
         }
 
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(
+          getErrorMessage(
+            error,
+            'Failed to load or save your rating. Please try again.',
+            { 404: 'Order not found.' },
+          ),
+        )
       })
       .finally(() => {
         if (isMounted) {
@@ -250,7 +231,13 @@ function OrderRatingPage() {
     } catch (error) {
       logError('OrderRatingPage: failed to save rating', error)
 
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(
+        getErrorMessage(
+          error,
+          'Failed to load or save your rating. Please try again.',
+          { 404: 'Order not found.' },
+        ),
+      )
     } finally {
       setIsSubmitting(false)
     }
