@@ -1,0 +1,229 @@
+.admin-all-positions-page {
+  width: 100%;
+  color: #101828;
+}
+
+.admin-all-positions-page__top-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 32px 22px 16px;
+}
+
+.admin-all-positions-page__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-all-positions-page__title-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.admin-all-positions-page__top-row h1 {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.admin-all-positions-page__breadcrumb {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: #68717a;
+}
+
+.admin-all-positions-page__breadcrumb-link {
+  color: #7749f8;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.admin-all-positions-page__controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.admin-all-positions-page__search-wrapper {
+  position: relative;
+  width: 424px;
+}
+
+.admin-all-positions-page__search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.admin-all-positions-page__search {
+  box-sizing: border-box;
+  width: 100%;
+  height: 36px;
+  padding: 0 16px 0 40px;
+  border: 1px solid #98a2b3;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #101828;
+}
+
+.admin-all-positions-page__search::placeholder {
+  color: #98a2b3;
+}
+
+.admin-all-positions-page__search:focus {
+  border-color: #667085;
+}
+
+.admin-all-positions-page__table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-all-positions-page__table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.admin-all-positions-page__table thead {
+  background: #f3f3f3;
+}
+
+.admin-all-positions-page__table th {
+  height: 48px;
+  padding: 0 20px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: #101828;
+  vertical-align: middle;
+}
+
+.admin-all-positions-page__table td {
+  height: 49px;
+  padding: 0 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #101828;
+  vertical-align: middle;
+}
+
+.admin-all-positions-page__table th:nth-child(1),
+.admin-all-positions-page__table td:nth-child(1) {
+  width: 220px;
+}
+
+.admin-all-positions-page__table th:nth-child(2),
+.admin-all-positions-page__table td:nth-child(2) {
+  width: 220px;
+}
+
+.admin-all-positions-page__table th:nth-child(3),
+.admin-all-positions-page__table td:nth-child(3) {
+  width: 140px;
+}
+
+.admin-all-positions-page__table th:nth-child(4),
+.admin-all-positions-page__table td:nth-child(4) {
+  width: 140px;
+}
+
+.admin-all-positions-page__table th:nth-child(5),
+.admin-all-positions-page__table td:nth-child(5) {
+  width: 110px;
+}
+
+.admin-all-positions-page__table tbody tr:hover {
+  background: #fafafa;
+}
+
+.admin-all-positions-page__edit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: #101828;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-all-positions-page__edit-chevron {
+  color: #98a2b3;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.admin-all-positions-page__state-cell {
+  text-align: center;
+  color: #68717a;
+  padding: 32px 12px;
+}
+
+.admin-all-positions-page__error-cell {
+  text-align: center;
+  color: #d92d20;
+  padding: 32px 12px;
+}
+
+.admin-all-positions-page__retry-button {
+  height: 32px;
+  margin-left: 12px;
+  padding: 0 12px;
+  background: #414141;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-all-positions-page__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-top: 40px;
+}
+
+.admin-all-positions-page__pagination button {
+  height: 36px;
+  min-width: 36px;
+  padding: 0 10px;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  color: #414141;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.admin-all-positions-page__pagination button + button {
+  border-left: none;
+}
+
+.admin-all-positions-page__pagination-active {
+  background: #414141 !important;
+  color: #fff !important;
+  border-color: #414141 !important;
+}
+
+.admin-all-positions-page__pagination button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

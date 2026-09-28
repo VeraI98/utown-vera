@@ -12,12 +12,14 @@ export interface GetClientsParams {
   size?: number
   search?: string
   city?: string
+  /** Spring Pageable sort string, e.g. "fullName,asc" */
+  sort?: string
 }
 
 export async function getClients(
   params: GetClientsParams = {},
 ): Promise<PaginatedResponse<ClientResponse>> {
-  const { page = 0, size = 10, search, city } = params
+  const { page = 0, size = 10, search, city, sort } = params
 
   const { data } = await api.get<PaginatedResponse<ClientResponse>>(
     '/admin/clients',
@@ -27,6 +29,7 @@ export async function getClients(
         size,
         search,
         city,
+        sort,
       },
     },
   )
@@ -50,6 +53,14 @@ export async function createClient(
 
 export async function deleteClient(clientId: number): Promise<void> {
   await api.delete(`/admin/clients/${clientId}`)
+}
+
+export async function blockClient(clientId: number): Promise<void> {
+  await api.patch(`/admin/clients/${clientId}/block`)
+}
+
+export async function unblockClient(clientId: number): Promise<void> {
+  await api.patch(`/admin/clients/${clientId}/unblock`)
 }
 
 export async function updateClient(

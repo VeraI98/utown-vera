@@ -8,9 +8,9 @@ import {
   activateDish,
   deactivateDish,
   deleteDish,
+  getAdminDishes,
   updateDish,
 } from '../../services/adminDishService'
-import { getDishesByRestaurant } from '../../services/dishService'
 import { getEstablishmentById } from '../../services/establishmentService'
 import type { DishResponse } from '../../types/restaurant'
 import { logError } from '../../utils/logger'
@@ -103,16 +103,25 @@ function AdminPositionsPage() {
       }
 
       try {
-        const data = await getDishesByRestaurant(restaurantId, 0, 200)
+        // /dishes/restaurant/:id (getDishesByRestaurant) is the public menu
+        // endpoint and silently drops deactivated dishes, which made "Put on
+        // hold" look broken (the row just vanished after the toggle). The
+        // admin list (/admin/dishes) includes inactive dishes, but it has no
+        // restaurantId filter of its own, so it's filtered here on the client.
+        const data = await getAdminDishes({ page: 0, size: 200 })
 
         if (!isMounted) {
           return
         }
 
-        setAllDishes(data.content)
+        const restaurantDishes = data.content.filter(
+          (dish) => dish.restaurantId === restaurantId,
+        )
+
+        setAllDishes(restaurantDishes)
         setPriorityDrafts(
           Object.fromEntries(
-            data.content.map((dish) => [dish.id, String(dish.sort ?? 0)]),
+            restaurantDishes.map((dish) => [dish.id, String(dish.sort ?? 0)]),
           ),
         )
       } catch (error) {
@@ -309,9 +318,7 @@ function AdminPositionsPage() {
               type="button"
               className="admin-positions-page__title-button"
               onClick={() =>
-                navigate(
-                  `/admin/establishments/${restaurantId}/categories/add`,
-                )
+                navigate(`/admin/establishments/${restaurantId}/categories/add`)
               }
             >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -336,9 +343,7 @@ function AdminPositionsPage() {
               type="button"
               className="admin-positions-page__title-button"
               onClick={() =>
-                navigate(
-                  `/admin/establishments/${restaurantId}/categories`,
-                )
+                navigate(`/admin/establishments/${restaurantId}/categories`)
               }
             >
               Categories
@@ -523,12 +528,16 @@ function AdminPositionsPage() {
                     <button
                       type="button"
                       className={`admin-positions-page__switch${
-                        !dish.isActive
+                        dish.isActive
                           ? ' admin-positions-page__switch--active'
                           : ''
                       }`}
                       onClick={() => handleTogglePutOnHold(dish)}
-                      aria-label={`Put ${dish.title} on hold`}
+                      aria-label={
+                        dish.isActive
+                          ? `Put ${dish.title} on hold`
+                          : `Take ${dish.title} off hold`
+                      }
                     >
                       <span />
                     </button>
