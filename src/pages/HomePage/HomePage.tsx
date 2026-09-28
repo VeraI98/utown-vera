@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -207,7 +208,7 @@ function HomePage() {
       <section className="home-screen">
         <header className="home-header">
           <div className="home-top-bar">
-            <img className="home-logo-image" src={logo} alt="UT" />
+            <HomeLogo className="home-logo-image" src={logo} alt="UT" />
 
             <button
               className="home-notification-button"

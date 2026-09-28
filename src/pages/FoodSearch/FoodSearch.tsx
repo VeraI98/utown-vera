@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import cuisineAreaImage from '../../assets/food-common/local-cuisine.webp'
 import backButtonIcon from '../../assets/search/Back button.svg'
@@ -421,11 +421,11 @@ function FoodSearch() {
             <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div className="food-search-logo" aria-label="UT Food">
+          <Link to="/" className="food-search-logo" aria-label="Go to home">
             <img src={utLogo} alt="UT" />
 
             <img src={foodLogo} alt="Food" />
-          </div>
+          </Link>
 
           <button
             className="food-search-header-button"

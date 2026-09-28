@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { Link, useNavigate } from 'react-router-dom'
 
 import arrowIcon from '../../assets/icon account/arrow.svg'
@@ -68,7 +69,7 @@ function AccountSettingPage() {
             <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <img className="account-logo-white" src={logoWhite} alt="UT" />
+          <HomeLogo className="account-logo-white" src={logoWhite} alt="UT" />
 
           <button
             className="account-header-button account-notification-button"

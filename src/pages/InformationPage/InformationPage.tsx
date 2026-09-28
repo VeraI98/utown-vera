@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { Link, useNavigate } from 'react-router-dom'
 
 import backButton from '../../assets/icon info/Back Button.svg'
@@ -27,7 +28,7 @@ function InformationPage() {
             <img src={backButton} alt="" aria-hidden="true" />
           </button>
 
-          <img className="information-logo" src={logoWhite} alt="UTOWN" />
+          <HomeLogo className="information-logo" src={logoWhite} alt="UTOWN" />
 
           <button
             className="information-header-button"

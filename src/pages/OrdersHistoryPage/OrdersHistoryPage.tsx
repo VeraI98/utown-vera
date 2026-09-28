@@ -1,6 +1,6 @@
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/order/Back button.svg'
 import bellIcon from '../../assets/order/bell.svg'
@@ -214,11 +214,15 @@ function OrdersHistoryPage() {
           <img src={backButtonIcon} alt="" aria-hidden="true" />
         </button>
 
-        <div className="orders-history-page__logo" aria-label="UT Food">
+        <Link
+          to="/"
+          className="orders-history-page__logo"
+          aria-label="Go to home"
+        >
           <img src={utLogo} alt="UT" />
 
           <img src={foodLogo} alt="Food" />
-        </div>
+        </Link>
 
         <button
           className="orders-history-page__header-button"

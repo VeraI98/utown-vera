@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 
@@ -76,7 +77,7 @@ function LoginPage() {
   return (
     <main className="login-page">
       <section className="login-content">
-        <img className="brand-logo" src={logo} alt="UT" />
+        <HomeLogo className="brand-logo" src={logo} alt="UT" />
 
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-field">

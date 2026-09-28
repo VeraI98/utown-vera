@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { Link, useNavigate } from 'react-router-dom'
 
 import backButton from '../../assets/icon info/Back Button.svg'
@@ -35,7 +36,7 @@ function ContactSupportPage() {
             <img src={backButton} alt="" aria-hidden="true" />
           </button>
 
-          <img className="support-logo" src={logoWhite} alt="UTOWN" />
+          <HomeLogo className="support-logo" src={logoWhite} alt="UTOWN" />
 
           <button
             className="support-header-button"

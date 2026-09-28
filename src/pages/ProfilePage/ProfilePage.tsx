@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../../hooks/useAuth'
@@ -41,7 +42,7 @@ function ProfilePage() {
       <section className="profile-screen">
         <header className="profile-header">
           <div className="profile-top-bar">
-            <img className="profile-logo-image" src={logo} alt="UT" />
+            <HomeLogo className="profile-logo-image" src={logo} alt="UT" />
 
             <button
               className="profile-notification-button"

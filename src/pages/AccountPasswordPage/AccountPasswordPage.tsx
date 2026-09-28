@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -73,7 +74,11 @@ function AccountPasswordPage() {
             <img src={backButtonBlackIcon} alt="" aria-hidden="true" />
           </button>
 
-          <img className="account-logo-gradient" src={logoGradient} alt="UT" />
+          <HomeLogo
+            className="account-logo-gradient"
+            src={logoGradient}
+            alt="UT"
+          />
         </header>
 
         <div className="account-form-content">

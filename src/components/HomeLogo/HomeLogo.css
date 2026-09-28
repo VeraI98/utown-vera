@@ -1,0 +1,9 @@
+.home-logo-link {
+  display: block;
+}
+
+.home-logo-link > img {
+  width: inherit;
+  height: inherit;
+  object-fit: contain;
+}

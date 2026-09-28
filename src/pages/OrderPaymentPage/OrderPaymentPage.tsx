@@ -1,6 +1,6 @@
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/order/Back button.svg'
 import bankIcon from '../../assets/order/bank.svg'
@@ -306,10 +306,14 @@ function OrderPaymentPage() {
           <img src={backButtonIcon} alt="" aria-hidden="true" />
         </button>
 
-        <div className="order-payment-page__logo" aria-label="UT Food">
+        <Link
+          to="/"
+          className="order-payment-page__logo"
+          aria-label="Go to home"
+        >
           <img src={utLogo} alt="UT" />
           <img src={foodLogo} alt="Food" />
-        </div>
+        </Link>
 
         <button
           className="order-payment-page__header-button"

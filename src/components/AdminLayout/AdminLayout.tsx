@@ -1,3 +1,4 @@
+import HomeLogo from '../HomeLogo/HomeLogo'
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
@@ -40,7 +41,7 @@ function AdminLayout() {
     <div className="admin-layout">
       <header className="admin-layout__header">
         <div className="admin-layout__logo-box">
-          <img src={logo} alt="UTOWN" className="admin-layout__logo" />
+          <HomeLogo src={logo} alt="UTOWN" className="admin-layout__logo" />
         </div>
 
         <div className="admin-layout__header-gradient">

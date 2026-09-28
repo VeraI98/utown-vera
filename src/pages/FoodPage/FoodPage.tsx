@@ -252,10 +252,10 @@ function FoodPage() {
             <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div className="food-logo" aria-label="UT Food">
+          <Link to="/" className="food-logo" aria-label="Go to home">
             <img src={utLogo} alt="UT" />
             <img src={foodLogo} alt="Food" />
-          </div>
+          </Link>
 
           <button
             className="food-header-button"
