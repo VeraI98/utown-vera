@@ -1,6 +1,6 @@
 import Pagination from '../../components/Pagination/Pagination'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import './AdminOrdersPage.css'
 import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
@@ -39,6 +39,7 @@ function formatItems(order: OrderResponse) {
 
 function AdminOrdersPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   const [orders, setOrders] = useState<OrderResponse[]>([])
   const [selectedIds, setSelectedIds] = useState<number[]>([])
@@ -48,8 +49,13 @@ function AdminOrdersPage() {
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
 
-  const [searchInput, setSearchInput] = useState('')
-  const [search, setSearch] = useState('')
+  // Coming from "Order History" on the Clients page pre-fills the search
+  // box with that client's username (the backend has no clientId filter
+  // for /admin/orders, so this is a best-effort text search).
+  const initialSearch = searchParams.get('search') ?? ''
+
+  const [searchInput, setSearchInput] = useState(initialSearch)
+  const [search, setSearch] = useState(initialSearch)
 
   const [reloadKey, setReloadKey] = useState(0)
 
