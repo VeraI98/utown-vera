@@ -6,12 +6,21 @@ interface HomeLogoProps {
   className: string
   src: string
   alt: string
+  to?: string
+  onClick?: () => void
 }
 
-export default function HomeLogo({ className, src, alt }: HomeLogoProps) {
+export default function HomeLogo({
+  className,
+  src,
+  alt,
+  to = '/',
+  onClick,
+}: HomeLogoProps) {
   return (
     <Link
-      to="/"
+      to={to}
+      onClick={onClick}
       className={`home-logo-link ${className}`}
       aria-label="Go to home"
     >

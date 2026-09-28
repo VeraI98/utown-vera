@@ -82,6 +82,7 @@ export default function OwnerLayout() {
 
           <HomeLogo
             className="owner-layout__logo"
+            to="/owner"
             src={headerLogo}
             alt="UT Business"
           />
@@ -104,6 +105,8 @@ export default function OwnerLayout() {
               <div className="owner-layout-drawer__header">
                 <HomeLogo
                   className="owner-layout-drawer__logo"
+                  to="/owner"
+                  onClick={() => setIsMenuOpen(false)}
                   src={headerLogo}
                   alt="UT Business"
                 />
