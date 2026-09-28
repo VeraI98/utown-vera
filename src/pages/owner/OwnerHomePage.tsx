@@ -97,8 +97,6 @@ function OwnerHomePage() {
       )
     : []
 
-  const visibleOperatingModes = operatingModes.slice(0, 4)
-
   const currentStatus = String(restaurant?.statusDisplay ?? '')
     .trim()
     .toUpperCase()
@@ -209,9 +207,14 @@ function OwnerHomePage() {
                 <section className="owner-home-page__working-hours">
                   <h2>Working hours</h2>
 
-                  {visibleOperatingModes.length > 0 ? (
-                    <div className="owner-home-page__days">
-                      {visibleOperatingModes.map((operatingMode) => (
+                  {operatingModes.length > 0 ? (
+                    <div
+                      className="owner-home-page__days"
+                      role="region"
+                      aria-label="Weekly working hours"
+                      tabIndex={0}
+                    >
+                      {operatingModes.map((operatingMode) => (
                         <article
                           className="owner-home-page__day"
                           key={operatingMode.id}

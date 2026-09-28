@@ -135,9 +135,19 @@
 }
 
 .owner-home-page__days {
+  --days-gap: 8px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 3 * var(--days-gap)) / 4);
+  gap: var(--days-gap);
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x proximity;
+}
+
+.owner-home-page__day {
+  min-width: 0;
+  scroll-snap-align: start;
 }
 
 .owner-home-page__day-name {
@@ -202,6 +212,6 @@
   }
 
   .owner-home-page__days {
-    gap: 5px;
+    --days-gap: 5px;
   }
 }
