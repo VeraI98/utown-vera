@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
+import Pagination from '../../components/Pagination/Pagination'
 import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
 import { useToast } from '../../components/Toast/useToast'
 import {
   activateDish,
   deactivateDish,
   deleteDish,
-  getAdminDishes,
   updateDish,
+  getAllAdminDishesForRestaurant,
 } from '../../services/adminDishService'
 import { getEstablishmentById } from '../../services/establishmentService'
 import type { DishResponse } from '../../types/restaurant'
@@ -103,25 +104,16 @@ function AdminPositionsPage() {
       }
 
       try {
-        // /dishes/restaurant/:id (getDishesByRestaurant) is the public menu
-        // endpoint and silently drops deactivated dishes, which made "Put on
-        // hold" look broken (the row just vanished after the toggle). The
-        // admin list (/admin/dishes) includes inactive dishes, but it has no
-        // restaurantId filter of its own, so it's filtered here on the client.
-        const data = await getAdminDishes({ page: 0, size: 200 })
+        const dishes = await getAllAdminDishesForRestaurant(restaurantId)
 
         if (!isMounted) {
           return
         }
 
-        const restaurantDishes = data.content.filter(
-          (dish) => dish.restaurantId === restaurantId,
-        )
-
-        setAllDishes(restaurantDishes)
+        setAllDishes(dishes)
         setPriorityDrafts(
           Object.fromEntries(
-            restaurantDishes.map((dish) => [dish.id, String(dish.sort ?? 0)]),
+            dishes.map((dish) => [dish.id, String(dish.sort ?? 0)]),
           ),
         )
       } catch (error) {
@@ -276,9 +268,6 @@ function AdminPositionsPage() {
     setDishToDelete(null)
     setDeleteError('')
   }
-
-  const canGoPrev = page > 0
-  const canGoNext = page + 1 < totalPages
 
   const showEmptyState = !isLoading && !loadError && dishes.length === 0
 
@@ -528,16 +517,12 @@ function AdminPositionsPage() {
                     <button
                       type="button"
                       className={`admin-positions-page__switch${
-                        dish.isActive
+                        !dish.isActive
                           ? ' admin-positions-page__switch--active'
                           : ''
                       }`}
                       onClick={() => handleTogglePutOnHold(dish)}
-                      aria-label={
-                        dish.isActive
-                          ? `Put ${dish.title} on hold`
-                          : `Take ${dish.title} off hold`
-                      }
+                      aria-label={`Put ${dish.title} on hold`}
                     >
                       <span />
                     </button>
@@ -592,36 +577,12 @@ function AdminPositionsPage() {
       </div>
 
       <div className="admin-positions-page__pagination">
-        <button
-          type="button"
-          disabled={!canGoPrev}
-          onClick={() => setPage((current) => current - 1)}
-        >
-          Prev
-        </button>
-
-        {Array.from({ length: totalPages }).map((_, index) => (
-          <button
-            type="button"
-            key={index}
-            className={
-              index === page
-                ? 'admin-positions-page__pagination-active'
-                : undefined
-            }
-            onClick={() => setPage(index)}
-          >
-            {index + 1}
-          </button>
-        ))}
-
-        <button
-          type="button"
-          disabled={!canGoNext}
-          onClick={() => setPage((current) => current + 1)}
-        >
-          Next
-        </button>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          disabled={isLoading}
+        />
       </div>
 
       {dishToDelete && (

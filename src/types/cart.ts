@@ -83,6 +83,7 @@ export interface OrderResponse {
   clientPhone: string
 
   deliveryTime: string
+  cookingTime: number | null
   payment: string
   noteForCourier: string
   details: string

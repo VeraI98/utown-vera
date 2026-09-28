@@ -1,0 +1,142 @@
+.owner-statistics-page {
+  background: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.owner-statistics-page__content {
+  padding: 20px 16px 16px;
+}
+
+.owner-statistics-page h1 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #111111;
+}
+
+.owner-statistics-page__message {
+  padding: 24px 0;
+  font-size: 13px;
+  text-align: center;
+  color: #888888;
+}
+
+.owner-statistics-page__error {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f1;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #b42318;
+}
+
+.owner-statistics-page__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.owner-statistics-page__summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111111;
+}
+
+.owner-statistics-page__summary-row--muted {
+  font-size: 13px;
+  font-weight: 400;
+  color: #555555;
+}
+
+.owner-statistics-page__calendar {
+  padding: 20px 16px 32px;
+  border-top: 8px solid #f5f5f5;
+}
+
+.owner-statistics-page__calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.owner-statistics-page__nav {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 20px;
+  line-height: 1;
+  color: #333333;
+  cursor: pointer;
+}
+
+.owner-statistics-page__calendar-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.owner-statistics-page__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 8px;
+}
+
+.owner-statistics-page__weekdays span {
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  color: #9a9a9a;
+}
+
+.owner-statistics-page__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.owner-statistics-page__week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.owner-statistics-page__day {
+  display: flex;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #111111;
+  cursor: pointer;
+}
+
+.owner-statistics-page__day--empty {
+  cursor: default;
+}
+
+.owner-statistics-page__day--today,
+.owner-statistics-page__day--selected {
+  background: #e4ecfd;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.owner-statistics-page__day--has-stats:not(
+    .owner-statistics-page__day--today
+  ):not(.owner-statistics-page__day--selected) {
+  font-weight: 600;
+}

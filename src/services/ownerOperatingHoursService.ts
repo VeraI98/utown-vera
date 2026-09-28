@@ -1,3 +1,4 @@
+import { invalidateOwnerRestaurantsCache } from './ownerRestaurantService'
 import { api } from './api'
 
 export interface OperatingModeResponse {
@@ -34,6 +35,7 @@ export async function createOwnerOperatingMode(
     request,
   )
 
+  invalidateOwnerRestaurantsCache()
   return data
 }
 
@@ -47,6 +49,7 @@ export async function updateOwnerOperatingMode(
     request,
   )
 
+  invalidateOwnerRestaurantsCache()
   return data
 }
 
@@ -59,6 +62,7 @@ export async function replaceOwnerOperatingModes(
     request,
   )
 
+  invalidateOwnerRestaurantsCache()
   return data
 }
 
@@ -69,4 +73,5 @@ export async function deleteOwnerOperatingMode(
   await api.delete(
     `/restaurant-owner/restaurants/${restaurantId}/operating-modes/${modeId}`,
   )
+  invalidateOwnerRestaurantsCache()
 }

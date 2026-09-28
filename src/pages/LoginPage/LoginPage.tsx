@@ -11,7 +11,7 @@ import './LoginPage.css'
 function LoginPage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const { login, isAuthenticated } = useAuth()
+  const { login, isAuthenticated, user } = useAuth()
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -19,7 +19,15 @@ function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />
+    const roles = user?.roles ?? []
+
+    const homePath = roles.includes('RESTAURATEUR')
+      ? '/owner'
+      : roles.includes('ADMIN')
+        ? '/admin'
+        : '/'
+
+    return <Navigate to={homePath} replace />
   }
 
   const handleSubmit = async (event: FormEvent) => {
@@ -42,12 +50,18 @@ function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      await login({
+      const loggedInUser = await login({
         username: normalizedUsername,
         password,
       })
 
-      navigate('/', {
+      const destination = loggedInUser.roles.includes('RESTAURATEUR')
+        ? '/owner'
+        : loggedInUser.roles.includes('ADMIN')
+          ? '/admin'
+          : '/'
+
+      navigate(destination, {
         replace: true,
       })
     } catch (loginError) {

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal'
+import Pagination from '../../components/Pagination/Pagination'
 import TableSkeleton from '../../components/TableSkeleton/TableSkeleton'
 import { useToast } from '../../components/Toast/useToast'
 import {
@@ -11,6 +12,7 @@ import {
   unblockClient,
 } from '../../services/clientService'
 import type { ClientResponse } from '../../types/client'
+import { runBatch } from '../../utils/runBatch'
 import { logError } from '../../utils/logger'
 
 import ClientCardModal from './ClientCardModal'
@@ -157,7 +159,14 @@ function AdminClientsPage() {
         // soft-deletes (isActive: false), and GET /admin/clients still
         // returns those clients. Filter them out here until the backend
         // excludes inactive clients from the list response.
-        setClients(data.content.filter((client) => client.isActive))
+        if (page > 0 && page >= data.totalPages) {
+          setPage(Math.max(0, data.totalPages - 1))
+          return
+        }
+
+        // Keep inactive clients visible: the same list is used to unblock
+        // clients, and filtering them out would make that action impossible.
+        setClients(data.content)
 
         setTotalPages(data.totalPages)
 
@@ -390,26 +399,14 @@ function AdminClientsPage() {
     setIsBulkRunning(true)
     setBulkError('')
 
-    let successCount = 0
-    let failureCount = 0
-
-    // The backend only accepts one id per request (no bulk endpoint), so
-    // each selected client is processed independently. A failure on one
-    // client should not stop the rest — we report a summary at the end.
-    for (const id of idsToProcess) {
-      try {
-        await actionFn(id)
-        successCount += 1
-      } catch (error) {
-        logError(`Failed to ${action} client ${id}:`, error)
-        failureCount += 1
-      }
-    }
+    const { succeeded, failed } = await runBatch(idsToProcess, actionFn)
+    const successCount = succeeded.length
+    const failureCount = failed.length
 
     setIsBulkRunning(false)
     setBulkActionPending(null)
     setSelectedAction(null)
-    setSelectedIds([])
+    setSelectedIds(failed)
     setReloadKey((current) => current + 1)
 
     const actionLabelRu =
@@ -433,10 +430,6 @@ function AdminClientsPage() {
       )
     }
   }
-
-  const canGoPrev = page > 0
-
-  const canGoNext = page + 1 < totalPages
 
   const showEmptyState = !isLoading && !loadError && clients.length === 0
 
@@ -800,39 +793,15 @@ function AdminClientsPage() {
       </table>
 
       <div className="admin-clients-page__pagination">
-        <button
-          type="button"
-          disabled={isLoading || !canGoPrev}
-          onClick={() => setPage((current) => current - 1)}
-        >
-          Prev
-        </button>
-
-        {Array.from({
-          length: totalPages,
-        }).map((_, index) => (
-          <button
-            type="button"
-            key={index}
-            className={
-              index === page
-                ? 'admin-clients-page__pagination-active'
-                : undefined
-            }
-            disabled={isLoading}
-            onClick={() => setPage(index)}
-          >
-            {index + 1}
-          </button>
-        ))}
-
-        <button
-          type="button"
-          disabled={isLoading || !canGoNext}
-          onClick={() => setPage((current) => current + 1)}
-        >
-          Next
-        </button>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={(nextPage) => {
+            setSelectedIds([])
+            setPage(nextPage)
+          }}
+          disabled={isLoading || isBulkRunning}
+        />
       </div>
 
       {viewedClient && (

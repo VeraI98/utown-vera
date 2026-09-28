@@ -1,3 +1,4 @@
+import { loadAllPages } from '../utils/loadAllPages'
 import { api } from './api'
 
 import type { DishResponse, PaginatedResponse } from '../types/restaurant'
@@ -61,4 +62,10 @@ export async function getDishesByCategory(
   )
 
   return data
+}
+
+export function getAllDishesByRestaurant(
+  restaurantId: number,
+): Promise<DishResponse[]> {
+  return loadAllPages((page) => getDishesByRestaurant(restaurantId, page, 100))
 }

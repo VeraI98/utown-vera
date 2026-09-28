@@ -284,7 +284,7 @@ function FoodPage() {
           </button>
 
           <section className="food-banner">
-            <img src={coffeeImage} alt="Coffee promotion" />
+            <img src={coffeeImage} alt="" aria-hidden="true" />
 
             <div className="food-banner-text">
               <strong>Delicious coffee</strong>

@@ -63,13 +63,13 @@ export async function getCategoriesByRestaurant(
   return data
 }
 
+// Create/update/delete through the public /categories endpoints, which a
+// RESTAURATEUR is allowed to call (confirmed via Swagger) — unlike
+// /admin/categories, which returns 401 for this role.
 export async function createCategory(
   request: CreateCategoryRequest,
 ): Promise<DishCategoryResponse> {
-  const { data } = await api.post<DishCategoryResponse>(
-    '/admin/categories',
-    request,
-  )
+  const { data } = await api.post<DishCategoryResponse>('/categories', request)
 
   return data
 }
@@ -79,7 +79,7 @@ export async function updateCategory(
   request: UpdateCategoryRequest,
 ): Promise<DishCategoryResponse> {
   const { data } = await api.put<DishCategoryResponse>(
-    `/admin/categories/${categoryId}`,
+    `/categories/${categoryId}`,
     request,
   )
 
@@ -87,5 +87,5 @@ export async function updateCategory(
 }
 
 export async function deleteCategory(categoryId: number): Promise<void> {
-  await api.delete(`/admin/categories/${categoryId}`)
+  await api.delete(`/categories/${categoryId}`)
 }

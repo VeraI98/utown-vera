@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -12,6 +11,7 @@ import type {
   OperatingModeRequest,
   OperatingModeResponse,
 } from '../../../services/ownerOperatingHoursService'
+import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
 import './OwnerWorkingHoursEditPage.css'
@@ -24,27 +24,6 @@ const DAY_NAMES: Record<number, string> = {
   5: 'Friday',
   6: 'Saturday',
   7: 'Sunday',
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-  }
-
-  return 'Failed to save working hours.'
 }
 
 function OwnerWorkingHoursEditPage() {
@@ -120,7 +99,7 @@ function OwnerWorkingHoursEditPage() {
           return
         }
 
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(getErrorMessage(error, 'Failed to save working hours.'))
       })
       .finally(() => {
         if (!isActive) {
@@ -179,7 +158,7 @@ function OwnerWorkingHoursEditPage() {
     } catch (error) {
       logError('OwnerWorkingHoursEditPage: failed to save working hours', error)
 
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(getErrorMessage(error, 'Failed to save working hours.'))
     } finally {
       setIsSaving(false)
     }

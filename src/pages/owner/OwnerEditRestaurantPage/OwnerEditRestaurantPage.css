@@ -67,6 +67,42 @@
   border-color: #3978f6;
 }
 
+.owner-edit-restaurant-upload {
+  display: flex;
+  width: 100%;
+  height: 42px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  border: 1px solid #cfd6e1;
+  border-radius: 4px;
+  background: #ffffff;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+  color: #252b36;
+  cursor: pointer;
+}
+
+.owner-edit-restaurant-upload svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #7c8798;
+}
+
+.owner-edit-restaurant-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .owner-edit-restaurant-hours {
   width: 100%;
   display: flex;
@@ -74,16 +110,19 @@
   gap: 6px;
 }
 
-.owner-edit-restaurant-hours-row {
-  min-height: 42px;
-  padding: 0 12px;
-  border: 1px solid #cfd6e1;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  font-size: 14px;
-  color: #252b36;
+.owner-edit-restaurant-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: #a15c00;
+}
+
+.owner-edit-restaurant-hint-error {
+  color: #c43a3a;
+}
+
+.owner-edit-restaurant-hours input[aria-invalid='true'] {
+  border-color: #e44949;
 }
 
 .owner-edit-restaurant-select {

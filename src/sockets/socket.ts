@@ -1,8 +1,7 @@
 import { io } from 'socket.io-client'
 
 const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  'https://utown-api.habsida.net'
+  import.meta.env.VITE_SOCKET_URL || 'https://utown-api.habsida.net'
 
 const TOKEN_KEY = 'token'
 

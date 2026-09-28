@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -83,6 +84,14 @@ function formatPrice(price: number | null | undefined): string {
   return price.toLocaleString('en-US')
 }
 
+function getFavoritesErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error) && error.response?.status === 403) {
+    return 'Favorites are available for customer accounts only.'
+  }
+
+  return 'Failed to load favorites.'
+}
+
 function FavoritesPage() {
   const navigate = useNavigate()
 
@@ -114,7 +123,7 @@ function FavoritesPage() {
         }
 
         setFavorites([])
-        setErrorMessage('Failed to load favorites.')
+        setErrorMessage(getFavoritesErrorMessage(error))
       } finally {
         if (isMounted) {
           setIsLoading(false)

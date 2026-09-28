@@ -6,9 +6,6 @@ interface ConfirmDeleteModalProps {
   error: string
   onConfirm: () => void
   onCancel: () => void
-  /** Defaults to "Delete" / "Deleting..." so existing delete-only callers
-   * don't need to change. Pass these to reuse the modal for a different
-   * action (e.g. Block/Unblock). */
   confirmLabel?: string
   pendingLabel?: string
 }
@@ -26,6 +23,9 @@ function ConfirmDeleteModal({
     <div className="confirm-delete-modal__overlay" onClick={onCancel}>
       <div
         className="confirm-delete-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
         onClick={(event) => event.stopPropagation()}
       >
         <h2 className="confirm-delete-modal__title">{title}</h2>

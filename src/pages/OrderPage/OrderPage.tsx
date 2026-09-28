@@ -1,3 +1,4 @@
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import axios from 'axios'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -59,27 +60,6 @@ function formatPrice(value: number | null | undefined): string {
   }
 
   return new Intl.NumberFormat('en-US').format(value)
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-  }
-
-  return 'Something went wrong. Please try again.'
 }
 
 function createPaymentOrderItems(cartItems: CartItemResponse[]): OrderItem[] {
@@ -187,7 +167,9 @@ function OrderPage() {
           return
         }
 
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(
+          getErrorMessage(error, 'Something went wrong. Please try again.'),
+        )
       })
       .finally(() => {
         if (isActive) {
@@ -273,7 +255,9 @@ function OrderPage() {
         return
       }
 
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(
+        getErrorMessage(error, 'Something went wrong. Please try again.'),
+      )
     } finally {
       if (isMountedRef.current) {
         setIsLoading(false)
@@ -302,7 +286,9 @@ function OrderPage() {
       logError('OrderPage: failed to update cart item quantity', error)
 
       if (isMountedRef.current) {
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(
+          getErrorMessage(error, 'Something went wrong. Please try again.'),
+        )
       }
     } finally {
       if (isMountedRef.current) {
@@ -351,7 +337,9 @@ function OrderPage() {
       logError('OrderPage: failed to remove cart item', error)
 
       if (isMountedRef.current) {
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(
+          getErrorMessage(error, 'Something went wrong. Please try again.'),
+        )
       }
     } finally {
       if (isMountedRef.current) {

@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -31,27 +31,6 @@ function formatPrice(value: number | null | undefined): string {
   }
 
   return new Intl.NumberFormat('en-US').format(value)
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-  }
-
-  return 'Failed to place the order. Please try again.'
 }
 
 function getClientPhone(username: string | undefined): string {
@@ -192,7 +171,12 @@ function OrderPaymentPage() {
           return
         }
 
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(
+          getErrorMessage(
+            error,
+            'Failed to place the order. Please try again.',
+          ),
+        )
       } finally {
         if (isMounted) {
           setIsLoadingCart(false)
@@ -289,7 +273,9 @@ function OrderPaymentPage() {
     } catch (error) {
       logError('OrderPaymentPage: failed to place order', error)
 
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(
+        getErrorMessage(error, 'Failed to place the order. Please try again.'),
+      )
       setIsSending(false)
     }
   }

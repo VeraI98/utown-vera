@@ -1,4 +1,12 @@
-# React + TypeScript + Vite
+# UTown frontend
+
+Локальный запуск: `npm ci`, затем `npm run dev`. Открывать `http://localhost:5173` (этот адрес разрешён сервером API).
+
+Проверки: `npm test`, `npm run build`, `npm run lint`, `npm run format:check`. Для тестов используется Node.js 22.18+ или 24+.
+
+[Исправления по ревью, ограничения API и порядок переноса в Git](docs/review-fixes-2026-09-24.md).
+
+## React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

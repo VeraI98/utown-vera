@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -40,27 +40,6 @@ function formatPrice(value: number | null | undefined): string {
   }
 
   return new Intl.NumberFormat('en-US').format(value)
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-  }
-
-  return 'Failed to load your orders. Please try again.'
 }
 
 function normalizeStatus(status?: string): string {
@@ -150,7 +129,9 @@ function OrdersHistoryPage() {
     } catch (error) {
       logError('OrdersHistoryPage: failed to refresh orders', error)
 
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(
+        getErrorMessage(error, 'Failed to load your orders. Please try again.'),
+      )
     } finally {
       setIsLoading(false)
     }
@@ -176,7 +157,12 @@ function OrdersHistoryPage() {
           return
         }
 
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(
+          getErrorMessage(
+            error,
+            'Failed to load your orders. Please try again.',
+          ),
+        )
       })
       .finally(() => {
         if (isMounted) {

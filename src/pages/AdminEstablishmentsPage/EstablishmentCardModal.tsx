@@ -24,8 +24,8 @@ const DAY_NAMES = [
   'Sunday',
 ]
 
-function formatTime(time: string) {
-  return time.replace(/^0/, '').slice(0, 5)
+function formatTime(time: string | null) {
+  return time ? time.replace(/^0/, '').slice(0, 5) : '-'
 }
 
 function formatAmount(amount: number) {

@@ -38,10 +38,7 @@ function EditCategoryModal({
   }
 
   return (
-    <div
-      className="admin-categories-page__modal-overlay"
-      onClick={onCancel}
-    >
+    <div className="admin-categories-page__modal-overlay" onClick={onCancel}>
       <div
         className="admin-categories-page__modal"
         onClick={(event) => event.stopPropagation()}
@@ -59,9 +56,7 @@ function EditCategoryModal({
           />
         </div>
 
-        {error && (
-          <p className="admin-categories-page__modal-error">{error}</p>
-        )}
+        {error && <p className="admin-categories-page__modal-error">{error}</p>}
 
         <div className="admin-categories-page__modal-actions">
           <button

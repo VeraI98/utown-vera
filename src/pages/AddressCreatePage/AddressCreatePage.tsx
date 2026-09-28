@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import { type ChangeEvent, type FormEvent, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -42,27 +42,6 @@ const initialFormState: AddressFormState = {
   street: '',
   typeAddress: '0',
   intercomCode: '',
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-
-    if (
-      responseData &&
-      typeof responseData === 'object' &&
-      'message' in responseData &&
-      typeof responseData.message === 'string'
-    ) {
-      return responseData.message
-    }
-
-    if (typeof responseData === 'string') {
-      return responseData
-    }
-  }
-
-  return 'Failed to save address. Please try again.'
 }
 
 function AddressCreatePage() {
@@ -159,7 +138,9 @@ function AddressCreatePage() {
     } catch (error) {
       logError('AddressCreatePage: failed to create address', error)
 
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(
+        getErrorMessage(error, 'Failed to save address. Please try again.'),
+      )
     } finally {
       setIsSaving(false)
     }
