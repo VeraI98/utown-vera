@@ -41,7 +41,12 @@ function AdminLayout() {
     <div className="admin-layout">
       <header className="admin-layout__header">
         <div className="admin-layout__logo-box">
-          <HomeLogo src={logo} alt="UTOWN" className="admin-layout__logo" />
+          <HomeLogo
+            src={logo}
+            alt="UTOWN"
+            className="admin-layout__logo"
+            to="/admin/clients"
+          />
         </div>
 
         <div className="admin-layout__header-gradient">
