@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
@@ -681,7 +682,7 @@ function RestaurantPage() {
       </header>
 
       <section className="restaurant-page__hero">
-        <img
+        <ApiImage
           className="restaurant-page__hero-image"
           src={heroImage}
           alt={`${restaurant.title} restaurant`}
@@ -839,7 +840,7 @@ function RestaurantPage() {
                 onClick={() => handleCategoryClick(group.id)}
               >
                 {group.image ? (
-                  <img
+                  <ApiImage
                     src={group.image}
                     alt={group.title}
                     onError={(event) => {

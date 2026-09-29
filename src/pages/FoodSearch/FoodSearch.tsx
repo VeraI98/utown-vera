@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -509,7 +510,7 @@ function FoodSearch() {
                       key={restaurant.id}
                       onClick={() => handleRestaurantClick(restaurant.id)}
                     >
-                      <img
+                      <ApiImage
                         className="food-search-result-image"
                         src={getRestaurantImage(restaurant)}
                         alt={restaurant.title}
@@ -553,7 +554,7 @@ function FoodSearch() {
                       key={dish.id}
                       onClick={() => handleDishClick(dish)}
                     >
-                      <img
+                      <ApiImage
                         className="food-search-result-image"
                         src={getDishImage(dish)}
                         alt={dish.title}

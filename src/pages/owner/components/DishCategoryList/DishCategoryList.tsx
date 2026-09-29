@@ -1,3 +1,4 @@
+import ApiImage from '../../../../components/ApiImage/ApiImage'
 import { useState } from 'react'
 
 import type {
@@ -114,7 +115,9 @@ function DishCategoryList({
                             : ' dish-category-list__thumb--held'
                         }`}
                       >
-                        {dish.imageUrl && <img src={dish.imageUrl} alt="" />}
+                        {dish.imageUrl && (
+                          <ApiImage src={dish.imageUrl} alt="" />
+                        )}
                       </div>
 
                       <button

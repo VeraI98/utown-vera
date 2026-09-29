@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useState } from 'react'
 
 import './RestaurantProductCard.css'
@@ -66,7 +67,7 @@ function RestaurantProductCard({
       </div>
 
       {hasImage ? (
-        <img
+        <ApiImage
           className="restaurant-product-card__image"
           src={product.image ?? undefined}
           alt={product.name}

@@ -1,5 +1,4 @@
 import { api } from './api'
-import { resolveImageUrl } from '../utils/imageUrl'
 
 export async function uploadFile(file: File): Promise<string> {
   const formData = new FormData()
@@ -26,5 +25,5 @@ export async function uploadFile(file: File): Promise<string> {
     throw new Error('Upload response did not contain a file URL')
   }
 
-  return resolveImageUrl(url, api.defaults.baseURL!)
+  return url
 }

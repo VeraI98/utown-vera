@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -335,7 +336,7 @@ function OrdersHistoryPage() {
                             key={item.id}
                           >
                             {hasImage ? (
-                              <img
+                              <ApiImage
                                 src={item.dishImageUrl}
                                 alt={item.dishTitle || 'Dish'}
                               />

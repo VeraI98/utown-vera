@@ -1,3 +1,4 @@
+import ApiImage from '../../../components/ApiImage/ApiImage'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -241,7 +242,7 @@ function OwnerCategoryFormPage() {
             onClick={handleImageClick}
           >
             {previewSrc ? (
-              <img src={previewSrc} alt="" />
+              <ApiImage src={previewSrc} alt="" />
             ) : (
               <span>Upload image</span>
             )}

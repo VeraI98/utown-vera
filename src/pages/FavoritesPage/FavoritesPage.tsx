@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
@@ -253,7 +254,7 @@ function FavoritesPage() {
                         className="favorites-restaurant-main"
                         to={`/food/restaurants/${restaurantId}`}
                       >
-                        <img
+                        <ApiImage
                           className="favorites-restaurant-image"
                           src={getRestaurantImage(favorite)}
                           alt={restaurant.title}

@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -59,7 +60,7 @@ function DishImage({ src, alt }: DishImageProps) {
   }
 
   return (
-    <img
+    <ApiImage
       className="food-category-dish-image"
       src={src ?? undefined}
       alt={alt}

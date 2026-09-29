@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import axios from 'axios'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -499,7 +500,7 @@ function OrderPage() {
 
                     <div className="order-page__image-wrapper">
                       {hasImage ? (
-                        <img
+                        <ApiImage
                           className="order-page__item-image"
                           src={item.dishImageUrl ?? undefined}
                           alt={item.dishTitle}

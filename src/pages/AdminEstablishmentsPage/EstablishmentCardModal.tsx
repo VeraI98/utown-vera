@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -109,7 +110,7 @@ function EstablishmentCardModal({
 
         <div className="establishment-card-modal__top">
           {establishment.imageUrl ? (
-            <img
+            <ApiImage
               className="establishment-card-modal__photo"
               src={establishment.imageUrl}
               alt=""

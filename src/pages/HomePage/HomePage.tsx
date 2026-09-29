@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -339,7 +340,7 @@ function HomePage() {
                       to={`/food/restaurants/${restaurant.id}`}
                       key={restaurant.id}
                     >
-                      <img
+                      <ApiImage
                         className="restaurant-image"
                         src={getRestaurantImage(restaurant)}
                         alt={restaurant.title}

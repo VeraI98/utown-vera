@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -151,7 +152,7 @@ function FoodMorePage({ title }: FoodMorePageProps) {
                   >
                     <div className="food-more-card-image">
                       {imageUrl ? (
-                        <img
+                        <ApiImage
                           src={imageUrl}
                           alt={restaurant.title}
                           loading="lazy"

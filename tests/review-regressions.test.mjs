@@ -195,6 +195,54 @@ function mockApi(handler) {
   })
 }
 
+test('image rendering preserves original URLs through upload and save', async () => {
+  const { default: ApiImage } = await server.ssrLoadModule(
+    '/src/components/ApiImage/ApiImage.tsx',
+  )
+  const { uploadFile } = await server.ssrLoadModule(
+    '/src/services/fileService.ts',
+  )
+  const original = '/api/files/photo.jpg'
+  const payloads = []
+  mockApi((config) => {
+    if (config.url === '/files/upload') return { url: original }
+    if (config.method === 'put') payloads.push(JSON.parse(config.data))
+    return { id: 1, imageUrl: original }
+  })
+  const { data } = await api.get('/dishes/1')
+  assert.equal(data.imageUrl, original)
+  const markup = renderToStaticMarkup(
+    createElement(ApiImage, { src: data.imageUrl, alt: '' }),
+  )
+  assert.ok(
+    markup.includes('https://utown-api.habsida.net/api/files/photo.jpg'),
+  )
+  assert.equal(data.imageUrl, original)
+  await dishes.updateOwnerDish(1, {
+    title: 'Dish',
+    price: 100,
+    dishCategoryId: 1,
+    imageUrl: data.imageUrl,
+  })
+  await edits.updateOwnerRestaurant(1, data)
+  assert.ok(payloads.every((payload) => payload.imageUrl === original))
+  assert.equal(
+    await uploadFile(new File(['image'], 'photo.jpg', { type: 'image/jpeg' })),
+    original,
+  )
+  for (const src of [
+    'https://example.com/photo.jpg',
+    'blob:preview',
+    '/assets/fallback.webp',
+  ]) {
+    assert.ok(
+      renderToStaticMarkup(createElement(ApiImage, { src, alt: '' })).includes(
+        `src="${src}"`,
+      ),
+    )
+  }
+})
+
 test('admin menu includes inactive dishes after the first global pages', async () => {
   const adminDishes = await server.ssrLoadModule(
     '/src/services/adminDishService.ts',
