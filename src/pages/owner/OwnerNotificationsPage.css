@@ -8,7 +8,7 @@
 }
 
 .owner-notifications-page__content h1 {
-  margin: 0 0 20px;
+  margin: 0 0 40px;
   font-size: 24px;
   font-weight: 500;
   line-height: 1.2;
@@ -16,43 +16,46 @@
 }
 
 .owner-notifications-page__group {
-  margin-bottom: 24px;
+  margin-bottom: 64px;
 }
 
 .owner-notifications-page__group h2 {
-  margin: 0 0 12px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #111111;
+  margin: 0 0 24px;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
+  color: #a3a3a3;
 }
 
 .owner-notifications-page__list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 24px;
 }
 
 .owner-notifications-page__notification {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: end;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 72%;
 }
 
 .owner-notifications-page__message {
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: #f3f3f3;
+  padding: 16px;
+  border-radius: 14px;
+  background: #eaeaea;
   font-size: 13px;
   line-height: 1.4;
   color: #111111;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .owner-notifications-page__notification time {
-  padding-bottom: 4px;
-  font-size: 11px;
+  align-self: flex-end;
+  font-size: 12px;
   white-space: nowrap;
-  color: #8a8a8a;
+  color: #a3a3a3;
 }
 
 .owner-notifications-page__loading,

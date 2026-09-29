@@ -84,7 +84,7 @@ function NotificationGroup({ title, notifications }: NotificationGroupProps) {
               {notification.text || notification.title || 'Notification'}
             </div>
 
-            <time>{notification.time}</time>
+            <time>{notification.time?.slice(0, 5)}</time>
           </article>
         ))}
       </div>
@@ -140,22 +140,38 @@ function OwnerNotificationsPage() {
         const firstDate = getNotificationDate(firstNotification)
         const secondDate = getNotificationDate(secondNotification)
 
-        return (secondDate?.getTime() ?? 0) - (firstDate?.getTime() ?? 0)
+        return (firstDate?.getTime() ?? 0) - (secondDate?.getTime() ?? 0)
       }),
     [notifications],
   )
 
-  const todayNotifications = sortedNotifications.filter((notification) =>
-    isToday(notification),
-  )
-
-  const yesterdayNotifications = sortedNotifications.filter((notification) =>
-    isYesterday(notification),
-  )
-
-  const olderNotifications = sortedNotifications.filter(
-    (notification) => !isToday(notification) && !isYesterday(notification),
-  )
+  const groups = sortedNotifications.reduce<
+    Array<NotificationGroupProps & { key: string }>
+  >((result, notification) => {
+    const date = getNotificationDate(notification)
+    const key = date ? notification.date : 'unknown'
+    let group = result.find((item) => item.key === key)
+    if (!group) {
+      group = {
+        key,
+        title: isToday(notification)
+          ? 'Today'
+          : isYesterday(notification)
+            ? 'Yesterday'
+            : date
+              ? date.toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })
+              : 'Earlier',
+        notifications: [],
+      }
+      result.push(group)
+    }
+    group.notifications.push(notification)
+    return result
+  }, [])
 
   return (
     <div className="owner-notifications-page">
@@ -178,24 +194,15 @@ function OwnerNotificationsPage() {
           <p className="owner-notifications-page__empty">No notifications.</p>
         )}
 
-        {!isLoading && !errorMessage && (
-          <>
+        {!isLoading &&
+          !errorMessage &&
+          groups.map((group) => (
             <NotificationGroup
-              title="Today"
-              notifications={todayNotifications}
+              key={group.key}
+              title={group.title}
+              notifications={group.notifications}
             />
-
-            <NotificationGroup
-              title="Yesterday"
-              notifications={yesterdayNotifications}
-            />
-
-            <NotificationGroup
-              title="Earlier"
-              notifications={olderNotifications}
-            />
-          </>
-        )}
+          ))}
       </div>
     </div>
   )
