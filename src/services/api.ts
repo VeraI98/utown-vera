@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
 import { logError } from '../utils/logger'
+import { resolveResponseImages } from '../utils/imageUrl'
 
 const API_URL =
   import.meta.env.VITE_API_URL || 'https://utown-api.habsida.net/api'
@@ -47,7 +48,10 @@ api.interceptors.request.use((config) => {
 })
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    resolveResponseImages(response.data, API_URL)
+    return response
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as RetryRequestConfig | undefined
 
