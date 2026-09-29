@@ -140,7 +140,7 @@ function OwnerNotificationsPage() {
         const firstDate = getNotificationDate(firstNotification)
         const secondDate = getNotificationDate(secondNotification)
 
-        return (firstDate?.getTime() ?? 0) - (secondDate?.getTime() ?? 0)
+        return (secondDate?.getTime() ?? 0) - (firstDate?.getTime() ?? 0)
       }),
     [notifications],
   )
