@@ -44,9 +44,11 @@ function DishCategoryList({
 
   const activeCategory =
     sortedCategories.find((category) => category.id === selectedCategoryId) ??
-    sortedCategories[0]
+    sortedCategories.find((category) =>
+      dishes.some((dish) => dish.dishCategoryId === category.id),
+    )
 
-  if (!activeCategory) {
+  if (dishes.length === 0 || !activeCategory) {
     return <p className="dish-category-list__empty">{emptyMessage}</p>
   }
 
