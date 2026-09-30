@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -122,7 +123,7 @@ function RestaurantSection({
             onClick={() => onRestaurantClick(restaurant.id)}
             aria-label={`Open ${restaurant.title}`}
           >
-            <img
+            <ApiImage
               className="food-restaurant-image"
               src={getRestaurantImage(restaurant)}
               alt={restaurant.title}
@@ -252,10 +253,10 @@ function FoodPage() {
             <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div className="food-logo" aria-label="UT Food">
+          <Link to="/" className="food-logo" aria-label="Go to home">
             <img src={utLogo} alt="UT" />
             <img src={foodLogo} alt="Food" />
-          </div>
+          </Link>
 
           <button
             className="food-header-button"
@@ -333,7 +334,7 @@ function FoodPage() {
                       onClick={() => handleCategoryClick(category.id)}
                       aria-label={`Open ${category.name}`}
                     >
-                      <img
+                      <ApiImage
                         src={imageSource ?? getCategoryFallbackImage(index)}
                         alt={category.name}
                         loading="lazy"

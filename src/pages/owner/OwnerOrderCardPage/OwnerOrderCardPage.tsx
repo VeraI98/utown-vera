@@ -102,6 +102,9 @@ function OwnerOrderCardPage() {
       const updated = await updateOrderStatus(order.id, nextStatus)
 
       setOrder(updated)
+      if (nextStatus === 'CONFIRMED') {
+        navigate(`/owner/orders/${order.id}/cooking-time`)
+      }
     } catch (error: unknown) {
       logError('OwnerOrderCardPage: failed to update status', error)
 
@@ -214,9 +217,17 @@ function OwnerOrderCardPage() {
                   className="owner-order-card-page__primary-button"
                   type="button"
                   disabled={isUpdating}
-                  onClick={() => void handleChangeStatus(nextStatus)}
+                  onClick={() =>
+                    nextStatus === 'PREPARING'
+                      ? navigate(`/owner/orders/${order.id}/cooking-time`)
+                      : void handleChangeStatus(nextStatus)
+                  }
                 >
-                  Mark as {STATUS_LABELS[nextStatus]}
+                  {nextStatus === 'CONFIRMED'
+                    ? 'Accept the order'
+                    : nextStatus === 'PREPARING'
+                      ? 'Start cooking'
+                      : `Mark as ${STATUS_LABELS[nextStatus]}`}
                 </button>
               )}
 
@@ -241,7 +252,7 @@ function OwnerOrderCardPage() {
         <button
           className="owner-order-card-page__back-link"
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/owner/orders')}
         >
           Back to order table
         </button>

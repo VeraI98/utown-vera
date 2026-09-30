@@ -1,5 +1,6 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/food-menu/Back button.svg'
 import bellIcon from '../../assets/food-menu/bell.svg'
@@ -95,10 +96,10 @@ function FoodMorePage({ title }: FoodMorePageProps) {
             <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div className="food-more-logo" aria-label="UT Food">
+          <Link to="/" className="food-more-logo" aria-label="Go to home">
             <img src={utLogo} alt="UT" />
             <img src={foodLogo} alt="Food" />
-          </div>
+          </Link>
 
           <button
             className="food-more-header-button"
@@ -151,7 +152,7 @@ function FoodMorePage({ title }: FoodMorePageProps) {
                   >
                     <div className="food-more-card-image">
                       {imageUrl ? (
-                        <img
+                        <ApiImage
                           src={imageUrl}
                           alt={restaurant.title}
                           loading="lazy"

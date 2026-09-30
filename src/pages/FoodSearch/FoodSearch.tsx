@@ -1,5 +1,6 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import cuisineAreaImage from '../../assets/food-common/local-cuisine.webp'
 import backButtonIcon from '../../assets/search/Back button.svg'
@@ -421,11 +422,11 @@ function FoodSearch() {
             <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div className="food-search-logo" aria-label="UT Food">
+          <Link to="/" className="food-search-logo" aria-label="Go to home">
             <img src={utLogo} alt="UT" />
 
             <img src={foodLogo} alt="Food" />
-          </div>
+          </Link>
 
           <button
             className="food-search-header-button"
@@ -509,7 +510,7 @@ function FoodSearch() {
                       key={restaurant.id}
                       onClick={() => handleRestaurantClick(restaurant.id)}
                     >
-                      <img
+                      <ApiImage
                         className="food-search-result-image"
                         src={getRestaurantImage(restaurant)}
                         alt={restaurant.title}
@@ -553,7 +554,7 @@ function FoodSearch() {
                       key={dish.id}
                       onClick={() => handleDishClick(dish)}
                     >
-                      <img
+                      <ApiImage
                         className="food-search-result-image"
                         src={getDishImage(dish)}
                         alt={dish.title}

@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import backButton from '../../assets/icon info/Back Button.svg'
@@ -89,7 +90,7 @@ function LegalPage() {
             <img src={backButton} alt="" aria-hidden="true" />
           </button>
 
-          <img className="legal-logo" src={logoWhite} alt="UTOWN" />
+          <HomeLogo className="legal-logo" src={logoWhite} alt="UTOWN" />
 
           <button
             className="legal-header-button"

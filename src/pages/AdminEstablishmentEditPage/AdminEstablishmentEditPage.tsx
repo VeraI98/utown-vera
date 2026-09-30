@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -333,7 +334,7 @@ function AdminEstablishmentEditPage() {
             onClick={handlePhotoClick}
           >
             {photoPreview ? (
-              <img src={photoPreview} alt="" />
+              <ApiImage src={photoPreview} alt="" />
             ) : (
               <svg viewBox="0 0 24 24" fill="none">
                 <path

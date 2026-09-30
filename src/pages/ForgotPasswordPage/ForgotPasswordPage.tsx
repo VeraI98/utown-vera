@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { useState, type FormEvent } from 'react'
 
 import { Link, useNavigate } from 'react-router-dom'
@@ -45,7 +46,7 @@ function ForgotPasswordPage() {
   return (
     <main className="login-page">
       <section className="login-content">
-        <img className="brand-logo" src={logo} alt="UT" />
+        <HomeLogo className="brand-logo" src={logo} alt="UT" />
 
         <form className="login-form" onSubmit={handleSubmit}>
           <p className="forgot-password-hint">

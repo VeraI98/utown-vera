@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { useState, type FormEvent } from 'react'
 
 import { Link, useSearchParams } from 'react-router-dom'
@@ -69,7 +70,7 @@ function ResetPasswordPage() {
     return (
       <main className="login-page">
         <section className="login-content">
-          <img className="brand-logo" src={logo} alt="UT" />
+          <HomeLogo className="brand-logo" src={logo} alt="UT" />
 
           <p className="reset-password-success">
             Your password has been reset. You can now log in.
@@ -86,7 +87,7 @@ function ResetPasswordPage() {
   return (
     <main className="login-page">
       <section className="login-content">
-        <img className="brand-logo" src={logo} alt="UT" />
+        <HomeLogo className="brand-logo" src={logo} alt="UT" />
 
         <form className="login-form" onSubmit={handleSubmit}>
           <p className="forgot-password-hint">

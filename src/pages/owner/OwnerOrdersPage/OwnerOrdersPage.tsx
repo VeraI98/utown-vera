@@ -57,7 +57,6 @@ function OwnerOrdersPage() {
     null,
   )
   const [isAccepting, setIsAccepting] = useState(false)
-  const [isDeclining, setIsDeclining] = useState(false)
   const [acceptError, setAcceptError] = useState('')
 
   useEffect(() => {
@@ -136,7 +135,7 @@ function OwnerOrdersPage() {
   }
 
   const handleCloseConfirm = () => {
-    if (isAccepting || isDeclining) {
+    if (isAccepting) {
       return
     }
 
@@ -145,7 +144,7 @@ function OwnerOrdersPage() {
   }
 
   const handleConfirmAccept = async () => {
-    if (!confirmingOrder || isAccepting || isDeclining) {
+    if (!confirmingOrder || isAccepting) {
       return
     }
 
@@ -153,7 +152,7 @@ function OwnerOrdersPage() {
     setAcceptError('')
 
     try {
-      await updateOrderStatus(confirmingOrder.id, 'PREPARING')
+      await updateOrderStatus(confirmingOrder.id, 'CONFIRMED')
 
       const acceptedOrderId = confirmingOrder.id
 
@@ -165,31 +164,6 @@ function OwnerOrdersPage() {
       setAcceptError(getErrorMessage(error, 'Failed to load orders.'))
     } finally {
       setIsAccepting(false)
-    }
-  }
-
-  const handleConfirmDecline = async () => {
-    if (!confirmingOrder || isAccepting || isDeclining) {
-      return
-    }
-
-    setIsDeclining(true)
-    setAcceptError('')
-
-    try {
-      const updated = await updateOrderStatus(confirmingOrder.id, 'CANCELLED')
-
-      setOrders((current) =>
-        current.map((order) => (order.id === updated.id ? updated : order)),
-      )
-
-      setConfirmingOrder(null)
-    } catch (error) {
-      logError('OwnerOrdersPage: failed to decline order', error)
-
-      setAcceptError(getErrorMessage(error, 'Failed to load orders.'))
-    } finally {
-      setIsDeclining(false)
     }
   }
 
@@ -306,13 +280,19 @@ function OwnerOrdersPage() {
                 </div>
 
                 {tab === 'ACTIVE' ? (
-                  order.status === 'PENDING' ? (
+                  order.status === 'PENDING' || order.status === 'CONFIRMED' ? (
                     <button
                       type="button"
                       className="owner-orders-page__accept-button"
-                      onClick={() => handleAcceptClick(order)}
+                      onClick={() =>
+                        order.status === 'CONFIRMED'
+                          ? navigate(`${order.id}/cooking-time`)
+                          : handleAcceptClick(order)
+                      }
                     >
-                      Accept
+                      {order.status === 'CONFIRMED'
+                        ? 'Start cooking'
+                        : 'Accept'}
                     </button>
                   ) : (
                     <button
@@ -356,7 +336,7 @@ function OwnerOrdersPage() {
             type="button"
             className="owner-orders-page__modal-backdrop"
             aria-label="Close"
-            disabled={isAccepting || isDeclining}
+            disabled={isAccepting}
             onClick={handleCloseConfirm}
           />
 
@@ -376,16 +356,16 @@ function OwnerOrdersPage() {
             <button
               type="button"
               className="owner-orders-page__modal-decline"
-              disabled={isAccepting || isDeclining}
-              onClick={() => void handleConfirmDecline()}
+              disabled={isAccepting}
+              onClick={handleCloseConfirm}
             >
-              {isDeclining ? 'Declining...' : 'Decline'}
+              Cancel
             </button>
 
             <button
               type="button"
               className="owner-orders-page__modal-accept"
-              disabled={isAccepting || isDeclining}
+              disabled={isAccepting}
               onClick={() => void handleConfirmAccept()}
             >
               {isAccepting ? 'Accepting...' : 'Accept'}

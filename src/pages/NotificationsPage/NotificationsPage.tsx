@@ -1,3 +1,4 @@
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -165,7 +166,11 @@ function NotificationsPage() {
             <img src={backButton} alt="" aria-hidden="true" />
           </button>
 
-          <img className="notifications-logo" src={logoGradient} alt="UTOWN" />
+          <HomeLogo
+            className="notifications-logo"
+            src={logoGradient}
+            alt="UTOWN"
+          />
         </header>
 
         <div className="notifications-content">

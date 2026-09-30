@@ -1,5 +1,6 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/restaurant page/Back button.svg'
 import backgroundImage from '../../assets/food-common/background.webp'
@@ -585,11 +586,15 @@ function RestaurantPage() {
             <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div className="restaurant-page__logo" aria-label="UT Food">
+          <Link
+            to="/"
+            className="restaurant-page__logo"
+            aria-label="Go to home"
+          >
             <img src={utLogo} alt="UT" />
 
             <img src={foodLogo} alt="Food" />
-          </div>
+          </Link>
 
           <div className="restaurant-page__header-button" />
         </header>
@@ -622,11 +627,15 @@ function RestaurantPage() {
             <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div className="restaurant-page__logo" aria-label="UT Food">
+          <Link
+            to="/"
+            className="restaurant-page__logo"
+            aria-label="Go to home"
+          >
             <img src={utLogo} alt="UT" />
 
             <img src={foodLogo} alt="Food" />
-          </div>
+          </Link>
 
           <div className="restaurant-page__header-button" />
         </header>
@@ -656,11 +665,11 @@ function RestaurantPage() {
           <img src={backButtonIcon} alt="" aria-hidden="true" />
         </button>
 
-        <div className="restaurant-page__logo" aria-label="UT Food">
+        <Link to="/" className="restaurant-page__logo" aria-label="Go to home">
           <img src={utLogo} alt="UT" />
 
           <img src={foodLogo} alt="Food" />
-        </div>
+        </Link>
 
         <button
           className="restaurant-page__header-button"
@@ -673,7 +682,7 @@ function RestaurantPage() {
       </header>
 
       <section className="restaurant-page__hero">
-        <img
+        <ApiImage
           className="restaurant-page__hero-image"
           src={heroImage}
           alt={`${restaurant.title} restaurant`}
@@ -831,7 +840,7 @@ function RestaurantPage() {
                 onClick={() => handleCategoryClick(group.id)}
               >
                 {group.image ? (
-                  <img
+                  <ApiImage
                     src={group.image}
                     alt={group.title}
                     onError={(event) => {

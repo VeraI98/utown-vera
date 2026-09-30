@@ -219,3 +219,15 @@
   background: #edf9f0;
   color: #277a3c;
 }
+.owner-edit-restaurant-hours .owner-edit-restaurant-day {
+  display: grid;
+  margin: 0;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.owner-edit-restaurant-day input {
+  min-width: 0;
+}

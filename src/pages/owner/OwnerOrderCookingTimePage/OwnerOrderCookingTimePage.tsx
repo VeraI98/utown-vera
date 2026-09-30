@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { updateOrderCookingTime } from '../../../services/ownerOrderService'
+import {
+  getOrderById,
+  updateOrderCookingTime,
+  updateOrderStatus,
+} from '../../../services/ownerOrderService'
 import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
@@ -39,7 +43,18 @@ function OwnerOrderCookingTimePage() {
     setErrorMessage('')
 
     try {
+      const order = await getOrderById(id)
+      if (order.status !== 'CONFIRMED' && order.status !== 'PREPARING') {
+        setErrorMessage(
+          'This order is not ready to start cooking. Refresh the order table.',
+        )
+        setIsSaving(false)
+        return
+      }
       await updateOrderCookingTime(id, minutes)
+      if (order.status === 'CONFIRMED') {
+        await updateOrderStatus(id, 'PREPARING')
+      }
 
       navigate(`/owner/orders/${orderId}`, { replace: true })
     } catch (error) {
@@ -62,6 +77,7 @@ function OwnerOrderCookingTimePage() {
             type="button"
             className="owner-order-cooking-time-page__step-button"
             aria-label="Decrease cooking time"
+            disabled={isSaving}
             onClick={handleDecrease}
           >
             -
@@ -75,6 +91,7 @@ function OwnerOrderCookingTimePage() {
             type="button"
             className="owner-order-cooking-time-page__step-button"
             aria-label="Increase cooking time"
+            disabled={isSaving}
             onClick={handleIncrease}
           >
             +

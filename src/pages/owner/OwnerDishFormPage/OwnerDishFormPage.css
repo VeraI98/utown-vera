@@ -36,6 +36,37 @@
   margin-bottom: 18px;
 }
 
+.owner-dish-form-page__field-title {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.owner-dish-form-page__option-group h3 {
+  margin: 8px 0;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.owner-dish-form-page__option-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.owner-dish-form-page__note {
+  margin: 6px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #777777;
+}
+
+.owner-dish-form-page__field input[readonly] {
+  background: #f7f7f7;
+  color: #777777;
+}
+
 .owner-dish-form-page__field > label {
   display: block;
   margin-bottom: 6px;
@@ -238,4 +269,82 @@
 .owner-dish-form-page__delete:disabled {
   opacity: 0.6;
   cursor: wait;
+}
+
+.owner-dish-form-page__content {
+  padding: 16px 14px 32px;
+}
+
+.owner-dish-form-page__field {
+  margin-bottom: 18px;
+}
+
+.owner-dish-form-page__field input[type='text'],
+.owner-dish-form-page__field input[type='number'],
+.owner-dish-form-page__field textarea,
+.owner-dish-form-page__upload,
+.owner-dish-form-page__category-row,
+.owner-dish-form-page__field > select {
+  border: 1px solid #a9b6cc;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.owner-dish-form-page__field input[type='text'],
+.owner-dish-form-page__field input[type='number'],
+.owner-dish-form-page__upload,
+.owner-dish-form-page__category-row,
+.owner-dish-form-page__field > select {
+  height: 36px;
+}
+
+.owner-dish-form-page__field textarea {
+  height: 112px;
+}
+
+.owner-dish-form-page__field input::placeholder,
+.owner-dish-form-page__field textarea::placeholder {
+  color: #8c9db8;
+}
+
+.owner-dish-form-page__field input[readonly],
+.owner-dish-form-page__field > select:disabled {
+  background: #ffffff;
+  color: #8c9db8;
+  opacity: 1;
+}
+
+.owner-dish-form-page__option-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding-left: 12px;
+  border: 1px solid #a9b6cc;
+  border-radius: 3px;
+}
+
+.owner-dish-form-page__option-name input[type='text'] {
+  min-width: 0;
+  height: 34px;
+  padding-left: 0;
+  border: 0;
+}
+
+.owner-dish-form-page__field > select {
+  width: 100%;
+  padding: 0 12px;
+  font-family: inherit;
+}
+
+.owner-dish-form-page__hold-row {
+  margin: 56px 0 40px;
+}
+
+.owner-dish-form-page__hold-text {
+  max-width: 220px;
+}
+
+.owner-dish-form-page__save {
+  border-radius: 6px;
 }

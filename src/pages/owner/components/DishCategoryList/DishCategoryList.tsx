@@ -1,4 +1,5 @@
-import { useRef } from 'react'
+import ApiImage from '../../../../components/ApiImage/ApiImage'
+import { useState } from 'react'
 
 import type {
   DishCategoryResponse,
@@ -36,22 +37,19 @@ function DishCategoryList({
   onEdit,
   emptyMessage,
 }: DishCategoryListProps) {
-  const sectionRefs = useRef<Record<number, HTMLElement | null>>({})
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null,
+  )
 
   const sortedCategories = [...categories].sort((a, b) => a.sort - b.sort)
 
-  const categoriesWithDishes = sortedCategories.filter((category) =>
-    dishes.some((dish) => dish.dishCategoryId === category.id),
-  )
+  const activeCategory =
+    sortedCategories.find((category) => category.id === selectedCategoryId) ??
+    sortedCategories.find((category) =>
+      dishes.some((dish) => dish.dishCategoryId === category.id),
+    )
 
-  const handleTabClick = (categoryId: number) => {
-    sectionRefs.current[categoryId]?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    })
-  }
-
-  if (categoriesWithDishes.length === 0) {
+  if (dishes.length === 0 || !activeCategory) {
     return <p className="dish-category-list__empty">{emptyMessage}</p>
   }
 
@@ -63,8 +61,9 @@ function DishCategoryList({
             <button
               key={category.id}
               type="button"
-              className="dish-category-list__tab"
-              onClick={() => handleTabClick(category.id)}
+              className={`dish-category-list__tab${category.id === activeCategory.id ? ' dish-category-list__tab--active' : ''}`}
+              aria-pressed={category.id === activeCategory.id}
+              onClick={() => setSelectedCategoryId(category.id)}
             >
               {category.name}
             </button>
@@ -72,15 +71,13 @@ function DishCategoryList({
         </div>
       )}
 
-      {categoriesWithDishes.map((category) => (
-        <section
-          className="dish-category-list__section"
-          key={category.id}
-          ref={(element) => {
-            sectionRefs.current[category.id] = element
-          }}
-        >
+      {[activeCategory].map((category) => (
+        <section className="dish-category-list__section" key={category.id}>
           <h2>{category.name}</h2>
+
+          {!dishes.some((dish) => dish.dishCategoryId === category.id) && (
+            <p className="dish-category-list__empty">{emptyMessage}</p>
+          )}
 
           <div className="dish-category-list__items">
             {dishes
@@ -118,7 +115,9 @@ function DishCategoryList({
                             : ' dish-category-list__thumb--held'
                         }`}
                       >
-                        {dish.imageUrl && <img src={dish.imageUrl} alt="" />}
+                        {dish.imageUrl && (
+                          <ApiImage src={dish.imageUrl} alt="" />
+                        )}
                       </div>
 
                       <button

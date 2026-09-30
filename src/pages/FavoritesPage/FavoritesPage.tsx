@@ -1,3 +1,5 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
+import HomeLogo from '../../components/HomeLogo/HomeLogo'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -182,7 +184,7 @@ function FavoritesPage() {
               <ArrowLeftIcon />
             </button>
 
-            <img className="favorites-logo-image" src={logo} alt="UT" />
+            <HomeLogo className="favorites-logo-image" src={logo} alt="UT" />
 
             <button
               className="favorites-notification-button"
@@ -252,7 +254,7 @@ function FavoritesPage() {
                         className="favorites-restaurant-main"
                         to={`/food/restaurants/${restaurantId}`}
                       >
-                        <img
+                        <ApiImage
                           className="favorites-restaurant-image"
                           src={getRestaurantImage(favorite)}
                           alt={restaurant.title}

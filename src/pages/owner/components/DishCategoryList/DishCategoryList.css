@@ -27,7 +27,7 @@
   scroll-margin-top: 12px;
 }
 
-.dish-category-list__tab:first-child {
+.dish-category-list__tab--active {
   border-color: #1a1a1a;
   background: #1a1a1a;
   color: #ffffff;

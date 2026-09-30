@@ -1,6 +1,6 @@
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useEffect, useState, type CSSProperties } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/waiting order/Back button.svg'
 import bellIcon from '../../assets/waiting order/bell.svg'
@@ -276,11 +276,15 @@ function OrderRatingPage() {
           <img src={backButtonIcon} alt="" aria-hidden="true" />
         </button>
 
-        <div className="order-rating-page__logo" aria-label="UT Food">
+        <Link
+          to="/"
+          className="order-rating-page__logo"
+          aria-label="Go to home"
+        >
           <img src={utLogo} alt="UT" />
 
           <img src={foodLogo} alt="Food" />
-        </div>
+        </Link>
 
         <button
           className="order-rating-page__header-button"

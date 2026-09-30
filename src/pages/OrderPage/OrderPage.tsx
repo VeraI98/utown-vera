@@ -1,7 +1,8 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import axios from 'axios'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/restaurant page/Back button.svg'
 import bellIcon from '../../assets/restaurant page/bell.svg'
@@ -403,11 +404,11 @@ function OrderPage() {
           <img src={backButtonIcon} alt="" aria-hidden="true" />
         </button>
 
-        <div className="order-page__logo" aria-label="UT Food">
+        <Link to="/" className="order-page__logo" aria-label="Go to home">
           <img src={utLogo} alt="UT" />
 
           <img src={foodLogo} alt="Food" />
-        </div>
+        </Link>
 
         <button
           className="order-page__header-button"
@@ -499,7 +500,7 @@ function OrderPage() {
 
                     <div className="order-page__image-wrapper">
                       {hasImage ? (
-                        <img
+                        <ApiImage
                           className="order-page__item-image"
                           src={item.dishImageUrl ?? undefined}
                           alt={item.dishTitle}

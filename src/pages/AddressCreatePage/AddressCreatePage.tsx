@@ -1,6 +1,6 @@
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { type ChangeEvent, type FormEvent, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/order/Back button.svg'
 import foodLogo from '../../assets/order/food.svg'
@@ -159,10 +159,14 @@ function AddressCreatePage() {
           <img src={backButtonIcon} alt="" aria-hidden="true" />
         </button>
 
-        <div className="address-create-page__logo" aria-label="UT Food">
+        <Link
+          to="/"
+          className="address-create-page__logo"
+          aria-label="Go to home"
+        >
           <img src={utLogo} alt="UT" />
           <img src={foodLogo} alt="Food" />
-        </div>
+        </Link>
 
         <div />
       </header>

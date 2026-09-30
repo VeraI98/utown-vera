@@ -1,3 +1,4 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { RestaurantProduct } from './restaurantData'
@@ -171,7 +172,7 @@ function ProductModal({ product, onClose, onAddToOrder }: ProductModalProps) {
       >
         <div className="product-modal__image-wrapper">
           {hasImage ? (
-            <img
+            <ApiImage
               className="product-modal__image"
               src={product.image ?? undefined}
               alt={product.name}

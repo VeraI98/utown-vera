@@ -27,80 +27,17 @@ const CATEGORY_OPTIONS = [
   'European',
 ]
 
-// Weekday hours (Mon-Fri) live on dayOfWeek 1-5, weekend hours (Sat-Sun) on
-// 6-7. The form only exposes these two combined rows, not per-day editing.
-const WEEKDAY_DAYS = [1, 2, 3, 4, 5]
-const WEEKEND_DAYS = [6, 7]
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-// The form only exposes one combined row per group (weekdays / weekend),
-// but individual days within a group can carry different hours (e.g. one
-// weekday marked as a day off while the rest are open). Rather than always
-// reading the first day in the group — which silently hid the real hours
-// whenever that first day happened to differ from the rest — this takes
-// the most common working pattern among the group's open days, so a single
-// outlier day doesn't blank out the row.
-function formatHoursRow(
-  restaurant: OwnerRestaurant | null,
-  days: number[],
-): string {
-  if (!restaurant) {
-    return ''
-  }
-
-  const modesInGroup = (restaurant.operatingModes ?? []).filter((item) =>
-    days.includes(item.dayOfWeek),
-  )
-
-  const openModes = modesInGroup.filter(
-    (mode) => !mode.dayOff && mode.start && mode.end,
-  )
-
-  if (openModes.length === 0) {
-    return ''
-  }
-
-  const countByHours = new Map<string, number>()
-
-  openModes.forEach((mode) => {
-    const key = `${mode.start} — ${mode.end}`
-
-    countByHours.set(key, (countByHours.get(key) ?? 0) + 1)
+function getDailyHours(restaurant: OwnerRestaurant): string[] {
+  return DAYS.map((_, index) => {
+    const mode = restaurant.operatingModes?.find(
+      (item) => item.dayOfWeek === index + 1,
+    )
+    return mode && !mode.dayOff && mode.start && mode.end
+      ? `${mode.start} — ${mode.end}`
+      : ''
   })
-
-  let mostCommonHours = ''
-  let highestCount = 0
-
-  countByHours.forEach((count, hours) => {
-    if (count > highestCount) {
-      mostCommonHours = hours
-      highestCount = count
-    }
-  })
-
-  return mostCommonHours
-}
-
-// True when the days in a group don't all share the same hours/day-off
-// state, so saving the single combined row would flatten real differences.
-function hasMixedHours(
-  restaurant: OwnerRestaurant | null,
-  days: number[],
-): boolean {
-  if (!restaurant) {
-    return false
-  }
-
-  const modesInGroup = (restaurant.operatingModes ?? []).filter((item) =>
-    days.includes(item.dayOfWeek),
-  )
-
-  const signatures = new Set(
-    modesInGroup.map((mode) =>
-      mode.dayOff ? 'off' : `${mode.start ?? ''}-${mode.end ?? ''}`,
-    ),
-  )
-
-  return signatures.size > 1
 }
 
 export default function OwnerEditRestaurantPage() {
@@ -124,11 +61,7 @@ export default function OwnerEditRestaurantPage() {
 
   const [existingImageUrl, setExistingImageUrl] = useState('')
 
-  const [weekdayHours, setWeekdayHours] = useState('')
-
-  const [weekendHours, setWeekendHours] = useState('')
-  const [weekdayHoursEdited, setWeekdayHoursEdited] = useState(false)
-  const [weekendHoursEdited, setWeekendHoursEdited] = useState(false)
+  const [dailyHours, setDailyHours] = useState<string[]>(DAYS.map(() => ''))
 
   const [minOrderAmount, setMinOrderAmount] = useState('')
 
@@ -179,9 +112,7 @@ export default function OwnerEditRestaurantPage() {
 
         setExistingImageUrl(firstRestaurant.imageUrl ?? '')
 
-        setWeekdayHours(formatHoursRow(firstRestaurant, WEEKDAY_DAYS))
-
-        setWeekendHours(formatHoursRow(firstRestaurant, WEEKEND_DAYS))
+        setDailyHours(getDailyHours(firstRestaurant))
 
         setMinOrderAmount(
           firstRestaurant.minOrderAmount != null
@@ -229,13 +160,7 @@ export default function OwnerEditRestaurantPage() {
     }
   }, [userId])
 
-  const weekdayHoursAreMixed = hasMixedHours(restaurant, WEEKDAY_DAYS)
-
-  const weekendHoursAreMixed = hasMixedHours(restaurant, WEEKEND_DAYS)
-
-  const isWeekdayHoursValid = isValidHoursRow(weekdayHours)
-
-  const isWeekendHoursValid = isValidHoursRow(weekendHours)
+  const areHoursValid = dailyHours.every(isValidHoursRow)
 
   const isSaveDisabled =
     isSaving ||
@@ -246,8 +171,7 @@ export default function OwnerEditRestaurantPage() {
     !city.trim() ||
     !area.trim() ||
     !minOrderAmount.trim() ||
-    !isWeekdayHoursValid ||
-    !isWeekendHoursValid
+    !areHoursValid
 
   const handleImageClick = () => {
     fileInputRef.current?.click()
@@ -277,7 +201,7 @@ export default function OwnerEditRestaurantPage() {
       return
     }
 
-    if (!isValidHoursRow(weekdayHours) || !isValidHoursRow(weekendHours)) {
+    if (!areHoursValid) {
       setErrorMessage(
         'Opening hours must be in the format "9:00 — 22:00", or left blank for a day off',
       )
@@ -302,40 +226,18 @@ export default function OwnerEditRestaurantPage() {
         imageUrl = await uploadFile(imageFile)
       }
 
-      const parsedWeekday = parseHoursRow(weekdayHours)
-      const parsedWeekend = parseHoursRow(weekendHours)
-
-      const otherModes = (restaurant.operatingModes ?? []).filter(
-        (mode) =>
-          !WEEKDAY_DAYS.includes(mode.dayOfWeek) &&
-          !WEEKEND_DAYS.includes(mode.dayOfWeek),
-      )
-
-      const weekdayModes = WEEKDAY_DAYS.map((dayOfWeek) => {
+      const operatingModes = dailyHours.map((hours, index) => {
+        const dayOfWeek = index + 1
         const existing = restaurant.operatingModes?.find(
           (mode) => mode.dayOfWeek === dayOfWeek,
         )
-
+        const parsed = parseHoursRow(hours)
         return {
           id: existing?.id ?? 0,
           dayOfWeek,
-          start: parsedWeekday?.start ?? null,
-          end: parsedWeekday?.end ?? null,
-          dayOff: !parsedWeekday,
-        }
-      })
-
-      const weekendModes = WEEKEND_DAYS.map((dayOfWeek) => {
-        const existing = restaurant.operatingModes?.find(
-          (mode) => mode.dayOfWeek === dayOfWeek,
-        )
-
-        return {
-          id: existing?.id ?? 0,
-          dayOfWeek,
-          start: parsedWeekend?.start ?? null,
-          end: parsedWeekend?.end ?? null,
-          dayOff: !parsedWeekend,
+          start: parsed?.start ?? null,
+          end: parsed?.end ?? null,
+          dayOff: !parsed,
         }
       })
 
@@ -352,19 +254,7 @@ export default function OwnerEditRestaurantPage() {
 
         category: category.trim(),
 
-        operatingModes: [
-          ...otherModes,
-          ...(weekdayHoursEdited
-            ? weekdayModes
-            : restaurant.operatingModes.filter((mode) =>
-                WEEKDAY_DAYS.includes(mode.dayOfWeek),
-              )),
-          ...(weekendHoursEdited
-            ? weekendModes
-            : restaurant.operatingModes.filter((mode) =>
-                WEEKEND_DAYS.includes(mode.dayOfWeek),
-              )),
-        ],
+        operatingModes,
 
         address: {
           ...restaurant.address,
@@ -381,10 +271,7 @@ export default function OwnerEditRestaurantPage() {
       )
 
       setRestaurant(response)
-      setWeekdayHours(formatHoursRow(response, WEEKDAY_DAYS))
-      setWeekendHours(formatHoursRow(response, WEEKEND_DAYS))
-      setWeekdayHoursEdited(false)
-      setWeekendHoursEdited(false)
+      setDailyHours(getDailyHours(response))
 
       setExistingImageUrl(response.imageUrl ?? '')
       setImageFile(null)
@@ -506,44 +393,35 @@ export default function OwnerEditRestaurantPage() {
           <span className="owner-edit-restaurant-label">Opening hours</span>
 
           <div className="owner-edit-restaurant-hours">
-            <input
-              type="text"
-              placeholder="Mon-Fri, 9:00 — 22:00"
-              value={weekdayHours}
-              onChange={(event) => {
-                setWeekdayHours(event.target.value)
-                setWeekdayHoursEdited(true)
-              }}
-              aria-invalid={!isWeekdayHoursValid}
-            />
-
-            <input
-              type="text"
-              placeholder="Sat-Sun, 10:00 — 00:00"
-              value={weekendHours}
-              onChange={(event) => {
-                setWeekendHours(event.target.value)
-                setWeekendHoursEdited(true)
-              }}
-              aria-invalid={!isWeekendHoursValid}
-            />
+            {DAYS.map((day, index) => (
+              <label className="owner-edit-restaurant-day" key={day}>
+                <span>{day}</span>
+                <input
+                  type="text"
+                  placeholder="Day off"
+                  value={dailyHours[index]}
+                  aria-label={`${day} opening hours`}
+                  aria-invalid={!isValidHoursRow(dailyHours[index])}
+                  onChange={(event) =>
+                    setDailyHours((current) =>
+                      current.map((hours, dayIndex) =>
+                        dayIndex === index ? event.target.value : hours,
+                      ),
+                    )
+                  }
+                />
+              </label>
+            ))}
           </div>
-
-          {(!isWeekdayHoursValid || !isWeekendHoursValid) && (
+          <p className="owner-edit-restaurant-hint">
+            9:00 — 22:00. Leave blank for a day off.
+          </p>
+          {!areHoursValid && (
             <p
               className="owner-edit-restaurant-hint owner-edit-restaurant-hint-error"
               role="alert"
             >
-              Use the format "9:00 — 22:00" (a hyphen also works), or leave the
-              field blank for a day off.
-            </p>
-          )}
-
-          {(weekdayHoursAreMixed || weekendHoursAreMixed) && (
-            <p className="owner-edit-restaurant-hint">
-              Some days currently have different hours than the rest of the
-              group. Editing a group will apply the same hours to its days.
-              Unchanged groups keep their individual schedules.
+              Enter valid hours, for example 9:00 — 22:00.
             </p>
           )}
         </div>

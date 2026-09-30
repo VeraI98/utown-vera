@@ -1,3 +1,4 @@
+import HomeLogo from '../../../components/HomeLogo/HomeLogo'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
@@ -79,8 +80,9 @@ export default function OwnerLayout() {
             </button>
           )}
 
-          <img
+          <HomeLogo
             className="owner-layout__logo"
+            to="/owner"
             src={headerLogo}
             alt="UT Business"
           />
@@ -101,8 +103,10 @@ export default function OwnerLayout() {
 
             <aside className="owner-layout-drawer__panel">
               <div className="owner-layout-drawer__header">
-                <img
+                <HomeLogo
                   className="owner-layout-drawer__logo"
+                  to="/owner"
+                  onClick={() => setIsMenuOpen(false)}
                   src={headerLogo}
                   alt="UT Business"
                 />

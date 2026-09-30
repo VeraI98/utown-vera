@@ -1,6 +1,7 @@
+import ApiImage from '../../components/ApiImage/ApiImage'
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import backButtonIcon from '../../assets/food-menu/Back button.svg'
 import bellIcon from '../../assets/food-menu/bell.svg'
@@ -59,7 +60,7 @@ function DishImage({ src, alt }: DishImageProps) {
   }
 
   return (
-    <img
+    <ApiImage
       className="food-category-dish-image"
       src={src ?? undefined}
       alt={alt}
@@ -185,10 +186,10 @@ function FoodCategoryPage() {
             <img src={backButtonIcon} alt="" aria-hidden="true" />
           </button>
 
-          <div className="food-category-logo" aria-label="UT Food">
+          <Link to="/" className="food-category-logo" aria-label="Go to home">
             <img src={utLogo} alt="UT" />
             <img src={foodLogo} alt="Food" />
-          </div>
+          </Link>
 
           <button
             className="food-category-header-button"

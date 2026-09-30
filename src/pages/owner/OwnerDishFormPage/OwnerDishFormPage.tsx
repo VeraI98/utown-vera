@@ -1,3 +1,4 @@
+import ApiImage from '../../../components/ApiImage/ApiImage'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -15,7 +16,10 @@ import {
   updateOwnerDish,
 } from '../../../services/ownerDishService'
 import { getOwnerRestaurants } from '../../../services/ownerRestaurantService'
-import type { DishCategoryResponse } from '../../../types/restaurant'
+import type {
+  DishCategoryResponse,
+  DishOption,
+} from '../../../types/restaurant'
 import { getErrorMessage } from '../../../utils/getErrorMessage'
 import { logError } from '../../../utils/logger'
 
@@ -31,6 +35,8 @@ function OwnerDishFormPage() {
   const isEditMode = Boolean(dishId)
 
   const [restaurantId, setRestaurantId] = useState<number | null>(null)
+  const [restaurantName, setRestaurantName] = useState('')
+  const [options, setOptions] = useState<DishOption[]>([])
   const [categories, setCategories] = useState<DishCategoryResponse[]>([])
 
   const [title, setTitle] = useState('')
@@ -57,7 +63,10 @@ function OwnerDishFormPage() {
     const load = async () => {
       try {
         const restaurants = await getOwnerRestaurants(userId)
-        const restaurant = restaurants[0]
+        const dish = dishId ? await getDishById(Number(dishId)) : null
+        const restaurant = dish
+          ? restaurants.find((item) => item.id === dish.restaurantId)
+          : restaurants[0]
 
         if (!restaurant) {
           if (isMounted) {
@@ -68,6 +77,7 @@ function OwnerDishFormPage() {
 
         if (isMounted) {
           setRestaurantId(restaurant.id)
+          setRestaurantName(restaurant.title)
         }
 
         const categoriesData = await getCategoriesByRestaurant(restaurant.id)
@@ -82,14 +92,13 @@ function OwnerDishFormPage() {
           ),
         )
 
-        if (dishId) {
-          const dish = await getDishById(Number(dishId))
-
+        if (dish) {
           if (!isMounted) {
             return
           }
 
           setTitle(dish.title)
+          setOptions(dish.options ?? [])
           setDescription(dish.description ?? '')
           setExistingImageUrl(dish.imageUrl)
           setPrice(String(dish.price))
@@ -260,7 +269,7 @@ function OwnerDishFormPage() {
             onClick={handleImageClick}
           >
             {previewSrc ? (
-              <img src={previewSrc} alt="" />
+              <ApiImage src={previewSrc} alt="" />
             ) : (
               <span>Upload image</span>
             )}
@@ -296,6 +305,63 @@ function OwnerDishFormPage() {
           />
         </div>
 
+        <section
+          className="owner-dish-form-page__field"
+          aria-labelledby="dish-options-label"
+        >
+          <h2
+            id="dish-options-label"
+            className="owner-dish-form-page__field-title"
+          >
+            Options
+          </h2>
+          {Array.from(
+            {
+              length: Math.max(
+                4,
+                options.flatMap((option) => option.elements).length,
+              ),
+            },
+            (_, index) => {
+              const element = options.flatMap((option) => option.elements)[
+                index
+              ]
+              return (
+                <div
+                  className="owner-dish-form-page__option-row"
+                  key={element?.id ?? index}
+                >
+                  <div className="owner-dish-form-page__option-name">
+                    <span
+                      className="owner-dish-form-page__option-dot"
+                      aria-hidden="true"
+                    />
+                    <input
+                      type="text"
+                      value={element?.name ?? ''}
+                      placeholder="Add option"
+                      readOnly
+                      aria-label={`Option ${index + 1} name`}
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    value={
+                      element ? `+${element.price.toLocaleString('en-US')}` : ''
+                    }
+                    placeholder="Price"
+                    readOnly
+                    aria-label={`Option ${index + 1} price`}
+                  />
+                </div>
+              )
+            },
+          )}
+          <p className="owner-dish-form-page__note">
+            Contact an administrator to add or edit options.
+          </p>
+        </section>
+
         <div className="owner-dish-form-page__field">
           <label>Category</label>
 
@@ -320,6 +386,26 @@ function OwnerDishFormPage() {
           {!categoryId && (
             <p className="owner-dish-form-page__hint">Select category</p>
           )}
+        </div>
+
+        <div className="owner-dish-form-page__field">
+          <label htmlFor="dish-establishment">Establishment</label>
+          <select
+            id="dish-establishment"
+            value={restaurantId ?? ''}
+            disabled
+            aria-describedby="dish-establishment-note"
+          >
+            <option value={restaurantId ?? ''}>{restaurantName}</option>
+          </select>
+          <p
+            id="dish-establishment-note"
+            className="owner-dish-form-page__note"
+          >
+            {isEditMode
+              ? 'This dish belongs to this establishment and cannot be moved.'
+              : 'The dish will be added to this establishment.'}
+          </p>
         </div>
 
         <div className="owner-dish-form-page__field">
